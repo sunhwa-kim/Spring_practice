@@ -1,0 +1,96 @@
+package org.zerock.controller;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.zerock.domain.SampleDTO;
+import org.zerock.domain.SampleDTOList;
+import org.zerock.domain.TodoDTO;
+
+import lombok.extern.log4j.Log4j;
+
+@Controller
+@RequestMapping("/sample/*")	// @RequestMapping : 클래스 선언 or method 선언에 사용
+@Log4j
+public class SampleController {
+
+	/*
+	 * @RequestMapping("") public void basic() {
+	 * log.info("basic....in SampleController class............"); }
+	 * 
+	 * 
+	 * @RequestMapping(value="/basic", method = {RequestMethod.GET,
+	 * RequestMethod.POST}) public void basicGet() {
+	 * log.info("basic_ GET,POST 모두는 배열로 처리"); }
+	 * 
+	 * @GetMapping("/basicOnlyGet") public void basicGet2() {
+	 * log.info("basic get only get...간편하나 기능에 대해 제한적인"); }
+	 */
+	
+	@GetMapping("/ex01")  // Get이니까 URL뒤 parameter 확인
+	public String ex01(SampleDTO dto) {
+		log.info("SampleDTO @Data에 의한  setter 확인 \t:\t"+dto);
+		
+		return "ex01";
+	}
+	
+	@GetMapping("/ex02")	// 아래의 경우는 변수명과 parameter명과 다른 경우에 유용
+	public String ex02(@RequestParam("name11") String name22, @RequestParam("age") int age) {
+		log.info("name : "+name22);	
+		log.info("age : "+age);
+		
+		
+		// return 아래 문자열은 어디로 가는지 모르겠음...
+		return "ex";
+	}
+		
+	@GetMapping("/ex02List")			// 동일한 이름의 parameter 여러개 전달시  ArrayList 처리
+	public String exx02List(@RequestParam("ids") ArrayList<String> ids) {
+										// URL에 ids로 여러개 적으니 자동으로 각각 배열에 담긴!
+//		http://localhost:8080/sample/ex02List?ids=11&idx=222&ids=3333&ids=4444444
+		log.info("idx : "+ids);
+		
+		return "형식상..";
+	}
+	
+	
+	
+	@GetMapping("/ex02Bean")		//  SampleDTO와 같은 객체 타입을 여러개 처래 한다면, list에 객체 담는 SampleDTOList클래스 생성해서~
+	public String ex02Bean(SampleDTOList list) {
+//		http://localhost:8080/sample/ex02Bean?list[0].name=aaa&list[2].name=bbb
+//		tomcat 버전에 따라 특수문자 [] 허용 안할 경우 =>  [=%5B , ]=%5D
+//		http://localhost:8080/sample/ex02Bean?list%5B0%5D.name=aaa&list%5B2%5D.name=bbb
+		log.info("list dtos : "+list);
+		
+		return "ex02Bean";
+	}
+	
+	
+	
+//	TodoDTO.java
+	//	binding = 파라미터 수집 (경우에 따라 파라미터 변환 처리 해야 하는 경우에 존재 )	=> 파라미터 바인딩 할 때 자동으로 @InitBinder 호출
+	/*
+	 * @InitBinder // 이거 없다면 ex03 은 400 error(요청 구문 syntax)이 잘 못 됐다 ) public void
+	 * initBinder(WebDataBinder binder) { SimpleDateFormat dateFormat = new
+	 * SimpleDateFormat("yyyy-MM-dd");
+	 * binder.registerCustomEditor(java.util.Date.class, new
+	 * CustomDateEditor(dateFormat, false)); }
+	 */
+
+//	1.  @InitBinder
+//	http://localhost:8080/sample/ex03?title=test&dueDate=2018-01-01
+//	2.  no @InitBinder -> @DateTimeFormat() in TodoDTO.java
+//	http://localhost:8080/sample/ex03?title=test&dueDate=2018/05/14
+	@GetMapping("/ex03")
+	public String ex03(TodoDTO todo) {
+		log.info("todo : "+todo);
+		return "ex03";
+	}
+}

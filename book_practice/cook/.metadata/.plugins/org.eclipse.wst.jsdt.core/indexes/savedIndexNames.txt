@@ -1,0 +1,8 @@
+INDEX VERSION 1.4+D:\workspace\cook\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+567872617.index
+3178133098.index
+1049301925.index
+2624018162.index
+1409986028.index
+2487545169.index
+2311883188.index
