@@ -1,0 +1,6 @@
+//com.springsource.config.ui.prefs.activePageIndex\:/ras_cris/src/main/webapp/WEB-INF/config/spring/appServlet/servlet-context.xml=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<activePage index\="0"/>
+//com.springsource.config.ui.prefs.activePageIndex\:/ras_cris/src/main/webapp/WEB-INF/config/spring/context/dataAccess-context.xml=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<activePage index\="0"/>
+//com.springsource.config.ui.prefs.activePageIndex\:/ras_cris/src/main/webapp/WEB-INF/config/spring/context/security-context.xml=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<activePage index\="0"/>
+//com.springsource.config.ui.prefs.activePageIndex\:/ras_cris/src/main/webapp/WEB-INF/config/spring/context/ws-config.xml=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<activePage index\="0"/>
+//com.springsource.config.ui.prefs.activePageIndex\:/ras_cris/src/main/webapp/WEB-INF/config/spring/root-context.xml=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<activePage index\="0"/>
+eclipse.preferences.version=1

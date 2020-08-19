@@ -1,0 +1,298 @@
+/******************************************************************
+ * Copyright RASTECH 2020
+ ******************************************************************/
+package kr.go.cris.ptl.mng.form.controller;
+   
+import java.io.IOException;
+import java.io.Writer;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import kr.go.cris.base.controller.BaseController;
+import kr.go.cris.commons.utils.ReqUtils;
+import kr.go.cris.commons.utils.XmlUtil;
+import kr.go.cris.ptl.mng.code.vo.MngCodeVo;
+import kr.go.cris.ptl.mng.form.service.FormService;
+import kr.go.cris.ptl.mng.form.vo.FormVo;
+import kr.go.cris.ptl.mng.form.vo.WFormVo;
+import kr.go.cris.ptl.mng.sch.vo.EtlMngVo;
+import kr.go.cris.ptl.stats.vo.PTLStatAccessVo;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+
+
+/**
+ * <pre>
+ * FileName: sysController.java
+ * Package : kr.go.cris.ptl.mng.sys.controller
+ * 
+ * 시스템관리 컨트롤러
+ *
+ * </pre>
+ * @author : sejin
+ * @date   : 2016. 3. 22.
+ */
+@Controller
+public class FormController extends BaseController {
+
+	@Resource
+	FormService formService;
+
+	/**
+	 * 
+	 * @param request
+	 * @param response
+	 * @param ptlStatAccessVo
+	 * @throws IOException
+	 * @throws SQLException
+	 * @throws NullPointerException
+	 */
+	@RequestMapping("/mng/form/listForm.do")
+	public String agree(HttpServletRequest request, HttpServletResponse response, Model model)  throws IOException, SQLException , NullPointerException {
+		
+		model.addAttribute("form_cd",getCodeList("FORM_CD"));
+		model.addAttribute("data_type",getCodeList("DATA_TYPE"));
+		model.addAttribute("form_type",getCodeList("FORM_TYPE"));
+		model.addAttribute("use_yn",getCodeList("USE_YN"));
+		
+		return "mng/form/listForm.tiles";
+	}
+	
+	/**
+	 * 
+	 * @param request
+	 * @param response
+	 * @param ptlStatAccessVo
+	 * @throws IOException
+	 * @throws SQLException
+	 * @throws NullPointerException
+	 */
+	@RequestMapping("/mng/form/selectFormList.do")
+	public void selectFormList(HttpServletRequest request, HttpServletResponse response, Writer out)  throws IOException, SQLException , NullPointerException {
+		
+		Map<String, Object> params = ReqUtils.getParameterMap(request);
+		List<Map<String, Object>> list = formService.selectFormList(params);
+		String xml = "";
+    	if(list != null){
+    		xml = XmlUtil.listMapToXml(list);
+    	}
+ 	    
+ 	    response.setContentType("text/xml");
+ 	    response.setCharacterEncoding("UTF-8");
+ 	    response.setHeader("Cache-Control", "no-cache");
+ 	    response.setHeader("Pragma", "no-cache");
+ 	    response.setDateHeader("Expires", -1);
+
+ 	    out.write(xml);
+ 	    
+ 	    out.flush();
+	}
+	
+	   
+/**
+ * <pre>
+ *    etl 설정정보 저장
+ * </pre>
+ * @author :
+ * @date   : 2015. . .
+ * @param
+ * @param
+ * @return
+* @throws java.text.ParseException 
+ * @throws ParseException 
+ * @throws NumberFormatException 
+ * */
+@RequestMapping(value="/mng/form/saveFormList.do")
+public String saveEtlList(Model model, HttpServletRequest request)  throws IOException , SQLException , NullPointerException, NumberFormatException, java.text.ParseException {
+		
+		// 01. Request >> Map 객체로 전환
+		Enumeration em = request.getParameterNames();
+
+    String parameterName = (String)em.nextElement();
+
+    JSONParser jsonParser = new JSONParser();
+    // JSON데이터를 넣어 JSON Object 로 만들어 준다.
+    JSONObject jsonObject = null;
+		try {
+			jsonObject = (JSONObject) jsonParser.parse(parameterName);
+		} catch (ParseException e) {
+			logger.debug("ERROR insertCdList ParseException");
+		}
+    // books의 배열을 추출
+    JSONArray cdInfoArray = (JSONArray) jsonObject.get("list");
+
+    FormVo formVo = null;
+      
+    List<FormVo> list = new ArrayList<FormVo>();
+    for (int i = 0; i < cdInfoArray.size(); i++) {
+
+       // 배열 안에 있는것도 JSON형식 이기 때문에 JSON Object 로 추출
+       JSONObject cdObject = (JSONObject) cdInfoArray.get(i);
+       // JSON name으로 추출
+       formVo = new FormVo();
+       formVo.setElmnt_id(String.valueOf(cdObject.get("elmnt_id")));
+       formVo.setElmnt_nm(String.valueOf(cdObject.get("elmnt_nm")));
+       formVo.setData_type(String.valueOf(cdObject.get("data_type")));
+       formVo.setCd(String.valueOf(cdObject.get("cd")));
+       formVo.setLbl_kor(String.valueOf(cdObject.get("lbl_kor")));
+       formVo.setLbl_eng(String.valueOf(cdObject.get("lbl_eng")));
+       formVo.setSave_type(String.valueOf(cdObject.get("save_type")));
+       list.add(formVo);
+    }// end for
+    
+    formService.saveFormList(list);
+    
+		return "redirect:/mng/sch/listSch.do";
+	}
+	
+/**
+ * 
+ * @param request
+ * @param response
+ * @param ptlStatAccessVo
+ * @throws IOException
+ * @throws SQLException
+ * @throws NullPointerException
+ */
+@RequestMapping("/mng/form/selectWrkFormList.do")
+public void selectWrkFormList(HttpServletRequest request, HttpServletResponse response, Writer out)  throws IOException, SQLException , NullPointerException {
+	
+	Map<String, Object> params = ReqUtils.getParameterMap(request);
+	List<Map<String, Object>> list = formService.selectWrkFormList(params);
+	String xml = "";
+	if(list != null){
+		xml = XmlUtil.listMapToXml(list);
+	}
+	    
+	    response.setContentType("text/xml");
+	    response.setCharacterEncoding("UTF-8");
+	    response.setHeader("Cache-Control", "no-cache");
+	    response.setHeader("Pragma", "no-cache");
+	    response.setDateHeader("Expires", -1);
+
+	    out.write(xml);
+	    
+	    out.flush();
+}
+
+	/**
+	 * 
+	 * @param request
+	 * @param response
+	 * @param ptlStatAccessVo
+	 * @throws IOException
+	 * @throws SQLException
+	 * @throws NullPointerException
+	 */
+	@RequestMapping("/mng/form/writeBoard.do")
+	public String writeBoard(HttpServletRequest request, HttpServletResponse response, Model model)  throws IOException, SQLException , NullPointerException {
+		
+		Map<String,Object> params = new HashMap<String, Object>();
+		List<Map<String, Object>> list = formService.selectFormList(params);
+		Map<String, Object> map = null;
+		for (int i = 0; i < list.size(); i++) {
+			if("S".equals(list.get(i).get("DATA_TYPE"))){
+				List<MngCodeVo> code =  getCodeList(list.get(i).get("CD").toString());
+				String html = "<select name=\""+list.get(i).get("ELMNT_ID")+"\">";
+				for (MngCodeVo mngCodeVo : code) {
+					html += "<option value=\""+ mngCodeVo.getCd() +"\" >" + mngCodeVo.getCd_nm()+ "</option>";
+				}
+				html += "</select>";
+				list.get(i).put("CD",html);
+			}
+		}
+		model.addAttribute("list", list);
+		return "mng/form/writeBoard.tiles";
+	}
+
+		/**
+		 * <pre>
+		 *    etl 설정정보 저장
+		 * </pre>
+		 * @author :
+		 * @date   : 2015. . .
+		 * @param
+		 * @param
+		 * @return
+		* @throws java.text.ParseException 
+		 * @throws ParseException 
+		 * @throws NumberFormatException 
+		 * */
+		@RequestMapping(value="/mng/form/saveWrkFormList.do")
+		public void saveWrkFormList(Model model, HttpServletRequest request)  throws IOException , SQLException , NullPointerException, NumberFormatException, java.text.ParseException {
+				
+				// 01. Request >> Map 객체로 전환
+				Enumeration em = request.getParameterNames();
+
+		    String parameterName = (String)em.nextElement();
+
+		    JSONParser jsonParser = new JSONParser();
+		    // JSON데이터를 넣어 JSON Object 로 만들어 준다.
+		    JSONObject jsonObject = null;
+				try {
+					jsonObject = (JSONObject) jsonParser.parse(parameterName);
+				} catch (ParseException e) {
+					logger.debug("ERROR insertCdList ParseException");
+				}
+		    // books의 배열을 추출
+		    JSONArray cdInfoArray = (JSONArray) jsonObject.get("list");
+
+		    WFormVo WFormVo = null;
+		      
+		    List<WFormVo> list = new ArrayList<WFormVo>();
+		    for (int i = 0; i < cdInfoArray.size(); i++) {
+
+		       // 배열 안에 있는것도 JSON형식 이기 때문에 JSON Object 로 추출
+		       JSONObject cdObject = (JSONObject) cdInfoArray.get(i);
+		       // JSON name으로 추출
+		       WFormVo = new WFormVo();
+		       WFormVo.setFrm_id(String.valueOf(cdObject.get("frm_id")));
+		       WFormVo.setFrm_gbn(String.valueOf(cdObject.get("frm_gbn")));
+		       WFormVo.setFrm_etc(String.valueOf(cdObject.get("frm_etc")));
+		       WFormVo.setUse_yn(String.valueOf(cdObject.get("use_yn")));
+		       WFormVo.setSave_type(String.valueOf(cdObject.get("save_type")));
+
+		       list.add(WFormVo);
+		    }// end for
+		    
+		    formService.saveWrkFormList(list);
+		    
+		}
+		
+		
+		@RequestMapping("/mng/form/selectWrkFormDtlList.do")
+		public void selectWrkFormDtlList(HttpServletRequest request, HttpServletResponse response, Writer out)  throws IOException, SQLException , NullPointerException {
+			
+			Map<String, Object> params = ReqUtils.getParameterMap(request);
+			List<Map<String, Object>> list = formService.selectWrkFormDtlList(params);
+			String xml = "";
+			if(list != null){
+				xml = XmlUtil.listMapToXml(list);
+			}
+			    
+			    response.setContentType("text/xml");
+			    response.setCharacterEncoding("UTF-8");
+			    response.setHeader("Cache-Control", "no-cache");
+			    response.setHeader("Pragma", "no-cache");
+			    response.setDateHeader("Expires", -1);
+
+			    out.write(xml);
+			    
+			    out.flush();
+		}	
+}

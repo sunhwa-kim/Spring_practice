@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.cris.ptl.mng.pop.dao.PopMngDao">
+
+<select id="selectPopList" resultType="popMngVo" parameterType="popMngVo">
+  
+   SELECT page.* FROM ( SELECT rownum AS data_seq, list.*
+     FROM ( 
+	SELECT a.POP_SN       AS pop_sn
+         , a.POP_TITL    AS pop_titl
+         , a.POP_CTTS     AS pop_ctts
+         , a.POP_LINK     AS pop_link
+         , a.POP_STR_DT   AS pop_str_dt
+         , a.POP_END_DT   AS pop_end_dt
+         , a.POP_LEFT 	  AS pop_left
+		 , a.POP_TOP 	  AS pop_top
+		 , a.POP_WIDTH 	  AS pop_width
+		 , a.POP_HEIGHT   AS pop_height
+		 , a.POP_PAGE 	  AS pop_page
+		 , a.POP_POS	  AS pop_pos
+         , a.POST_YN      AS post_yn
+         , a.DEL_YN       AS del_yn
+         , b.FILE_PATH    AS pop_file_path
+         , b.FILE_SN      AS pop_file_sn
+         , b.FILE_CONV_NM AS pop_file_conv_nm 
+         , b.FILE_NM      AS pop_file_nm
+         , b.FILE_SIZE    AS pop_file_size
+         , a.MODIFIY_DTTM AS modifiy_dttm  
+         , a.MODIFIY_ID   AS modifiy_id
+         , a.CREATE_DTTM  AS create_dttm
+         , a.CREATE_ID    AS create_id         
+     FROM  CMMN_POPUP_MNG a , CMMN_POPUP_MNG_FILE b
+    WHERE a.POP_SN = b.POP_SN(+)
+      AND a.DEL_YN = 'N'
+      AND b.DEL_YN(+) = 'N'
+    <if test="pop_sn !=  null and pop_sn != '' " >
+      AND a.POP_SN  =  #{pop_sn}
+    </if>
+    <if test="param_search != null and param_search !='' ">
+        <if test="param_combo == 'all'">
+           AND (a.POP_TITL LIKE '%'||#{param_search}||'%' OR  a.POP_CTTS LIKE '%'||#{param_search}||'%') 
+        </if>
+        <if test="param_combo == 'titl'">
+           AND a.POP_TITL LIKE '%'||#{param_search}||'%'
+        </if>
+        <if test="param_combo == 'ctts'">
+           AND a.POP_CTTS LIKE '%'||#{param_search}||'%'
+        </if>
+    </if>
+    <![CDATA[ 
+     ORDER BY a.POP_SN DESC      ) list) page
+     WHERE page.data_seq >= ((#{page} - 1) * 5 + 1)
+       AND page.data_seq <= (#{page} * 5)
+       ]]>
+</select>
+
+
+<select id="selectMainPopList" resultType="popMngVo" >
+		SELECT a.POP_SN       AS pop_sn
+		         , a.POP_TITL    AS pop_titl
+		         , a.POP_CTTS     AS pop_ctts
+		         , a.POP_LINK     AS pop_link
+		         , a.POP_LEFT 	  AS pop_left
+				 , a.POP_TOP 	  AS pop_top
+				 , a.POP_WIDTH 	  AS pop_width
+				 , a.POP_HEIGHT   AS pop_height
+				 , a.POP_PAGE 	  AS pop_page
+				 , a.POP_POS	  AS pop_pos
+		         , a.POP_STR_DT   AS pop_str_dt
+		         , a.POP_END_DT   AS pop_end_dt
+		         , a.POST_YN      AS post_yn
+		         , a.DEL_YN       AS del_yn
+		         , b.FILE_PATH    AS pop_file_path
+		         , b.FILE_SN      AS pop_file_sn
+		         , b.FILE_CONV_NM AS pop_file_conv_nm 
+		         , b.FILE_NM      AS pop_file_nm
+		         , b.FILE_SIZE    AS pop_file_size
+		         , a.MODIFIY_DTTM AS modifiy_dttm  
+		         , a.MODIFIY_ID   AS modifiy_id
+		         , a.CREATE_DTTM  AS create_dttm
+		         , a.CREATE_ID    AS create_id
+		     FROM  CMMN_POPUP_MNG a , CMMN_POPUP_MNG_FILE b
+		    WHERE a.POP_SN = b.POP_SN
+		      AND a.DEL_YN = 'N'
+		      AND b.DEL_YN = 'N'
+		      AND a.POST_YN = 'Y'
+		       <![CDATA[ 
+		      AND a.POP_STR_DT <= TO_CHAR(SYSDATE , 'YYYYMMDD')
+		      AND a.POP_END_DT >= TO_CHAR(SYSDATE , 'YYYYMMDD')
+		       ]]>
+		      ORDER BY POP_SN DESC
+</select>
+
+
+<select id="selectPopTotalCount" resultType="int" parameterType="popMngVo">
+  
+        SELECT COUNT(a.POP_SN) AS total_count 
+          FROM  CMMN_POPUP_MNG a
+         WHERE a.DEL_YN = 'N'
+      <if test="param_search != null and param_search !='' ">
+        <if test="param_combo == 'all'">
+           AND (a.POP_TITL LIKE '%'||#{param_search}||'%' OR  a.POP_CTTS LIKE '%'||#{param_search}||'%') 
+        </if>
+        <if test="param_combo == 'titl'">
+           AND a.POP_TITL LIKE '%'||#{param_search}||'%'
+        </if>
+        <if test="param_combo == 'ctts'">
+           AND a.POP_CTTS LIKE '%'||#{param_search}||'%'
+        </if>
+    </if>
+    
+    
+</select>
+
+<select id="selectPopSn" resultType="int">
+  
+        SELECT NVL(MAX(POP_SN)+1 ,1) AS pop_sn 
+        FROM  CMMN_POPUP_MNG
+    
+    
+</select>
+
+<select id="selectPopFileSn" resultType="int" parameterType = "int">
+  
+       SELECT NVL(MAX(FILE_SN)+1 , 1) AS FILE_SN
+		FROM CMMN_POPUP_MNG_FILE	
+		WHERE 1=1
+      <if test="value != null and value !='' ">
+      	   AND POP_SN  =  #{value}
+    </if>
+</select>
+
+<select id="retrieveFile" resultType="popMngVo" parameterType="java.util.HashMap">
+  
+      SELECT  FILE_PATH AS pop_file_path
+      	   ,  FILE_CONV_NM AS pop_file_conv_nm
+      	   ,  FILE_NM  AS pop_file_nm
+        FROM  CMMN_POPUP_MNG_FILE
+       WHERE  POP_SN = #{pop_sn}
+         AND  FILE_SN = #{file_sn}
+         AND  DEL_YN = 'N'
+    
+    
+</select>
+
+  <!-- 게시판 관리 -공지 게시판 정보 수정 저장 -->
+  <update id="updatePop" parameterType="popMngVo">
+    UPDATE CMMN_POPUP_MNG
+       SET
+           POP_TITL = #{pop_titl, jdbcType=VARCHAR} 
+         , POP_CTTS = #{pop_ctts, jdbcType=VARCHAR} 
+         , POP_LINK = #{pop_link, jdbcType=VARCHAR} 
+         , POP_LEFT = #{pop_left, jdbcType=VARCHAR}
+		 , POP_TOP 	  = #{pop_top, jdbcType=VARCHAR}
+		 , POP_WIDTH  = #{pop_width, jdbcType=VARCHAR}
+		 , POP_HEIGHT = #{pop_height, jdbcType=VARCHAR}
+		 , POP_PAGE   = #{pop_page, jdbcType=VARCHAR}
+		 , POP_POS    = #{pop_pos, jdbcType=VARCHAR}
+         , POP_STR_DT = REPLACE(#{pop_str_dt, jdbcType=VARCHAR} , '-' , '') 
+         , POP_END_DT = REPLACE(#{pop_end_dt, jdbcType=VARCHAR} , '-' , '') 
+         , POST_YN = #{post_yn, jdbcType=VARCHAR} 
+         , MODIFIY_DTTM = SYSDATE
+         , MODIFIY_ID = #{modifiy_id, jdbcType=VARCHAR} 
+    WHERE POP_SN = #{pop_sn} 
+  </update>
+  
+  <!-- 팝업 저장 -->
+  <insert id="insertPop" parameterType="popMngVo">
+    INSERT INTO CMMN_POPUP_MNG (     
+		   POP_SN
+		 , POP_TITL
+		 , POP_CTTS
+		 , POP_LINK
+		 , POP_STR_DT
+		 , POP_END_DT
+		 , POP_LEFT
+		 , POP_TOP
+		 , POP_WIDTH
+	     , POP_HEIGHT
+		 , POP_PAGE
+		 , POP_POS
+		 , POST_YN
+		 , DEL_YN
+		 , MODIFIY_DTTM
+		 , MODIFIY_ID
+		 , CREATE_DTTM
+		 , CREATE_ID
+  ) VALUES (
+           #{pop_sn, jdbcType=VARCHAR} 
+		 , #{pop_titl, jdbcType=VARCHAR} 
+		 , #{pop_ctts, jdbcType=VARCHAR} 
+		 , #{pop_link, jdbcType=VARCHAR} 
+		 , REPLACE(#{pop_str_dt, jdbcType=VARCHAR} , '-' , '') 
+		 , REPLACE(#{pop_end_dt, jdbcType=VARCHAR} , '-' , '') 
+		 , #{pop_left, jdbcType=VARCHAR} 
+		 , #{pop_top, jdbcType=VARCHAR} 
+		 , #{pop_width, jdbcType=VARCHAR} 
+		 , #{pop_height, jdbcType=VARCHAR} 
+		 , #{pop_page, jdbcType=VARCHAR} 
+		 , #{pop_pos, jdbcType=VARCHAR} 
+		 , #{post_yn, jdbcType=VARCHAR} 
+		 , 'N'
+		 , ''
+		 , ''
+		 , SYSDATE
+		 , #{create_id, jdbcType=VARCHAR}
+    )
+  </insert>
+  
+ 
+  <insert id="insertPopFile" parameterType="popMngVo">
+    INSERT INTO CMMN_POPUP_MNG_FILE (     
+		   POP_SN
+		 , FILE_SN
+		 , FILE_CONV_NM
+		 , FILE_PATH
+		 , FILE_NM
+		 , FILE_SIZE
+		 , DEL_YN
+		 , MODIFIY_DTTM
+		 , MODIFIY_ID
+	     , CREATE_DTTM
+		 , CREATE_ID
+  ) VALUES (
+           #{pop_sn, jdbcType=VARCHAR} 
+		 , #{pop_file_sn, jdbcType=VARCHAR} 
+		 , #{pop_file_conv_nm, jdbcType=VARCHAR} 
+		 , #{pop_file_path, jdbcType=VARCHAR} 
+		 , #{pop_file_nm, jdbcType=VARCHAR} 
+		 , #{pop_file_size, jdbcType=VARCHAR} 
+		 , 'N' 
+		 , ''
+		 , ''
+		 , SYSDATE
+		 , #{create_id, jdbcType=VARCHAR}
+    )
+  </insert>
+  
+     
+  <update id="deletePopFile" parameterType="popMngVo">
+    UPDATE CMMN_POPUP_MNG_FILE
+       SET
+           DEL_YN = 'Y' 
+         , MODIFIY_DTTM = SYSDATE
+         , MODIFIY_ID = #{modifiy_id , jdbcType=VARCHAR}  
+     WHERE POP_SN = #{pop_sn} 
+       AND FILE_SN = #{pop_file_sn}
+  </update>
+  
+  <update id="deletePop" parameterType="popMngVo">
+    UPDATE CMMN_POPUP_MNG
+       SET
+           DEL_YN = 'Y' 
+         , MODIFIY_DTTM = SYSDATE
+         , MODIFIY_ID = #{modifiy_id , jdbcType=VARCHAR}  
+     WHERE POP_SN = #{pop_sn} 
+  </update>
+</mapper>

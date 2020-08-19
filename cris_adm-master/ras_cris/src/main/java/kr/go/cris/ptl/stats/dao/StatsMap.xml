@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.cris.ptl.stats.dao.StatsDao">
+  
+	<insert id="insertStatsMenu" parameterType="statsMenuVo">
+		<![CDATA[	
+			INSERT INTO 
+				CMMN_STATS_MENU
+			VALUES 
+				( NO_SEQ.NEXTVAL, #{user_ip}, UPPER(#{menu_type}), #{menu_uri}, SYSDATE )
+		]]>
+	</insert>
+
+	<insert id="insertStatsAccess" parameterType="pTLStatAccessVo">	
+		<![CDATA[	
+			INSERT INTO PTL_STATS_ACCESS (NO_SEQ,  USER_IP,  USER_ID,  WKID,  MBID,  TITLE)
+			VALUES ( PTL_STATS_ACCESS_SEQ.NEXTVAL, #{userIp}, #{userId}, #{wkid}, #{mbid}, #{title})
+		]]>
+	</insert>			
+</mapper>

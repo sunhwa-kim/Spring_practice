@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.cris.ptl.board.qna.dao.BoardQnADao">
+
+    <select id="selectColmnAbbreviation" parameterType="java.util.Map" resultType="java.util.Map">
+    	SELECT * FROM cris_data
+	</select>
+	
+<select id="selectBoardQnAList" parameterType="boardQnAVo" resultType="boardQnAVo">
+		SELECT PAGE.*
+		FROM (
+				SELECT D.*
+							 ,  ROWNUM AS RN 
+				FROM
+						(
+						   SELECT  
+						   				A.IDX as idx_board
+						                ,  B.CLASSIFICATION_NAME AS CLASSIFICATION
+						                ,  A.TITLE
+						                ,  A.WRITER 
+						                ,  TO_CHAR(A.INSERTDATE, 'YYYY.MM.DD') AS insertdate_board
+						                ,  C.SITUATION_NAME AS SITUATION
+				            FROM BOARD_LIST A, CLASSIFIACATION_CODE B, SITUATION_CODE C
+				            WHERE 1=1
+				            AND A.CLASSIFICATION = B.CLASSIFICATION
+				            AND A.SITUATION=C.SITUATION    
+				            <if test="searchKeyword != null and searchKeyword !='' " >
+			                     <if test="searchCustomHeader == 'cstmhdr-title'">
+		                        	AND  (UPPER(A.TITLE) LIKE '%' ||UPPER(TRIM(#{searchKeyword}))|| '%')
+		                         </if>
+			                     <if test="searchCustomHeader == 'cstmhdr-writer'">
+			                        AND  (UPPER(A.WRITER) LIKE '%' ||UPPER(TRIM(#{searchKeyword}))||'%')
+			                     </if>
+			                </if>
+			       
+			                <if test="searchClassification != null and searchClassification !=''  ">
+		                        	 AND  (B.CLASSIFICATION_VAL =#{searchClassification}) 
+		                        </if>
+		                        <if test="searchSituation != null and searchSituation !=''  ">
+		                        	 AND  (C.SITUATION_VAL = #{searchSituation})
+		                        </if>
+		                        ORDER BY INSERTDATE DESC, CLASSIFICATION ASC
+							)  D
+							WHERE 1=1 
+				<![CDATA[ 
+							AND ROWNUM <= (#{page} * 10)
+							)PAGE
+							WHERE 1=1
+							AND PAGE.RN > ((#{page}-1) * 10)
+				]]>								  
+</select>
+
+<select id="selectBQnAT_Rows" resultType="int" parameterType="boardQnAVo">
+	SELECT COUNT(CLASSIFICATION) AS TOTAL_ROWS
+	FROM
+			(
+				 SELECT  
+			                B.CLASSIFICATION_NAME AS CLASSIFICATION,
+			                A.TITLE,
+			                A.WRITER,
+			               TO_CHAR(A.INSERTDATE, 'YYYY.MM.DD') AS INSERTDATE,
+			                C.SITUATION_NAME AS SITUATION
+	            FROM BOARD_LIST A, CLASSIFIACATION_CODE B, SITUATION_CODE C
+	            WHERE 1=1
+	            AND A.CLASSIFICATION = B.CLASSIFICATION
+	            AND A.SITUATION=C.SITUATION    
+	            <if test="searchKeyword != null and searchKeyword !='' " >
+			                     <if test="searchCustomHeader == 'cstmhdr-title'">
+		                        	AND  (UPPER(A.TITLE) LIKE '%' ||UPPER(TRIM(#{searchKeyword}))|| '%')
+		                         </if>
+			                     <if test="searchCustomHeader == 'cstmhdr-writer'">
+			                        AND  (UPPER(A.WRITER) LIKE '%' ||UPPER(TRIM(#{searchKeyword}))||'%')
+			                     </if>
+			                </if>
+			                <if test="searchClassification != null and searchClassification !=''  ">
+		                        	 AND  (B.CLASSIFICATION_VAL =#{searchClassification}) 
+		                        </if>
+		                        <if test="searchSituation != null and searchSituation !=''  ">
+		                        	 AND  (C.SITUATION_VAL = #{searchSituation})
+		                      </if>
+                 )     
+</select>
+
+<select id="selectBoardQnaDetailed"  resultType="boardQnAVo">
+	SELECT
+           B.CLASSIFICATION_NAME AS CLASSIFICATION,
+           A.TITLE,
+           A.WRITER,
+           TO_CHAR (A.INSERTDATE, 'YYYY.MM.DD') AS insertdate_board,
+           C.SITUATION_NAME AS SITUATION
+	FROM BOARD_LIST A, CLASSIFIACATION_CODE B, SITUATION_CODE C
+	WHERE     1 = 1
+	AND A.CLASSIFICATION = B.CLASSIFICATION
+	AND A.SITUATION = C.SITUATION
+	AND IDX=#{idx_board}
+</select>
+
+
+
+</mapper>

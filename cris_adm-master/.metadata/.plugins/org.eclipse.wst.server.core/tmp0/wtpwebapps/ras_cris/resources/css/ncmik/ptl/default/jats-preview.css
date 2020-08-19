@@ -1,0 +1,530 @@
+/* NCMIK Korean Article View CSS */
+@font-face {
+	font-family:nanum;
+	src:url(../../../../font/NanumGothic/NanumGothic.eot);
+	src:local(※), url(../../../../font/NanumGothic/NanumGothic.woff) format('woff');
+}
+
+@media print {
+	.sidebar {  display: none;
+	    width:0px;
+	    height:0px;	
+	    margin: 0;
+	    padding:0px;}
+	#detailCont { width:100%; }
+	.jlContainer * {
+	/* 100% font size */
+		font-size:200%;
+	}
+}
+
+.jlContainer * {
+	/* 100% font size */
+	font-size:15px;
+}
+
+#inThisPage {
+	font-family: "Times New Roman", "sans-serif";
+	font-size: 14px;
+}
+
+img {
+	border: 0px currentColor;
+}
+div > *:first-child {
+	margin-top: 0em;
+}
+div.front {
+	
+}
+div.body {
+}
+div.back {
+}
+div.footer {
+	padding: 10px 10px;
+	border-top:1px solid #888;
+	font-size:100%;
+	text-align:center;
+}
+div.centered {
+	text-align: center;
+}
+div.table {
+	display: table;
+}
+div.table.metadata {
+	width: 100%;
+}
+div.row {
+	display: table-row;
+}
+div.cell {
+	padding-right: 0.25em; display: table-cell;
+}
+div.metadata {
+	vertical-align: top;
+	font-family: "Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+	font-size:100%;
+	color:#000;
+}
+div.two-column div.cell {
+	width: 50%;
+}
+div.one-column div.spanning.cell {
+	width: 100%;
+}
+div.metadata-group {
+	/**** margin-top: 1em; */
+	font-family: "Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+	font-size:100%;
+}
+div.metadata-group > p {
+	margin-top: 0.5em;
+}
+div.metadata-group > div {
+}
+div.metadata-authornotes {
+	margin-left: 0.5em; margin-top: 0.5em;
+	font-family: "Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+	font-size:90%;
+	line-height:120%;
+	color:#000;
+	/*font-style: italic;*/	
+}
+div.metadata-history {
+	margin-top:1em;
+	font-family: "Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+	font-size:90%;
+}
+div.metadata-history > span  {
+	margin-top:1em;
+	font-family: "Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+	font-size:100%;
+}
+
+div.metadata-copyright-statement {
+	margin-top:1em;
+	font-family: "Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+	font-size:100%;
+}
+div.metadata-area {
+	margin: 0em; 
+	font-family: "Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+	font-size:100%;
+}
+div.metadata-chunk {
+	margin-left: 0.5em; margin-top: 0.5em;
+	font-family: "Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+	font-size:90%;
+	line-height:120%;
+	/*font-style: italic;*/
+}
+div.branding {
+	text-align: center;
+}
+div.document-title-notes {
+	width: 60%; text-align: center; margin-right: auto; margin-left: auto;
+}
+div.footnote {
+	font-size: 90%;
+}
+div.footnote > p {
+	margin-bottom:0.2em;
+}
+hr.part-rule {
+	border: none /*thin solid black*/; width: 50%; margin-top:20px;
+}
+hr.section-rule {
+	border: none /*thin dotted black*/; width: 50%; margin-top: 1em; margin-bottom: 1em;
+}
+.xref {
+	color: red;
+}
+.warning {
+	font-size: 80%;
+}
+tex-math {
+	font-size: 80%;
+}
+.warning {
+	color: red;
+}
+.tex-math {
+	color: green;
+}
+.data {
+	color: black;
+}
+.formula {
+	font-size: 90%;
+}
+
+.titles {
+	font-family: "Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum"; font-size:90%;
+}
+.authors {
+	font-weight: bold;
+}
+.authors .generated {
+	font-size:80%;
+}
+.copyright-license {
+	margin-top:0.5em;
+	padding:1px 5px 1px 5px;
+	font-family: "Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum"; font-size: 80%;
+	width:98%;
+	background-color:rgb(246, 246, 246);
+	border:#ddd 1px solid;
+	line-height:110%;
+}
+.copyright-license p {
+	margin-top:0.3em;
+}
+.metadata h1 {
+	color: rgb(24, 76, 161); font-weight: bold; margin-top: 1em; margin-bottom: 0.5em; display: block;
+}
+h2 {
+	color: rgb(24, 76, 161); font-weight: bold; margin-top: 0em; margin-bottom: 0.5em; display: block; padding:5px 0px 5px 0px
+}
+h3 {
+	color: rgb(24, 76, 161); font-weight: bold; margin-top: 0em; margin-bottom: 0.5em; display: block; font-size:100%;
+}
+h4 {
+	color: rgb(24, 76, 161); font-weight: bold; margin-top: 0em; display: block;
+}
+h5 {
+	color: rgb(24, 76, 161); font-weight: bold; margin-top: 0em; margin-bottom: 0.5em; display: block;
+}
+h6 {
+	color: rgb(24, 76, 161); font-weight: bold; margin-top: 0em; margin-bottom: 0.5em; display: block;
+}
+.articleSubject {
+	color: rgb(24, 76, 161); margin-top:10px; margin-bottom:15px; font-size:100%; font-weight:bold;
+}
+.articleInformation {
+	font-family: "Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+	font-size: 90%;
+	border-bottom-width:0px;border-bottom-style:solid;
+	border-bottom-color:#97b0c8;
+	padding:1px 5px 1px 1px;
+	color:#000;
+	line-height:110%;
+}
+
+.document-title {
+	text-align: left; font-size: 130%;
+	font-family:"Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+}
+.callout-title .generated {
+	text-align: left; color: rgb(19, 129, 206); font-size: 100%; margin-top: 0.5em; margin-right: 1em;
+}
+.section{
+	font-family:"Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+	/*line-height:150%;*/
+}
+.section > p {
+	font-size:100%;
+	color:#000;
+}
+
+.section-title {
+	color: rgb(58, 150, 214); 
+	font-family:"Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+}
+div.article-body {
+	font-family: "Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+	font-size:100%;
+	padding-top:30px;
+}
+div.section {
+	margin-top: 1em; margin-bottom: 0.5em;
+}
+div.back-section {
+	margin-top: 1em; margin-bottom: 0.5em;
+}
+div.panel {
+	margin-left:5px; width:98%; padding: 0.5em; /*border: thin solid black;*/ font-size: 90%; margin-top: 0.5em; background-color: white;
+	color:#000;
+	line-height:120%;
+}
+div.panel table {
+	clear;
+	border-top:thin solid black;
+	border-bottom:thin solid black;
+}
+div.panel table thead {
+	background: rgb(202, 214, 250);
+	border-top:thin solid black;
+}
+div.panel table tr th {
+	padding:5px 2px;
+	font-size:90%;
+}
+div.panel table tr td {
+	padding:1px 1px;
+	font-size:90%;
+}
+
+div.blockquote {
+	margin: 0.5em 1em; font-size: 90%;
+}
+div.caption {
+	margin-top: 0.5em; margin-bottom: 0.5em;
+}
+div.speech {
+	margin: 0.5em 1em;
+}
+div.verse-group {
+	margin-top: 0.5em; margin-bottom: 0.5em; margin-left: 1em;
+}
+div.verse-group div.verse-group {
+	margin-top: 0em; margin-bottom: 0em; margin-left: 1em;
+}
+div.note {
+	font-size: 85%; margin-top: 0em; margin-left: 1em;
+}
+.ref-label {
+	margin-top: 0em; vertical-align: top;
+	line-height:120%;
+}
+.ref-content {
+	padding-left: 0.1em; margin-top: 0em; padding-bottom:1em;
+	font-size:100%;
+	line-height:120%;
+	color:#000;
+}
+h5.label {
+	margin-top: 0em; margin-bottom: 0em; font-size:100%;
+}
+p {
+	margin-top: 0em; margin-bottom: 1.0em;
+}
+div.TEST {
+	padding: 15px 0px; margin-top: 0px; border-top-color: rgb(19, 129, 206); border-bottom-color: rgb(19, 129, 206); border-top-width: 1px; border-bottom-width: 1px; border-top-style: solid; border-bottom-style: solid;
+}
+p.first {
+	margin-top: 0em; margin-bottom: 1.0em;}
+p.first >a  {
+	font-size:100%;
+}
+p.verse-line {
+	margin-top: 0em; margin-bottom: 0em;
+}
+p.citation {
+	margin-top: 0em; margin-bottom: 0em;
+}
+p.address-line {
+	margin-top: 0em; margin-bottom: 0em; margin-left: 2em;
+}
+ul {
+	margin-top: 0.5em;
+}
+ol {
+	margin-top: 0.5em;
+}
+/*
+li {
+	margin-top: 0.5em; margin-bottom: 0em;
+}
+li > p {
+	margin-top: 0.2em; margin-bottom: 0em;
+}
+*/
+div.def-list {
+	border-spacing: 0.25em;
+}
+div.def-list div.cell {
+	padding-bottom: 0.5em; vertical-align: top; border-bottom-color: black; border-bottom-width: thin; border-bottom-style: solid;
+}
+div.def-list div.def-list-head {
+	text-align: left;
+}
+.label {
+	font-size: 80%; font-weight: bold;
+}
+.monospace {
+	font-family: monospace;
+}
+.overline {
+	text-decoration: overline;
+}
+
+a {
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+.panel .label {
+	color: rgb(24, 76, 161);
+}
+.caption {
+	color: rgb(24, 76, 161);
+}
+.artCat {
+	color: rgb(24, 76, 161);
+}
+.main-title {
+	color: #985735; font-size:120%; font-weight: bold; border-bottom-color:#97b0c8; border-bottom-width:1px;border-bottom-style:solid; 
+	font-family:"Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+	
+}
+.section-title {
+	color: rgb(24, 76, 161); font-size:110%; font-weight: bold;
+	font-family:"Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+}
+.callout-title {
+	color: rgb(24, 76, 161); font-size:100%; font-weight: bold;
+}
+
+.sideBar #inThisPage {
+	background: rgb(255, 255, 255); border-width: 2px 0px; border-style: solid; border-color: rgb(24, 76, 161);
+}
+/* 떠다니는 메뉴 (Floating Menu) */
+#floatdiv { 
+    /*position:fixed; 
+    _position:absolute;
+    */ 
+    _z-index:-1;
+    width:155px;
+    overflow:hidden;
+    right:0px; //화면 왼쪽에 위치한다. right로 변경가능
+    top:160px; //화면 위쪽과의 간격
+    background-color: transparent;
+    margin:0;
+    padding:0;
+}
+
+#floatdiv ul  { list-style: none; }
+#floatdiv li  { margin-bottom: 2px; text-align: center; }
+#floatdiv a   { color: #5D5D5D; border: 0; text-decoration: none; display: block; }
+#floatdiv a:hover, #floatdiv .menu  { background-color: #d2d2d2; color: rgb(24, 76, 161); }
+#floatdiv .menu, #floatdiv .last    { margin-bottom: 0px; }
+
+
+
+
+
+
+.newITP {
+	border: rgb(24, 76, 161);
+}
+.newITP a {
+	color: rgb(0, 0, 0);
+}
+table h2 {
+	font-size: 140%;
+}
+table h3 {
+	font-size: 120%;
+}
+h5 {
+	font-size: 100%;
+}
+.PubTitle {
+	line-height: normal; font-size: 24px;
+}
+.PubTitle * {
+	line-height: normal; font-size: 24px;
+}
+.abstract {
+	margin-top: 10px;
+}
+a[name='bibrLink']:link {
+	color: rgb(4, 110, 184);
+}
+a[name='figLink']:link {
+	color: rgb(4, 110, 184);
+}
+a[name='tableLink']:link {
+	color: rgb(4, 110, 184);
+}
+.abstract {
+/*	border-top-color: rgb(24, 76, 161); border-bottom-color: rgb(24, 76, 161); border-top-width: 1px; border-bottom-width: 1px; border-top-style: solid; border-bottom-style: solid; */
+/*	border-top-color: #97b0c8; border-bottom-color: #97b0c8; border-top-width: 1px; border-bottom-width: 1px; border-top-style: solid; border-bottom-style: solid;*/
+	padding-bottom:10px;
+.caption {
+	color: rgb(24, 76, 161);
+}
+.section-title {
+	margin-top: 25px; margin-bottom: 5px;
+	font-family:"Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+}
+.subsection-title {
+	margin-top: 15px; margin-bottom: 5px; font-size: 95%;
+	font-family:"Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+}
+.metadata-entry {
+	margin: 2px 0px;
+}
+p.address-line {
+	margin-top: 0em; margin-bottom: 0em; margin-left: 2em;
+}
+ul {
+	margin-bottom: 1em;
+}
+ol {
+	margin-bottom: 1em;
+}
+li {
+	font-size: 70%; margin-top: 0.2em; margin-bottom: 0em;
+}
+li > p {
+	margin-top: 0.1em; margin-bottom: 0em;
+}
+div.def-list {
+	border-spacing: 0.25em;
+}
+div.def-list p {
+	margin: 0px; padding: 0px;
+}
+.ref_layer {
+	margin-bottom: 10px; white-space: normal; -ms-word-break: break-all;
+}
+.apStyle {
+	text-indent: 10px;
+}
+.table-wrap {
+	overflow: auto;
+}
+.table-wrap > table thead tr {
+	background: rgb(202, 214, 250);
+	border-top:thin solid black;
+}
+.table-wrap tbody tr {
+	background: rgb(255, 255, 255);
+}
+
+.jlContainer .main-title {
+	border: 1;
+}
+
+.sideBar {
+	background: #e1e1e1;
+}
+
+.sideBar .Formats {
+	background: rgb(255, 255, 255); border-width: 2px 0px; border-style: solid; border-color: rgb(24, 76, 161);
+}
+.Formats a {
+	font-size:120%;
+}
+
+p.css-vertical-text {
+ color:#97b0c8;
+ border:0px solid red;
+ writing-mode:tb-rl;
+ -webkit-transform:rotate(90deg);
+ -moz-transform:rotate(90deg);
+ -o-transform: rotate(90deg);
+ white-space:nowrap;
+ display:block;
+ bottom:0;
+ width:20px;
+ height:20px;
+ font-family: "Times New Roman", arial, helvetica, clean, sans-serif, "맑은 고딕", "nanum";
+ font-size:90%;
+ font-weight:normal;
+}

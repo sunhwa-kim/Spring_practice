@@ -1,0 +1,227 @@
+@charset "utf-8";
+/*-------------------------------------------------
+Author : JMKIM
+Create date : 2016. 10. 17
+-------------------------------------------------*/
+
+/* 컨텐츠레이아웃 */
+#content{padding-top:35px;}
+
+a.detail{background:#6176c3; border-radius:0; margin-left:3px; font-size:14px; color:#fff; line-height:inherit; width:80px; display:inline-block; height: 43px; vertical-align: top; font-size:16px; text-align:center; padding-top:12px;}  
+.total-search{overflow:hidden; background:#52576c;}
+.total-search h2{font-size:19px; color:#fff; float:left; padding:26px 0; width:195px; display:block; text-align:center; background:#3d4258;}
+.total-search fieldset{float:left; padding:16px; position:relative; margin:0;}
+.total-search select{min-width:114px; height:43px; padding:0 0 0 10px; background:#e12e34; border:1px solid #e12e34; color:#fff;}
+.total-search input[type="text"]{height:43px; padding:0 10px; width:432px;}
+.total-search button{width:19px; height:18px; background:url(../../images/korean/common/btn_search.gif) right 0 no-repeat; display:block; overflow:hidden; font-size:0; line-height:0; position:absolute; top:28px; right:35px; /*right:125px*/ cursor:pointer; padding-left:30px; border-left:1px solid #ccc;}
+
+.total-search .desc{float:left; font-size:13px; color:#868a9e; padding-top:29px;}
+.total-search .desc span{padding-right:24px; position:relative;}
+.total-search .desc span:after{content:""; background:#64687b; width:1px; height:10px; position:absolute; top:4px; right:9px;}
+
+.research-info{border-width:0 1px 1px 1px; border-style:solid; border-color:#d2d2d2; position:relative;}
+.research-info:after{content:""; display:block; clear:both;}
+.ribbon{display:block; font-size:0; line-height:0; width:93px; height:199px; background:url(../../images/korean/main/bg_ribbon.png) 0 0 no-repeat; position:absolute; bottom:56px; left:-6px; z-index:30;}
+.research-info .title-area{overflow:hidden; background:#6176c3; margin-bottom:23px; }
+.research-info .title-area h2{color:#6176c3; font-size:19px; width:320px; height:75px; text-align:center; line-height:75px; float:left; background:#fff;}
+.research-info .title-area h2 span{padding-left:50px; background:url(../../images/korean/main/bg_research_info.gif) 0 20px no-repeat; display:inline-block;}
+.research-info .title-area .desc{float:left; color:#fff; font-size:16px; font-weight:700; padding:27px 35px; width: 958px;}
+
+.research-all{position:absolute; top:75px; left:0; width:100%; background:#6176c3; z-index:20; border-top:1px solid #6d80c7; padding:23px 100px; display:none;}
+.research-all.active{display:block;}
+.research-all ul{overflow:hidden; margin-left:-80px;}
+.research-all ul>li{float:left; padding-left:40px; margin-left:40px; position:relative;}
+.research-all ul>li:after{content:""; position:absolute; top:0; left:0; width:1px; height:100%; background:#536297;}
+
+.research-all ul>li:nth-child(1):after,
+.research-all ul>li:nth-child(5):after,
+.research-all ul>li:nth-child(9):after,
+.research-all ul>li:nth-child(13):after,
+.research-all ul>li:nth-child(17):after,
+.research-all ul>li:nth-child(21):after,
+.research-all ul>li:nth-child(25):after,
+.research-all ul>li:nth-child(29):after,
+.research-all ul>li:nth-child(33):after,
+.research-all ul>li:nth-child(37):after,
+.research-all ul>li:nth-child(41):after,
+.research-all ul>li:nth-child(45):after,
+.research-all ul>li:nth-child(49):after,
+.research-all ul>li:nth-child(53):after,
+.research-all ul>li:nth-child(57):after{display:none;}
+
+.research-all ul>li>a{color:#fff; width:206px; height:32px; display:block; padding:7px 16px; font-size:14px;}
+.research-all ul>li a:hover,.research-all ul>li.active>a{background:url(../../images/korean/main/bg_arr99.gif) 90% center no-repeat #3d4258; color:#fff799;}
+
+.research-all .btn_close{position:absolute; top:19px; right:16px; display:block; font-size:0; line-height:0; width:30px; height:30px; background:url(../../images/korean/main/btn_close.gif) 0 0 no-repeat;}
+
+
+.research-info .title-area .desc strong{color:#fff799;}
+.research-info .title-area .desc p{float:left; display:none;}
+.research-info .title-area .desc a{float:right; font-size:13px; color:#c9cfe8; text-decoration:underline; margin-top:5px;}
+.research-info .quick-link{border-bottom:1px solid #eceef0; padding-bottom:12px;}
+.research-info .web-address{font-size:11px; color:#555; background:url(../../images/korean/main/bg_home.gif) 0 0 no-repeat; display:inline-block; padding-left:20px; margin-right:10px; height:16px;}
+.research-info .locate{font-size:11px; color:#555; background:url(../../images/korean/main/bg_locate.gif) 0 0 no-repeat; display:inline-block; padding-left:20px; height:16px;}
+
+
+
+.research-list{height:250px; overflow:auto; width:250px; float:left; margin-left:100px; margin-bottom:30px;}
+.research-list ul>li{}
+.research-list ul>li a{width:205px; display:block; padding:8px 17px; font-size:14px;}
+.research-list ul>li a:hover,.research-list ul>li.active a{background:url(../../images/korean/main/bg_arr03.gif) 90% 50% no-repeat #725da2; color:#fff799;}
+
+
+.detail-info{width:328px; float:left; padding: 12px 40px; border-right:1px solid #d9e0e3; position:relative;}
+.detail-info:after{content:""; background:url(../../images/korean/main/bg_arr02.gif) 0 0 no-repeat; width:8px; height:13px; position:absolute; top:50%; right:-7px; margin-top:-6px;}
+.detail-info .ci{text-align:center;}
+.detail-info ul{border-top:1px solid #eceef0; border-bottom:1px solid #eceef0; padding:12px 0; margin:12px 0;}
+.detail-info ul>li{font-size:13px; color:#555; line-height:24px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;}
+.detail-info ul>li strong{color:#3d3838; display:inline-block; width:65px; font-weight:700;}
+
+.move-3d {height: 379px; overflow:hidden;}
+.move-3d .front,.move-3d .back {position:absolute;	opacity:0;	transition:all 0.5s ease; z-index:10; width:1280px;}
+.move-3d .front.active,.move-3d .back.active{opacity:1; z-index:20;}
+.move-3d .back{height:379px;}
+.back .research-list{margin-left:30px;}
+.back .ribbon2{display:block; font-size:0; line-height:0; width:93px; height:199px; background:url(../../images/korean/main/bg_ribbon02.png) 0 0 no-repeat; position:absolute; bottom:56px; right:-6px;}
+.back .map-area{float:left; border-right:1px solid #d9e0e3; position:relative;}
+.back .map-area:after{content:""; background:url(../../images/korean/main/bg_arr02.gif) 0 0 no-repeat; width:8px; height:13px; position:absolute; top:50%; right:-7px; margin-top:-6px;}
+
+.table-area .tab-menu{overflow:hidden; width:100%; height:378px; position:relative;}
+.table-area .tab-menu>li{float:left; width:25%;}
+.table-area .tab-menu>li:last-child>a{border-right:0;}
+.table-area .tab-menu>li>a{display:block; background:#6176c3; color:#fbfbfb; font-size:19px; color: #fff; font-weight: 700; letter-spacing:-0.05em;  border-right:1px solid #505e93;}
+.table-area .tab-menu>li>a:hover,.table-area .tab-menu>li.active>a{background:#fff; color:#6176c3; }
+
+.table-area .tab-menu>li>a span{background:url(../../images/korean/main/icon_asia.gif) 0 50% no-repeat; padding: 19px 35px 20px 80px; display: block; width: 230px; margin: 0 auto;}
+.table-area .tab-menu>li>a span em{display:block; font-size:11px; color:#bbc2e2; font-weight:400; letter-spacing:0em;}
+
+.table-area .tab-menu>li:nth-child(2)>a span,
+.table-area .tab-menu>li:nth-child(3)>a span{padding-left:120px; background-position:30px 50%;}
+.table-area .tab-menu>li>a:hover span,.table-area .tab-menu>li.active>a span{background-image:url(../../images/korean/main/icon_asia_on.gif)}
+.table-area .tab-menu>li:nth-child(2)>a span{background-image:url(../../images/korean/main/icon_eu.gif)}
+.table-area .tab-menu>li:nth-child(2)>a:hover span,.table-area .tab-menu>li:nth-child(2).active>a span{background-image:url(../../images/korean/main/icon_eu_on.gif)}
+.table-area .tab-menu>li:nth-child(3)>a span{background-image:url(../../images/korean/main/icon_america.gif)}
+.table-area .tab-menu>li:nth-child(3)>a:hover span,.table-area .tab-menu>li:nth-child(3).active>a span{background-image:url(../../images/korean/main/icon_america_on.gif)}
+.table-area .tab-menu>li:nth-child(4)>a span{background-image:url(../../images/korean/main/icon_africa.gif)}
+.table-area .tab-menu>li:nth-child(4)>a:hover span,.table-area .tab-menu>li:nth-child(4).active>a span{background-image:url(../../images/korean/main/icon_africa_on.gif)}
+
+.table-area .tab-menu>li .tab-inner{opacity:0; z-index:10;}
+.table-area .tab-menu>li.active .tab-inner{opacity:1; z-index:20; position:absolute; top:100px; left:0;}
+
+
+.ic-state{float:left; margin-left:35px; position:relative;}
+.ic-state h3{color:#3d3838; margin-bottom:10px;}
+.ic-state .ic-state-list{margin-left:-16px;}
+.ic-state .ic-state-list>li{border:1px solid #874eaf; background:#f9f9fb; width:255px; height:215px; float:left; margin-left:16px; border-radius:20px; padding:20px 15px;}
+.ic-state .ic-state-list>li .title{font-size:13px; color:#555; margin-bottom:5px;}
+.ic-state .ic-state-list>li .title .batch{width:32px; height:20px; background:#874eaf; border:1px solid #744396; font-size:12px; color:#fff; padding:2px 5px;}
+.ic-state .ic-state-list>li .title .date{font-size:13px; color:#999;}
+.ic-state .ic-state-list>li .title2{font-size:16px; color:#333; font-weight:700; margin:10px 0;}
+.ic-state .ic-state-list>li .title2 a{background:url(../../images/korean/main/bg_link.gif) right 5px no-repeat; padding-right:15px;} 
+.ic-state .ic-state-list>li ul{}
+.ic-state .ic-state-list>li ul>li{font-size:13px; color:#777; line-height:20px;}
+.ic-state .ic-state-list>li ul>li strong{color:#874eaf;}
+.ic-state .bx-wrapper{max-width:527px !important;}
+.ic-state .ic-state-list>li.business-trip{border-color:#4c87ea;}
+.ic-state .ic-state-list>li.business-trip .title .batch{background:#4c87ea; border-color:#447bd6;}
+.ic-state .ic-state-list>li.business-trip ul>li strong{color:#4c87ea;}
+.ic-state .ic-state-list>li.business-trip .title2 a{background-image:url(../../images/korean/main/bg_link2.gif)}
+.ic-state .bx-controls-direction{position:absolute; top:10px; right:0;}
+.ic-state .bx-prev{display:none;}
+.ic-state .bx-next{width:7px; height:11px; display:block; background:url(../../images/korean/main/bg_next_arr.gif) 0 0 no-repeat; font-size:0; line-height:0;}
+.ic-state .bx-controls-auto-item{position:absolute; top:10px; right:20px;}
+.ic-state .bx-stop{width:7px; height:11px; display:block; background:url(../../images/korean/main/bg_pause.gif) 0 0 no-repeat; font-size:0; line-height:0;}
+.ic-state .bx-start{width:7px; height:11px; display:block; background:url(../../images/korean/main/bg_play.gif) 0 0 no-repeat; font-size:0; line-height:0;}
+.ic-state .bx-pager{position:absolute; top: 3px; left: 120px; font-size:13px; color:#555;}
+.ic-state .bx-pager:first-letter{color:#fc7465;}
+
+.bottom-layout{border-top:1px solid #d2d2d2; margin-top:46px; background:#f4f7f7;}
+.bottom-layout .container:after{content:""; clear:both; display:block;}
+.bottom-layout h2{font-size:17px; padding:36px 0 32px; font-weight:700; color:#333;}
+.bottom-layout h2.red-line{position:relative;}
+.bottom-layout h2.red-line:after{content:""; position:absolute; bottom:20px; left:0; width:117px; height:3px; background:#725da2;}
+.bottom-layout section{position:relative; padding-bottom:32px;}
+.bottom-layout section .more{position:absolute; top:43px; right:27px; font-size:11px; color:#a7b0b7; padding-right:22px; background:url(../../images/korean/main/bg_more.gif) right 0 no-repeat;}
+.bottom-layout section.new-letter .more{right:0;}
+
+/* 국제협력정보 */
+.ici{background:#fff; width:390px; float:left; position:relative; color:#333; height:254px;}
+.ici:after{content:""; background:#fff; position:absolute; top:0; left:50%; height:100%; width: 700px; margin-left: -895px;}
+.ici .ici-list{}
+.ici .ici-list>li{}
+.ici .ici-list>li>ul{}
+.ici .ici-list>li>ul>li{margin-bottom:13px; overflow:hidden;}
+.ici .ici-list>li>ul>li span{float:left;}
+.ici .ici-list>li>ul>li span.title{background:#725da2; display:inline-block; width:52px; height:36px; text-align:center; line-height:36px; border-radius:20px; margin-right:14px;}
+.ici .ici-list>li>ul>li span.txt{width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#555;}
+.ici .ici-list>li>ul>li span.txt .name{font-size:13px; color:#777;}
+.ici .ici-list>li>ul>li a{color:#fff;}
+.ici .bx-pager{display:none;}
+.ici .bx-controls-direction{position:absolute; top:26px; left:100px;}
+.ici .bx-controls-direction a{font-size:0; line-height:0; width:7px; height:11px; display:inline-block; margin:0 7px;}
+.ici .bx-prev{background:url(../../images/korean/main/ici_arr_back.gif) 0 0 no-repeat;}
+.ici .bx-prev:hover{background-image:url(../../images/korean/main/ici_arr_back_on.gif);}
+.ici .bx-next{background:url(../../images/korean/main/ici_arr_next.gif) 0 0 no-repeat;}
+.ici .bx-next:hover{background-image:url(../../images/korean/main/ici_arr_next_on.gif);}
+
+/* 국제협력 캘린더 */
+.icc{float:left; width:568px; padding-left:40px; background:#fff; border-left: 1px solid #e5ebed; height:254px}
+.icc ul{margin-top:-10px; margin-bottom:12px;}
+.icc ul>li{font-size:14px; color:#555; position:relative; margin-top:10px;}
+
+.icc ul>li a span{vertical-align:middle;}
+.icc ul>li .date{font-size:13px; color:#725da2; display:inline-block; border-radius:10px; width:82px; border:1px solid #725da2; text-align:center; padding:3px 0;}
+.icc ul>li .date a{color:#725da2;}
+.icc ul>li .organ{color:#725da2; display:inline-block; width: 177px; padding-left:10px;}
+.icc ul>li .organ strong{width:100px; display:inline-block;}
+.icc ul>li .organ a{color:#725da2;}
+.icc ul>li .story{width:230px; display:inline-block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+
+
+/* 뉴스레터 */
+.new-letter{border-left:1px solid #e5ebed; width:322px; height: 254px; float:left; padding-left:30px; background:#fff;}
+.new-letter:after{content:""; background:#fff; position:absolute; top:0; right:50%; height:100%; width:631px; margin-right:-791px;}
+
+
+/* 최근게시물 */
+.notice{float:left; width: 390px; position:relative; background:#fff; height:254px;}
+.notice:after{content:""; background:#fff; position:absolute; top:0; left:50%; height:100%; width: 700px; margin-left: -895px;}
+.notice ul{margin-top:-5px;}
+.notice ul>li{margin-top:7px;}
+.notice ul>li a{color:#444; font-size:14px;}
+.notice ul>li .title{font-size:13px; color:#725da2; display:inline-block; width:30px; vertical-align:middle; font-weight:700; width: 40px; text-align:center;}
+.notice ul>li .story{display:inline-block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle; width:320px; padding-left:5px;}
+
+/* 국제협력 HISTORY */
+.global-cooper-history{float: left; width: 390px; background: url(../../images/korean/main/bg_global_cooper_history.gif) 90% 50% no-repeat; height: 256px;}
+.global-cooper-history h2{padding-bottom:15px;}
+.global-cooper-history h2 strong{color:#725da2;}
+.global-cooper-history .desc{font-size:14px; color:#555; line-height:22px;}
+.global-cooper-history .view{display:inline-block; margin-top:15px; width:52px; height:35px; background:#725da2; text-align:center; color:#fff; border-radius:20px; padding:9px 0;}
+
+/* square-btn */
+.square-btn{float:left; width:568px; padding-top:22px;}
+.square-btn a{display:block; width:274px; height:202px; float:left; padding:30px 35px; background:url(../../images/korean/main/bg_history.gif) 90% bottom no-repeat #fff; box-shadow:3px 3px 1px #eaeded;}
+.square-btn a.history{float:right; background-image:url(../../images/korean/main/bg_abroad.gif);}
+.square-btn .title{color:#333; font-size:17px; font-weight:700;}
+.square-btn .desc{color:#777; font-size:13px; margin:15px 0 18px; line-height:19px;}
+.square-btn .view{font-size:10px; color:#848e97;}
+
+
+/* icon-list */
+.icon-list{float:left; width:322px; padding:30px 0 30px 30px;}
+.icon-list ul{}
+.icon-list ul>li{background:url(../../images/korean/main/link_arr.gif) 95% 25px no-repeat;}
+.icon-list ul>li a{display:block; font-size:16px; color:#353847; border-bottom:1px solid #e0e3e6; padding:20px 0; background:url(../../images/korean/main/mv_icon01.gif) 0 13px no-repeat; padding-left:50px; font-weight:700;}
+.icon-list ul>li:nth-child(2) a{background-image:url(../../images/korean/main/mv_icon02.gif);}
+.icon-list ul>li:nth-child(3) a{background-image:url(../../images/korean/main/mv_icon03.gif);}
+.icon-list ul>li a:hover{color:#efb009;}
+
+.scroll-wrap{overflow:auto; height:173px; padding-right:10px;}
+
+
+
+
+
+

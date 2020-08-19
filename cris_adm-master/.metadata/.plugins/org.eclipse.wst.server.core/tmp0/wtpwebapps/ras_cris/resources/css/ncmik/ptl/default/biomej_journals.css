@@ -1,0 +1,110 @@
+@CHARSET "UTF-8";
+
+.jlContainer img {
+	border: none !important;
+}
+
+.jlContainer h2 {
+	line-height: 1.125 !important;
+	font-size: 12px !important;
+	margin: 15px 0 9px 0 !important;
+	color: #985735 !important;
+}
+
+.jlContainer {
+	width: 100% !important;
+	margin: 25px auto !important;
+	font-size:12px !important;
+}
+.jlContainer > table {
+	width: 860px !important;
+	margin:0 auto;
+}
+.jlContainer > div {
+	width: 870px !important;
+	margin:0 auto;
+}
+.jlContainer > div.ssFooter {
+	width: 100% !important;
+}
+
+.articleCategory {
+	margin: 20px 0 0 0 !important;
+	border-bottom: 1px solid #97b0c8 !important;
+}
+
+.articleTitle {
+	margin: 12px 0 0 0 !important;
+}
+
+.articleTitle, .articleMeta, .articleBMJID, .articleLink {
+	padding:2px 0 !important;
+}
+
+.articleMeta, .articleBMJID, .articleLink {
+	font-size: 14px !important;
+}
+
+.articleBMJID {
+	color: #777 !important;
+}
+
+.bgCell {
+	text-align: center !important;
+	font-weight: bold !important;
+	background-color: rgb(204, 216, 228) !important;
+}
+
+.jTable {
+	margin: 25px 0 20px 0 !important;
+	border-collapse: separate !important;
+	border-spacing: 5px !important;
+}
+
+.jTable td {
+	vertical-align: middle !important;
+}
+
+.lTable {
+	background-color: rgb(140, 172, 204) !important;
+	border-collapse: separate !important;
+	border-spacing: 1px !important;
+	margin: 2px !important;
+}
+
+.lTable tr {
+	height: 43px !important;
+	text-align: center !important;
+	vertical-align: middle !important;
+}
+
+.lTable tr:nth-child(odd) {
+	background-color: rgb(255, 255, 255) !important;
+}
+
+.lTable tr:nth-child(even) {
+	background-color: rgb(239, 241, 243) !important;
+}
+
+.Formats {
+	font-size:13px !important;
+	font-family:arial !important;
+	border:1px solid #e0e0e0 !important;
+	background:#f5f5f5 !important;
+	width:250px !important;
+	padding:15px !important;
+	line-height: 160% !important;
+	margin:160px 0 25px 0 !important;
+}
+
+.lang_en {
+	display: none !important;
+}
+.jlContainer a {
+	text-decoration: none !important;
+	color: #046eb8 !important;
+}
+
+.jlContainer a:hover {
+	text-decoration: underline !important;
+}

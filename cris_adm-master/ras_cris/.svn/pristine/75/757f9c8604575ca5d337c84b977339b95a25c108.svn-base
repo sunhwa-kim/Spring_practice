@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.cris.ptl.centerintro.edu.dao.EduDao">
+  
+  <select id="selectEduList" resultType="eduVo" parameterType="eduVo">
+	<![CDATA[
+	SELECT  page.* 
+	   FROM  (
+	     SELECT  ROW_NUMBER() OVER (ORDER BY data_sn desc) AS data_seq 
+	          ,  TO_CHAR(data_sn) as order_sn
+	          ,  a.* 
+	       FROM (
+		         SELECT  ROW_NUMBER() OVER (ORDER BY edc_progrm_id) AS data_sn
+		              ,  list.* 
+		           FROM (		 
+						SELECT EDC_PROGRM_ID  as edc_progrm_id,
+				    		   EDC_SE_CODE    as edc_se_code,
+				       	 	   SJ 			  as sj,
+				       		   INSTRCTR       as instrctr,
+				       		   INTRCN_SUB     as intrcn_sub,
+				       		   BEGIN_DE       as begin_de,
+				       		   END_DE         as end_de,
+				       		   PARTCPT_PSNCPA as partcpt_psncpa,
+				       		   ECD_CRSE_CO	  as ecd_crse_co,
+				       		   PARTCPT_NM_CO  as partcpt_nm_co,
+                               PROGRS_STTUS_CODE as progrs_sttus_code,
+                               STTUS_CHANGE_RESN as sttus_change_resn,
+                               ATCH_LINK_ID   as atch_link_id   
+				  		FROM (  SELECT ROWNUM RNUM, DATA.*
+				        	    FROM ( SELECT  EDC_PROGRM_ID,
+	                       	                   EDC_SE_CODE,
+	                                           SJ,
+	                                           INSTRCTR,
+	                                           INTRCN_SUB,
+	                                           BEGIN_DE,
+	                                           END_DE,
+	                                           PARTCPT_PSNCPA,
+	                                           ECD_CRSE_CO,
+	                                           (SELECT count(*) from PTL_EDC_REQST_TBL 
+	                                                WHERE EDC_PROGRM_ID=PTL_EDC_PROGRM_TBL.EDC_PROGRM_ID 
+	                                                  AND CANCL_AT='N') as PARTCPT_NM_CO,
+	                                                	  PROGRS_STTUS_CODE,
+	                                                	  STTUS_CHANGE_RESN,
+	                                                      ATCH_LINK_ID       
+	                                            FROM
+	                                                PTL_EDC_PROGRM_TBL     
+	                                            WHERE
+	                                                EDC_SE_CODE= #{edc_se_code}                          
+	                                                    
+				    ]]>                 
+				                     <if test="searchKeyword != null and searchKeyword !='' ">
+								        <if test="searchCondition == 'ALL'">
+								           AND (UPPER(SJ) LIKE '%'|| UPPER(#{searchKeyword}) ||'%' or  UPPER(INSTRCTR) LIKE '%'|| UPPER(#{searchKeyword}) ||'%' or DBMS_LOB.INSTR(INTRCN_SUB, #{searchKeyword})>0)
+								        </if>
+								        <if test="searchCondition == 'TITLE'">
+								           AND UPPER(SJ) LIKE '%'|| UPPER(#{searchKeyword}) ||'%'
+								        </if>
+								        <if test="searchCondition == 'INSTRCTR'">
+								           AND UPPER(INSTRCTR) LIKE '%'|| UPPER(#{searchKeyword}) ||'%'	
+								        </if>
+								        <if test="searchCondition == 'SUB'">
+								           AND DBMS_LOB.INSTR(INTRCN_SUB, #{searchKeyword})>0
+								        </if>
+								    </if>
+				    <![CDATA[
+							  			ORDER BY EDC_PROGRM_ID DESC    							   
+										  ) DATA
+										ORDER BY RNUM ASC)
+						) list) a) page         	
+			        WHERE  page.data_seq >= ((#{page} - 1) * 10 + 1)
+			          AND  page.data_seq <= (#{page} * 10)	
+				]]>	
+	</select>
+
+	<select id="selectEduTotalCount" resultType="int" parameterType="eduVo">
+	 
+		SELECT 	COUNT(*) totcnt
+			FROM 	PTL_EDC_PROGRM_TBL
+			WHERE 	1=1
+	       <if test="searchKeyword != null and searchKeyword !='' ">
+		    <if test="searchCondition == 'ALL'">
+	           AND (UPPER(SJ) LIKE '%'|| UPPER(#{searchKeyword}) ||'%' or  UPPER(INSTRCTR) LIKE '%'|| UPPER(#{searchKeyword}) ||'%' or DBMS_LOB.INSTR(INTRCN_SUB, #{searchKeyword})>0)
+	        </if>
+	        <if test="searchCondition == 'TITLE'">
+	           AND UPPER(SJ) LIKE '%'|| UPPER(#{searchKeyword}) ||'%'
+	        </if>
+	        <if test="searchCondition == 'INSTRCTR'">
+	           AND UPPER(INSTRCTR) LIKE '%'|| UPPER(#{searchKeyword}) ||'%'	
+	        </if>
+	        <if test="searchCondition == 'SUB'">
+	           AND DBMS_LOB.INSTR(INTRCN_SUB, #{searchKeyword})>0
+	        </if>
+		    </if>	
+	</select>
+	
+	<select id="selectEduView" resultType="eduVo" parameterType="eduVo">
+		<![CDATA[		
+			SELECT EDC_PROGRM_ID 	 as edc_progrm_id,
+      			   EDC_SE_CODE 	     as edc_se_code,
+       		  	   SJ 	             as sj,
+       			   INSTRCTR   	     as instrctr,
+       			   INTRCN_SUB		 as intrcn_sub,
+       		  	   BEGIN_DE 		 as begin_de,
+       			   END_DE 			 as end_de,
+       		 	   PARTCPT_PSNCPA 	 as partcpt_psncpa,
+       			   ECD_CRSE_CO 		 as ecd_crse_co,
+     			   (SELECT count(*) from PTL_EDC_REQST_TBL 
+			         WHERE EDC_PROGRM_ID=PTL_EDC_PROGRM_TBL.EDC_PROGRM_ID 
+			           AND CANCL_AT='N') as partcpt_nm_co,
+			       PROGRS_STTUS_CODE as progrs_sttus_code,
+			       STTUS_CHANGE_RESN as sttus_change_resn,
+			       ATCH_LINK_ID      as atch_link_id
+    	      FROM PTL_EDC_PROGRM_TBL
+   		     WHERE EDC_PROGRM_ID=#{edc_progrm_id}	
+		]]>
+	</select>
+	
+</mapper>

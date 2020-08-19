@@ -1,0 +1,3 @@
+#Tomcat publish data
+#Thu Apr 23 13:29:56 KST 2020
+org.eclipse.jst.jee.server\:/binary\:C\:\\Users\\Rastech\\.m2\\repository\\org\\springframework\\spring-web\\4.0.9.RELEASE\\spring-web-4.0.9.RELEASE.jar=WEB-INF/lib/spring-web-4.0.9.RELEASE.jar

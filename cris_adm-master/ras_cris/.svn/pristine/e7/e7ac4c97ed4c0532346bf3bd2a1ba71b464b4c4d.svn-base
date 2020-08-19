@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Context>
+  <!-- 운영  -->-
+<Resource name="jdbc/cris"
+            auth="Container"
+            type="javax.sql.DataSource"
+            driverClassName="oracle.jdbc.driver.OracleDriver"
+            factory="org.apache.tomcat.dbcp.dbcp.BasicDataSourceFactory"
+            url="jdbc:oracle:thin:@192.168.6.12:1521:orcl"
+            username="NCRC_100"
+            password="NCRC_100"/>
+
+
+  <!-- 운영 sms  -->-
+<Resource name="jdbc/sms"
+            auth="Container"
+            type="javax.sql.DataSource"
+            driverClassName="oracle.jdbc.driver.OracleDriver"
+            factory="org.apache.tomcat.dbcp.dbcp.BasicDataSourceFactory"
+            url="jdbc:oracle:thin:@2.2.3.36:1521:sms"
+            username="sms"
+            password="sms+36+sms"/>
+
+
+</Context>
+<!-- 자바 7버전  factory="org.apache.tomcat.dbcp.dbcp.BasicDataSourceFactory" -->
+<!-- 자바 8버전  factory="org.apache.tomcat.jdbc.pool.DataSourceFactory" -->

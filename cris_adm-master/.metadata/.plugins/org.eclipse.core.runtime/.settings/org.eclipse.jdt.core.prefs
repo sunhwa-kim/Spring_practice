@@ -1,0 +1,16 @@
+eclipse.preferences.version=1
+org.eclipse.jdt.core.classpathVariable.ECLIPSE_HOME=C\:/Users/Rastech/Desktop/\uC774\uD074\uB9BD\uC2A4/eGovFrameDev-3.5.1-64bit/eclipse/
+org.eclipse.jdt.core.classpathVariable.FINDBUGS_ANNOTATIONS=C\:/Users/Rastech/Desktop/\uC774\uD074\uB9BD\uC2A4/eGovFrameDev-3.5.1-64bit/eclipse/plugins/edu.umd.cs.findbugs.plugin.eclipse_3.0.1.20150306-5afe4d1/lib/annotations.jar
+org.eclipse.jdt.core.classpathVariable.JRE_LIB=C\:/Program Files/Java/jdk1.7.0_80/jre/lib/rt.jar
+org.eclipse.jdt.core.classpathVariable.JRE_SRC=C\:/Program Files/Java/jdk1.7.0_80/src.zip
+org.eclipse.jdt.core.classpathVariable.JRE_SRCROOT=
+org.eclipse.jdt.core.classpathVariable.JSR305_ANNOTATIONS=C\:/Users/Rastech/Desktop/\uC774\uD074\uB9BD\uC2A4/eGovFrameDev-3.5.1-64bit/eclipse/plugins/edu.umd.cs.findbugs.plugin.eclipse_3.0.1.20150306-5afe4d1/lib/jsr305.jar
+org.eclipse.jdt.core.classpathVariable.JUNIT_HOME=C\:/Users/Rastech/Desktop/\uC774\uD074\uB9BD\uC2A4/eGovFrameDev-3.5.1-64bit/eclipse/plugins/org.junit_4.11.0.v201303080030/
+org.eclipse.jdt.core.classpathVariable.M2_REPO=C\:/Users/Rastech/.m2/repository
+org.eclipse.jdt.core.codeComplete.visibilityCheck=enabled
+org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode=enabled
+org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.7
+org.eclipse.jdt.core.compiler.compliance=1.7
+org.eclipse.jdt.core.compiler.problem.assertIdentifier=error
+org.eclipse.jdt.core.compiler.problem.enumIdentifier=error
+org.eclipse.jdt.core.compiler.source=1.7

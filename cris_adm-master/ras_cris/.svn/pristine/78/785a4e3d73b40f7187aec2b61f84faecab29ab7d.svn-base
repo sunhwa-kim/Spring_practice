@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+  <!-- dataSource지정 -->
+  
+  <bean id="dataSourceOrg" class="org.springframework.jndi.JndiObjectFactoryBean">
+    <property name="jndiName" value="java:comp/env/jdbc/cris" />
+  </bean>
+  <!-- dataSource 로깅 -->
+  <bean id="dataSource" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+     <constructor-arg ref="dataSourceOrg" />
+     <property name="logFormatter">
+      <bean class="net.sf.log4jdbc.tools.Log4JdbcCustomFormatter">
+       <property name="loggingType" value="MULTI_LINE" />
+       <property name="sqlPrefix" value="SQL=>" />
+      </bean>
+     </property>
+  </bean>
+
+
+  <!-- @Transactional 어노테이션에 대한 트랜잭션 처리시 트랜잭션 매니저 txManager 빈으로 등록 -->
+  <tx:annotation-driven transaction-manager="txManager" />
+
+  <!-- 트랜잭션 지정 -->
+  <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource" />
+  </bean>
+
+  <!-- myBatis Session Factory bean 지정 -->
+  <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <property name="dataSource" ref="dataSource" />
+    <property name="configLocation" value="WEB-INF/config/mybatis/mybatis-config.xml"/>
+    <property name="mapperLocations">
+      <array>
+        <value>classpath*:kr/go/cris/**/*Map.xml</value>
+      </array>
+    </property>
+  </bean>
+
+  <!-- spring sql session template bean 지정 -->
+  <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+    <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory" />
+  </bean>
+
+  <!-- scan for mappers and let them be autowired -->
+  <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    <property name="basePackage" value="kr.go.cris" />
+    <property name="annotationClass" value="org.springframework.stereotype.Repository"/>
+  </bean>
+
+  <!-- 트랜잭션 advice 지정 -->
+  <tx:advice id="txadvice" transaction-manager="txManager">
+    <tx:attributes>
+      <tx:method name="*" rollback-for="Throwable"/>
+    </tx:attributes>
+  </tx:advice>
+
+  <!-- 트랜잭션 pointcut 설정 -->
+  <aop:config>
+    <aop:advisor advice-ref="txadvice" pointcut="execution(* kr.go.cris..*Service.*(..))" />
+    <!-- <aop:advisor advice-ref="txadvice" pointcut="execution(* kr.go.ncmik.commons.scheduler.Scheduler.*(..))" /> -->
+  </aop:config>
+</beans>

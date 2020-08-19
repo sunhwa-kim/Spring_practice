@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.cris.sms.dao.MsgDataDao">
+
+ <insert id="insertMsgData" parameterType="msgDataVO">
+		<![CDATA[
+			INSERT INTO MSG_DATA 
+				( MSG_SEQ
+				  , REQ_DATE
+				  , CUR_STATE
+				  , CALL_TO
+				  , CALL_FROM
+				  , SMS_TXT
+				  , MSG_TYPE
+				  , SUB_ID )
+			VALUES ( MSG_DATA_SEQ.NEXTVAL
+				  , SYSDATE
+				  , 0
+				  , #{callTo}
+				  , '0432493000'
+				  , #{smsTxt}
+				  , 4
+				  , 'ncmik' )
+		]]>
+ </insert>
+
+	
+	 
+	 
+
+</mapper>

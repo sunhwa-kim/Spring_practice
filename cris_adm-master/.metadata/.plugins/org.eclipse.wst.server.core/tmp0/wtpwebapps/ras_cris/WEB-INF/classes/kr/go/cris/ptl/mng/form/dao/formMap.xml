@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.cris.ptl.mng.form.dao.FormDao">
+
+	<select id="selectFormList" parameterType="java.util.Map" resultType="java.util.Map">
+   SELECT 
+         elmnt_id      
+       , elmnt_nm    
+       , data_type    
+       , cd             
+       , lbl_kor  
+       , lbl_eng 
+	  FROM CMMN_META_INFO
+      WHERE 1=1
+           <if test = "elmnt_id != null and elmnt_id != ''">
+           		AND elmnt_id LIKE '%'||#{elmnt_id}||'%'
+           </if>         
+           <if test = "elmnt_nm != null and elmnt_nm != ''">
+           		AND elmnt_nm LIKE '%'||#{elmnt_nm}||'%'
+           </if>         
+        order by elmnt_id 
+	</select>
+	
+	<insert id="insertForm" parameterType="java.util.Map">
+	<![CDATA[ 
+		INSERT INTO 
+		CMMN_META_INFO 
+				(
+			 	 elmnt_id
+			   , elmnt_nm
+			   , data_type
+			   , cd
+			   , lbl_kor
+			   , lbl_eng
+			   ) 
+			VALUES ( 
+			#{elmnt_id},
+			#{elmnt_nm},
+			#{data_type},
+			#{cd},
+			#{lbl_kor},
+			#{lbl_eng}
+			)
+			]]>
+	</insert>
+	
+	<update id="updateForm" parameterType="java.util.Map">
+	<![CDATA[ 
+		UPDATE CMMN_META_INFO 
+		  SET
+		     elmnt_nm = #{elmnt_nm}
+		   , data_type = #{data_type}
+		   , cd = #{cd}
+		   , lbl_kor = #{lbl_kor}   
+		   , lbl_eng = #{lbl_eng}
+		WHERE elmnt_id = #{elmnt_id}
+			]]>
+	</update>
+	
+	<insert id="insertWrkForm" parameterType="java.util.Map">
+	<![CDATA[ 
+		INSERT INTO 
+		       CMMN_WRK_FRM 
+				(
+			 	  FRM_ID
+				, FRM_GBN
+				, FRM_ETC
+				, USE_YN
+			   ) 
+			VALUES ( 
+			#{frm_id},
+			#{frm_gbn},
+			#{frm_etc},
+			#{use_yn}
+			)
+			]]>
+	</insert>
+	
+	<update id="updateWrkForm" parameterType="java.util.Map">
+	<![CDATA[ 
+		UPDATE CMMN_WRK_FRM 
+		  SET
+		      frm_gbn = #{frm_gbn}
+			, frm_etc =  #{frm_etc}
+			, use_yn =  #{use_yn}
+		WHERE FRM_ID = #{frm_id}
+			]]>
+	</update>
+	
+	
+<insert id="insertFormBoard" parameterType="java.util.Map">
+	<![CDATA[ 
+		INSERT INTO 
+		       WRT_BRD 
+				(
+					BRD_SEQ
+					,  FRM_ID
+				 	,  COL1
+			      	,  COL2
+				    ,  COL3
+				    ,  COL4
+				    ,  COL5
+				    ,  COL6
+				    ,  COL7
+				    ,  COL8
+				    ,  COL9
+				    ,  COL10
+			   ) 
+			VALUES ( 
+			TO_NUMBER(#{brd_seq}),
+			#{frm_id},
+			#{col1},
+			#{col2},
+			#{col3},
+			#{col4},
+			#{col5},
+			#{col6},
+			#{col7},
+			#{col8},
+			#{col9},
+			#{col10}
+			)
+			]]>
+	</insert>
+
+<update id="updatdBoardDetail" parameterType="java.util.Map">
+	<![CDATA[ 
+		 UPDATE WRT_BRD 
+		  SET
+		      COL1 = #{col1}
+		      	,  COL2 = #{col2}
+			    ,  COL3 = #{col3}
+			    ,  COL4 = #{col4}
+			    ,  COL5 = #{col5}
+			    ,  COL6 = #{col6}
+			    ,  COL7 = #{col7}
+			    ,  COL8 = #{col8}
+			    ,  COL9 = #{col9}
+			    ,  COL10 = #{col10}
+		WHERE 1=1
+		AND FRM_ID = #{frm_id}
+		AND BRD_SEQ = #{brd_seq}
+			]]>
+	</update>
+	
+	<select id="selectSubListBdDtail" parameterType="java.util.Map" resultType="java.util.Map">
+		   SELECT 
+				   BRD_SEQ
+				    ,  FRM_ID
+				    ,  COL1
+				    ,   b.DATA_TYPE AS COL2
+				    ,  COL3
+				    ,  COL4
+				    ,  COL5
+				    ,  COL6
+				    ,  COL7
+				    ,  COL8
+				    ,  COL9
+				    ,  TO_CHAR(COL10) AS COL10
+				    ,  CRT_DTTM
+				    ,  CRT_ID
+				    ,  MDFY_DTTM
+				    ,  MDFY_ID
+			FROM WRT_BRD a, CMMN_META_INFO b
+            WHERE 1=1
+			AND   a.col2  = b.data_type(+)
+		 <if test = "frm_id != null and frm_id != ''">
+           	AND frm_id = #{frm_id}
+          </if>
+          <if test = "frm_id != null and frm_id != ''"> 
+			AND brd_seq = #{brd_seq}
+		   </if>
+	</select>
+
+	<select id="selecTheadFormList" parameterType="java.util.Map" resultType="java.util.Map">
+		   SELECT 
+			       a.frm_id
+				    ,  b.frm_ord
+				    ,  b.lst_yn
+				    ,  b.srch_yn
+				    ,  c.lbl_kor
+				    ,  c.lbl_eng
+				    ,  b.frm_col
+				    ,  c.elmnt_id
+				    ,  c.elmnt_nm
+				    ,  c.data_type
+				    ,  c.cd
+			FROM CMMN_WRK_FRM a, CMMN_WRK_FRM_DTL b, CMMN_META_INFO c
+		    WHERE 1=1
+			AND a.frm_id = b.frm_id
+			AND b.frm_elmnt_id = c.elmnt_id
+			AND b.use_yn = 'Y'
+		         <if test = "frm_id != null and frm_id != ''">
+		         		AND a.frm_id = #{frm_id}
+		         </if>         
+		         <if test = "lst_yn != null and lst_yn != ''">
+		         		AND b.lst_yn = #{lst_yn}
+		         </if>      
+		      order by FRM_ORD
+	</select>
+	
+	<select id="selectSubListBoardCnt" resultType="wformVo" parameterType="wformVo">	
+		SELECT 
+		    COUNT(*) AS totalListCnt
+		     ,  MAX(BRD_SEQ) as last_brd
+		FROM WRT_BRD
+		WHERE 1=1
+       AND frm_id = #{frm_id}
+      	AND COL1 IS NOT NULL
+		ORDER BY brd_seq
+	</select>
+	
+	<select id="selectSubListBoard" parameterType="java.util.Map" resultType="java.util.Map">
+   		
+   		SELECT
+   			b.*
+  		FROM
+  		(
+	   		SELECT 
+	   			ROW_NUMBER() OVER(ORDER BY BRD_SEQ) AS RN
+				,  BRD_SEQ
+			    ,  COL1
+			    ,  COL2
+			    ,  COL3
+			    ,  COL4
+			    ,  COL5
+			    ,  COL6
+			    ,  COL7
+			    ,  COL8
+			    ,  COL9
+			    ,  TO_CHAR(COL10) AS COL10
+			    ,  CRT_DTTM
+			    ,  CRT_ID
+			    ,  MDFY_DTTM
+			    ,  MDFY_ID
+		 	 FROM WRT_BRD
+	      	WHERE 1=1
+	      	AND COL1 IS NOT NULL
+	           <if test = "frm_id != null and frm_id != ''">
+	           		AND frm_id = #{frm_id}
+	           </if>
+	           <if test = "brd_seq != null and brd_seq != ''">
+	           		AND brd_seq = #{brd_seq}
+	           </if>                  
+	           <if test = " srchColumnStr == 'col1'">
+	    			AND COL1 LIKE '%'||#{srchLower}||'%' OR COL1 LIKE '%'||#{srchUpper}||'%'
+	           </if>
+	           <if test = " srchColumnStr == 'col2'">
+	    			AND COL2 LIKE '%'||#{srchLower}||'%' OR COL2 LIKE '%'||#{srchUpper}||'%'
+	           </if>
+	           <if test = " srchColumnStr == 'col3'">
+	    			AND COL3 LIKE '%'||#{srchLower}||'%' OR COL3 LIKE '%'||#{srchUpper}||'%'
+	           </if>
+	           <if test = " srchColumnStr == 'col4'">
+	    			AND COL4 LIKE '%'||#{srchLower}||'%' OR COL4 LIKE '%'||#{srchUpper}||'%'
+	           </if>
+	           <if test = " srchColumnStr == 'col5'">
+	    			AND COL5 LIKE '%'||#{srchLower}||'%' OR COL5 LIKE '%'||#{srchUpper}||'%'
+	           </if>
+	           <if test = " srchColumnStr == 'col6'">
+	    			AND COL6 LIKE '%'||#{srchLower}||'%' OR COL6 LIKE '%'||#{srchUpper}||'%'
+	           </if>
+	           <if test = " srchColumnStr == 'col7'">
+	    			AND COL7 LIKE '%'||#{srchLower}||'%' OR COL7 LIKE '%'||#{srchUpper}||'%'
+	           </if>
+	           <if test = " srchColumnStr == 'col8'">
+	    			AND COL8 LIKE '%'||#{srchLower}||'%' OR COL8 LIKE '%'||#{srchUpper}||'%'
+	           </if>
+	           <if test = " srchColumnStr == 'col9'">
+	    			AND COL9 LIKE '%'||#{srchLower}||'%' OR COL9 LIKE '%'||#{srchUpper}||'%'
+	           </if>
+	           <if test = " srchColumnStr == 'col10'">
+	    			AND COL10 LIKE '%'||#{srchLower}||'%' OR COL10 LIKE '%'||#{srchUpper}||'%'
+	           </if>
+	   	      <![CDATA[ 
+		      		AND ROWNUM <= ( #{currPg} * #{linesPerPg} )
+	      		]]>
+	        order by brd_seq
+        ) b
+        WHERE 1=1
+    	<![CDATA[ 
+        	AND RN >= ( #{currPg} - 1 ) * #{linesPerPg} + 1
+        ]]>
+	</select>
+	
+<select id="selectUptListBoard" parameterType="java.util.Map" resultType="java.util.Map">	
+	SELECT 
+				BRD_SEQ
+			    ,  COL1
+			    ,  COL2
+			    ,  COL3
+			    ,  COL4
+			    ,  COL5
+			    ,  COL6
+			    ,  COL7
+			    ,  COL8
+			    ,  COL9
+			    ,  TO_CHAR(COL10) AS COL10
+			    ,  CRT_DTTM
+			    ,  CRT_ID
+			    ,  MDFY_DTTM
+			    ,  MDFY_ID
+ 	 FROM WRT_BRD
+     	WHERE 1=1
+          <if test = "frm_id != null and frm_id != ''">
+          		AND frm_id = #{frm_id}
+          </if>
+          <if test = "brd_seq != null and brd_seq != ''">
+          		AND brd_seq = #{brd_seq}
+          </if>    
+	</select>
+	
+	<insert id="insertSubWrkForm" parameterType="java.util.Map">
+	<![CDATA[ 
+		INSERT INTO 
+		       CMMN_WRK_FRM_DTL 
+				(
+			 	  FRM_ID
+			 	,  FRM_SEQ
+				, FRM_ELMNT_ID
+				, FRM_ORD
+				, FRM_COL
+				, USE_YN
+				, LST_YN
+				, SRCH_YN
+			   ) 
+			VALUES ( 
+			#{frm_id},
+			#{frm_seq},
+			#{frm_elmnt_id},
+			#{frm_ord},
+			#{frm_col},
+			#{use_yn},
+			#{lst_yn},
+			#{srch_yn}
+			)
+			]]>
+	</insert>
+	
+	<update id="updateSubWrkForm" parameterType="java.util.Map">
+	<![CDATA[ 
+		UPDATE CMMN_WRK_FRM_DTL 
+		  SET
+		      frm_elmnt_id = #{frm_elmnt_id}
+			, frm_ord =  #{frm_ord}
+			, frm_col =  #{frm_col}
+			, use_yn =  #{use_yn}
+			, lst_yn =  #{lst_yn}
+			, srch_yn =  #{srch_yn}
+		WHERE FRM_ID = #{frm_id}
+			]]>
+	</update>
+	
+	
+	
+	<select id="selectWrkFormList" parameterType="java.util.Map" resultType="java.util.Map">
+	   SELECT 
+	         FRM_ID      
+	       , FRM_GBN    
+	       , FRM_ETC    
+	       , USE_YN             
+		  FROM CMMN_WRK_FRM
+	      WHERE 1=1
+	           <if test = "frm_id != null and frm_id != ''">
+	           		AND FRM_ID LIKE '%'||#{frm_id}||'%'
+	           </if>         
+	           <if test = "frm_gbn != null and frm_gbn != ''">
+	           		AND FRM_GBN LIKE '%'||#{frm_gbn}||'%'
+	           </if>         
+	</select>    
+	
+	<select id="selectWrkFormDtlList" parameterType="java.util.Map" resultType="java.util.Map">
+	   SELECT 
+	          FRM_ID
+			, FRM_SEQ
+			, FRM_elmnt_id
+			, FRM_ORD
+			,  FRM_COL
+			, USE_YN
+			,  LST_YN
+			,  SRCH_YN          
+		  FROM CMMN_WRK_FRM_DTL
+	      WHERE 1=1
+           <if test = "frm_id != null and frm_id != ''">
+           		AND FRM_ID LIKE '%'||#{frm_id}||'%'
+           </if>         
+	</select>    
+</mapper>

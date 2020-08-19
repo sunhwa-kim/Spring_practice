@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.cris.commons.menu.dao.MenuDao" >
+  <!-- Top 메뉴 목록 조회 -->
+  <select id="selectTopMenuList" parameterType="userVo" resultType="menuVo">
+   SELECT *
+    FROM 
+    (
+      SELECT 
+          a.MENU_LEVL as lvl          /*lvl 메뉴레벨 */ 
+        , b.URL as url
+        , CASE WHEN #{engYn} = 'E' THEN a.MENU_ENG_NM ELSE a.MENU_NM END as menuNm               /* 메뉴 명 */ 
+        , CASE WHEN a.MENU_LEVL =0  THEN a.MENU_ORD ELSE c.MENU_ORD END ORD_SN
+        , a.MENU_ORD
+     FROM CMMN_MENU_MNG a                       /* 메뉴관리 */ 
+            , (
+            SELECT DISTINCT b.MENU_ID, c.URL
+                FROM CMMN_MENU_ROL b
+                   , CMMN_URL_MNG c
+              WHERE b.MENU_ID= c.MENU_ID
+                AND b.AUTH_GBN=c.AUTH_GBN
+                AND c.AUTH_GBN='VIEW'
+               <foreach collection="roleList" item="role" separator="," open="AND b.ROL_ID IN(" close=", 'ROLE_GUEST')">
+               #{role}
+               </foreach>
+            ) b
+        , (SELECT MENU_ID, MENU_ORD  FROM CMMN_MENU_MNG c WHERE MENU_PRTS_ID IS NULL) c
+    WHERE 1=1 
+       AND a.MENU_ID = b.MENU_ID
+       AND a.TOP_MENU_YN ='Y'
+       AND a.MENU_USE_YN='Y'
+       AND a.MENU_PRTS_ID = c.MENU_ID(+)
+       <!-- AND a.MENU_ID != 'SYS_MNG' -->
+    )
+    ORDER BY ORD_SN,lvl ,MENU_ORD
+  </select>
+
+  <!-- Left 메뉴 목록 조회 -->
+  <select id="selectLeftMenuList" parameterType="userVo" resultType="menuVo">
+      SELECT  a.MENU_ID ,
+       	  MENU_PRTS_ID , 
+          a.MENU_LEVL as lvl          /*lvl 메뉴레벨 */ 
+        , b.URL as url
+        , CASE WHEN #{engYn} = 'E' THEN a.MENU_ENG_NM ELSE a.MENU_NM END as menuNm               /* 메뉴 명 */ 
+     	, CONNECT_BY_ISLEAF as MENU_CON
+     FROM CMMN_MENU_MNG a                       /* 메뉴관리 */ 
+            , (
+            SELECT DISTINCT b.MENU_ID, c.URL
+                FROM CMMN_MENU_ROL b
+                   , CMMN_URL_MNG c
+              WHERE b.MENU_ID= c.MENU_ID
+                AND b.AUTH_GBN=c.AUTH_GBN
+                AND c.AUTH_GBN='VIEW'
+               <foreach collection="roleList" item="role" separator="," open="AND b.ROL_ID IN(" close=", 'ROLE_GUEST')">
+               #{role}
+               </foreach>
+            ) b
+    WHERE 1=1 
+       AND a.MENU_ID = b.MENU_ID
+       AND a.LEFT_MENU_YN ='Y'
+       AND a.MENU_USE_YN='Y'
+       AND a.MENU_ID != 'SYS_MNG'
+    START WITH          a.MENU_LEVL = '0'
+    CONNECT BY PRIOR    a.MENU_ID = a.MENU_PRTS_ID
+    ORDER SIBLINGS BY   a.MENU_ORD 
+  </select>
+
+  <!-- 전체 URL 목록 조회 -->
+  <select id="selectUrlList" resultType="menuVo">
+   SELECT  lvl, url, menuNm FROM (SELECT 
+          a.MENU_LEVL as lvl          /*lvl 메뉴레벨 */ 
+        , b.URL as url
+        , a.MENU_NM as menuNm               /* 메뉴 명 */ 
+     FROM CMMN_MENU_MNG a                       /* 메뉴관리 */ 
+            , (
+            SELECT DISTINCT b.MENU_ID, c.URL
+                FROM CMMN_MENU_ROL b
+                   , CMMN_URL_MNG c
+              WHERE b.MENU_ID= c.MENU_ID
+                  AND c.AUTH_GBN IN ('VIEW')
+            ) b
+    WHERE 1=1 
+       AND a.MENU_ID = b.MENU_ID )
+    ORDER BY lvl    
+    
+  </select>
+
+</mapper>

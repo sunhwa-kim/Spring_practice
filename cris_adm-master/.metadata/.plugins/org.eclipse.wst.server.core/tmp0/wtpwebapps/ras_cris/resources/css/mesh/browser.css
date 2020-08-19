@@ -1,0 +1,71 @@
+@CHARSET "UTF-8";
+
+
+/* font */
+@font-face { font-family: ng; src: url('../../font/NanumGothic/NanumGothic.eot'); src: local(※), url('../../font/NanumGothic/NanumGothic.woff') format('woff'); }
+@font-face{ font-family: batch; src:url('../../font/Batch/batch.eot'); src:url('../../font/Batch/batch.eot?#iefix') format('embedded-opentype'), url('../../font/Batch/batch.woff') format('woff'), url('../../font/Batch/batch.ttf') format('truetype'), url('../../font/Batch/batch.svg#batchregular') format('svg'); font-weight:normal; font-style:normal; }
+@font-face{ font-family: 'Open Sans'; src:url('../../font/OpenSans/OpenSans-Regular-webfont.eot'); src:url('../../font/OpenSans/OpenSans-Regular-webfont.eot?#iefix') format('embedded-opentype'), url('../../font/OpenSans/OpenSans-Regular-webfont.woff') format('woff'), url('../../font/OpenSans/OpenSans-Regular-webfont.ttf') format('truetype'), url('../../font/OpenSans/OpenSans-Regular-webfont.svg#batchregular') format('svg'); font-weight:normal; font-style:normal; }
+
+
+body { position: relative; margin: 0; padding: 0; }
+#layout { position: relative; margin: 0; padding: 0; width: 1200px; }
+caption { display: block; }
+
+
+/* NAV (LEFT) */
+.nav { position: absolute; left: 0; top: 0; bottom: 0; width: 290px; padding: 0 0 0 10px; overflow: hidden; background: #252a3a; z-index: 100; }
+.nav .logo { clear: both; width: 222px; height: 100px; overflow: hidden; margin: 15px 0 0 5px; }
+.nav .logo a { display: block; text-indent: -9999px; width: 222px; height: 76px; overflow: hidden; background: url('../../images/mesh/mesh_logo.gif') no-repeat; }
+.nav .treeWrapper { position: relative; clear: both; width: 290px; padding: 0; overflow: hidden; font: 14px 'open sans', arial; font-weight: lighter; background: #252a3a; }
+.nav #tree { position: relative; background: transparent; }
+
+
+/* LIST */
+.list { display: none; position: absolute; left: 300px; top: 0; bottom: 0; width: 299px; overflow: hidden; border-right: solid 1px #cccccc; z-index: 99; }
+.list .title { position: relative; clear: both; height: 75px; padding: 20px 20px 15px 15px; border-bottom: solid 1px #cccccc; border-left: solid 5px #ffffff; }
+.list .title h3 { clear: both; margin: 23px 0 5px 0; padding: 0; font-family: 'NanumGothic', '나눔고딕', ng, gulim, dotum; font-size: 20px; font-weight: bold; }
+.list .title p.caption { clear: both; margin: 0 0 0 2px; padding: 0; font: 14px 'open sans', arial; color: #999999; }
+.list .listitem { position: relative; clear: both; padding: 20px 0 15px 15px; border-bottom: solid 1px #cccccc; border-left: solid 5px #ffffff; }
+.list .listitem.on { border-left: solid 5px #02a3c6; }
+.list .listitem:hover { background-color: #eeeeee; border-left: solid 5px #eeeeee; }
+.list .listitem.on:hover { border-left: solid 5px #02a3c6; }
+.list .listitem .abbr { float: left; width: 64px; height: 64px; margin: 20px 16px 0 0; color: #ffffff; border-radius: 4px; text-align: center; font: lighter 20px 'gill sans mt', 'Carrois Gothic', 'open sans', arial; line-height: 64px; }
+.list .listitem .abbr.descriptor { background-color: #ff0066; }
+.list .listitem .abbr.qualifier { background-color: #ff9900; }
+.list .listitem .abbr.supplement { background-color: #00ccff; }
+.list .listitem .info { float: left; width: 180px; margin: 0; font: 14px 'lucida sans', arial; }
+.list .listitem .info .type { font-size: 12px; font-family: 'Carrois Gothic', 'open sans', arial; color: #999999; }
+.list .listitem .info h4 { margin: 5px 0 0 0; padding: 0; font-size: 14px; font-family: 'gill sans mt', arial; line-height: 1.4; }
+.list .listitem .info p { margin: 5px 0 0 0; padding: 0; color: #666666; font-size: 12px; font-family: 'Carrois Gothic'; }
+.list .listitem .info p.position { font-size: 12px; }
+
+
+/* CONTENTS */
+.contents { position: absolute; left: 300px; top: 0; bottom: 0; width: 700px; overflow: hidden; background: #ffffff; z-index: 101; border-right: solid 1px #cccccc; }
+.contents .search { clear: both; min-width: 500px; height: 40px; padding: 20px 25px 10px 25px; z-index: 98; }
+.contents .search #search_keyword { float: left; width: 334px; height: 21px; margin: 0; padding: 5px 8px; border: solid 5px #333333; font: 14px arial; }
+.contents .search #search_submit, .contents .search #search_submit_exact { float: left; height: 40px; padding: 0 20px; margin: 0 0 0 5px; background: #333333; color: #ffffff; border-radius: 4px; border: none; font-family: 'gill sans mt', 'open sans', arial; font-size: 12px; letter-spacing: 0; cursor: pointer; }
+.contents .option { clear: both; min-width: 500px; height: 30px; padding: 5px 25px; border-bottom: solid 1px #cccccc; z-index: 101; }
+.contents .option ul { margin: 0; padding: 0 0 0 5px; }
+.contents .option ul li { float: left; list-style-type: none; margin: 0 10px 0 0; font: 12px 'open sans', arial; }
+.contents .option ul li input { float: left; margin: 1px 2px 0 5px; padding: 0; cursor: pointer; }
+.contents .option ul li label { float: left; margin: 0; padding: 0 5px; font-size: 14px; font-family: 'NanumGothic', '나눔고딕', ng; cursor: pointer; }
+
+
+.contents #mesh-detail { clear: both; padding: 20px 35px; width: 630px; overflow: hidden; }
+.contents #mesh-detail h3 { clear: both; font-family: 'open sans', 'NanumGothic', '나눔고딕', ng; font-size: 18px; border-left: solid 6px #ff0066; padding-left: 15px; margin-bottom: 40px; }
+.contents #mesh-detail ul { clear: both; margin: 0; padding: 0; }
+.contents #mesh-detail ul li { clear: both; list-style-type: none; font-family: 'open sans', 'NanumGothic', '나눔고딕', ng; font-size: 14px; line-height: 1.6; padding: 10px 0; border-bottom: dotted 1px #cccccc; overflow: hidden; }
+.contents #mesh-detail ul.detail li .key { float: left; width: 180px; font-weight: bold; }
+.contents #mesh-detail ul.detail li .val { float: left; width: 450px; }
+.contents #mesh-detail .loadingCircle { margin: -65px 0 0 -80px; }
+	
+.meshTermWithUri { cursor: pointer; color: #ff0066; }
+.meshTermWithUri:hover { color: #ff0066; text-decoration: underline; }
+.contents #mesh-detail ul.searchResult { clear: both; overflow: hidden; }
+.contents #mesh-detail ul.searchResult li { clear: both; padding-left: 10px; overflow: hidden; }
+.contents #mesh-detail ul.searchResult li:hover {}
+
+p.caption { font-family: 'open sans', 'NanumGothic', '나눔고딕', ng; font-size: 14px; }
+
+

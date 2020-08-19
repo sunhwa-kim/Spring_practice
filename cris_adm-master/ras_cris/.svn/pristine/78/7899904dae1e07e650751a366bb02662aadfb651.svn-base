@@ -1,0 +1,170 @@
+package kr.go.cris.ptl.scheduler.service;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.annotation.Resource;
+
+import kr.go.cris.base.service.BaseServiceImpl;
+import kr.go.cris.ptl.archive.report.service.ArchiveReportService;
+import kr.go.cris.ptl.scheduler.dao.SchedulerDao;
+import kr.go.cris.ptl.scheduler.vo.SchedulerVo;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+import egovframework.rte.fdl.cmmn.exception.FdlException;
+import egovframework.rte.fdl.idgnr.EgovIdGnrService;
+
+/**
+ * <pre>
+ * 
+ * 스케쥴러 ServiceImpl 구현
+ * </pre>
+ * @FileName : SchedulerService.java
+ * @package  : kr.go.cris.commons.scheduler.service;
+ * @author   : wonki0138
+ * @date     : 2018. 3. 16.
+ * 
+ */
+@Service
+public class SchedulerServiceImpl extends BaseServiceImpl implements SchedulerService {
+
+	@Resource
+	private SchedulerDao schedulerDao;
+	
+	@Resource
+	private ArchiveReportService archiveReportService;
+	
+	/** ID Generation */    
+	@Resource(name="egovSchIdGnrService")
+	private EgovIdGnrService idGnrService;	
+	
+	
+	
+	
+	
+	/**
+	 * <pre>
+	 * 장서관리의 보고서  / 소장파일이 있는 자료를 아카이브 보고서 테이블에 insert 한다.
+	 *
+	 * </pre>
+	 * @author : wonki0138
+	 * @date   : 2018. 10. 02. 
+	 * @param archiveRndVo
+	 * @return
+	 * @throws IOException , SQLException , NullPointerException
+	 */
+	@Override
+	public void selectBooksArchiveCopy()	throws IOException, SQLException, NullPointerException {
+		logger.debug("***************************************************");
+		logger.debug("회원 미승인 스케줄러 STR");        		
+		logger.debug("***************************************************");
+    
+		int result = 0;
+		
+    	String schState = "N";  // "N" : normal , "F" : fail , "S" : success
+        	
+    	SchedulerVo schVo = new SchedulerVo();
+    	// 질병관리본부미승인 처리
+    	try{
+    			result = this.selectBooksCopy();    //PTL_EMPLYR 삭제
+    			        		
+        		if(result > 0 ){        			
+        			schState = "S";  
+        			
+	    		    schVo.setSch_cn("아카이브(보고서)등록처리 : [장서->아카이브] ("+result+")건 스케줄러가 정상 작동 하였습니다.");
+	        	    schVo.setSch_state("S");	        	   	        	
+        		}
+        		
+        		
+        		 
+    	} catch (IOException e) {
+            if (logger.isErrorEnabled()){
+            	logger.error("selectBooksArchiveCopy 에러 발생"); 	
+            }	
+        
+            schState = "F";
+    
+        	String resultMsg ="";
+        	SimpleDateFormat format1 = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
+        			
+        	Date time = new Date();
+        			
+        	String time1 = format1.format(time);
+        	resultMsg = "[ " +time1+" ] 스케줄러 에러발생";
+        	schVo.setSch_cn(resultMsg);
+        	schVo.setSch_state("E");
+
+        	
+    	}finally{    	
+    		if(!schState.equals("N")){  // S , F 일때만 이력 저장
+    		
+    			try{    				
+    				if(schState.equals("S")){    					
+    					this.updateArchiveReportSeq();
+    				}    				
+    				schVo.setSch_sj("아카이브(보고서)등록처리");
+    				this.insertSchedule(schVo); //저장	
+    				
+    			}catch(SQLException e) {
+				    if (logger.isErrorEnabled()){
+				    	logger.error("selectBooksArchiveCopy 에러 발생"); 		
+		            }	
+    			}
+
+    		}
+    		
+    		
+        }  
+		
+	}
+
+
+	@Override
+	public int selectBooksCopy() throws IOException, SQLException,NullPointerException {
+		return schedulerDao.selectBooksCopy();
+	}
+
+
+
+	@Override
+	public int insertSchedule(SchedulerVo vo) throws IOException, SQLException ,NullPointerException {
+		
+    	//log.debug(vo.toString());
+    	
+    	/** ID Generation Service */
+    	String no_seq;
+		
+		try {
+			no_seq = idGnrService.getNextStringId();
+			
+			if(vo != null){
+				vo.setSch_id(no_seq);
+			}	  
+				
+		} catch (FdlException e) {
+			// TODO Auto-generated catch block
+			logger.error("insertPtlMemberSchedule 에러 발생"); 		
+		}
+		
+			 
+		return	schedulerDao.insertSchedule(vo);
+	}
+
+
+
+
+
+	@Override
+	public int updateArchiveReportSeq() throws IOException, SQLException,NullPointerException {
+		// TODO Auto-generated method stub
+		return schedulerDao.updateArchiveReportSeq();
+	}
+
+}

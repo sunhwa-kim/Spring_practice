@@ -1,0 +1,320 @@
+/******************************************************************
+ * Copyright RASTECH 2015
+ ******************************************************************/
+package kr.go.cris.commons.login.handler;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import kr.go.cris.commons.login.service.LoginService;
+import kr.go.cris.commons.login.vo.UserVo;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+
+/**
+ * <pre>
+ * FileName: LoginSuccessHandler.java
+ * Package : kr.go.cris.commons.login.handler
+ *
+ * 로그인 성공 처리 handler.
+ *
+ * </pre>
+ * @author : rastech
+ * @date   : 2015. 9. 21.
+ */
+public class LoginSuccessHandler implements AuthenticationSuccessHandler {
+
+	@Autowired
+	private LoginService loginService;
+	
+	
+	private String meshURL;
+	private String errorURL;
+	private Set<String> reviewerURL;
+	private Set<String> indexerURL;
+		
+	
+    public String getMeshURL() {
+		return meshURL;
+	}
+
+	public void setMeshURL(String meshURL) {
+		this.meshURL = meshURL;
+	}
+
+	public String getErrorURL() {
+		return errorURL;
+	}
+
+	public void setErrorURL(String errorURL) {
+		this.errorURL = errorURL;
+	}
+
+	public Set<String> getReviewerURL() {
+		return reviewerURL;
+	}
+
+	public void setReviewerURL(Set<String> reviewerURL) {
+		this.reviewerURL = reviewerURL;
+	}
+
+	public Set<String> getIndexerURL() {
+		return indexerURL;
+	}
+
+	public void setIndexerURL(Set<String> indexerURL) {
+		this.indexerURL = indexerURL;
+	}
+	
+	/**
+	 * <pre>
+	 * 로그인 성공시 처리.
+	 *
+	 * </pre>
+	 * @author : rastech
+	 * @date   : 2015. 9. 21.
+	 * @param request
+	 * @param response
+	 * @param authentication
+	 * @throws IOException
+	 * @throws ServletException
+	 */
+	@Override
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+		UserVo usrVo = (UserVo) authentication.getDetails();
+		//로그인시 기본 ROLE_USER 등록
+		usrVo.getRoleList().add("ROLE_USER");
+		
+		/** 로그인 통계 현황 저장 **/
+		//유저IP VO에 세팅
+		usrVo.setEmpip(request.getRemoteAddr());
+		
+		// 사용자 IP 가져오기
+		String ip = request.getHeader("X-Forwarded-For");  
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+			ip = request.getHeader("Proxy-Client-IP");  
+		}  
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+			ip = request.getHeader("WL-Proxy-Client-IP");  
+		}  
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+			ip = request.getHeader("HTTP_X_FORWARDED_FOR");  
+		}  
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+			ip = request.getHeader("HTTP_X_FORWARDED");  
+		}  
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+			ip = request.getHeader("HTTP_X_CLUSTER_CLIENT_IP");  
+		}  
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+			ip = request.getHeader("HTTP_CLIENT_IP");  
+		}  
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+			ip = request.getHeader("HTTP_FORWARDED_FOR");  
+		}  
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+			ip = request.getHeader("HTTP_FORWARDED");  
+		}  
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+			ip = request.getHeader("HTTP_VIA");  
+		}  
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+			ip = request.getHeader("REMOTE_ADDR");  
+		}  
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+		    ip = request.getRemoteAddr();  
+		} 
+
+		usrVo.setUsrIp(ip);
+		/// STR  - 아카이브 관리자가 아닐때 목록메뉴를 보여주지 않고, 상위메뉴를 클릭했을시 바로 접근한다.  
+		String roleListVal = "";
+		String returnVal = "chkFalse";
+		for (int i = 0 ; i < usrVo.getRoleList().size(); i++ ){
+			roleListVal = usrVo.getRoleList().get(i);
+			
+			if(StringUtils.equals(roleListVal , "ROLE_ARCHIVE")){
+				returnVal = "chkTrue";
+			}
+		}
+		request.getSession().setAttribute("archiveChk", returnVal);
+		/// END
+		
+		// mesh 
+		if(StringUtils.isNotBlank(usrVo.getMeshagree()) &&  StringUtils.equals(usrVo.getMeshagree(), "1")){
+			request.getSession().setAttribute("bMeshMenuView", true);
+		}else{
+			request.getSession().setAttribute("bMeshMenuView", false);
+		}
+		
+		request.getSession().setAttribute("userVo", usrVo);
+		
+		if (     checkIPMatching("152.99.73.*", ip)     // 질병관리본부 대역
+	       	 || checkIPMatching("210.183.128.80", ip) || checkIPMatching("210.183.128.81", ip) // 도서관 대역(2017.08.02. 수정)
+
+			//	|| checkIPMatching("211.199.211.238", ip) || checkIPMatching("211.199.211.226", ip) // 도서관 대역
+      		//|| checkIPMatching("192.168.*.*",ip)      || checkIPMatching("127.0.0.1", ip)     // 개발 테스트
+      		//checkIPMatching("172.17.*.*", ip)      || 
+      	)
+		{ // IP 대역이면
+			usrVo.setInternalIp("Y");
+		}
+		//사용자 접속통계
+		try {
+			loginService.insertStatLogin(usrVo.getEmplyrkey());
+		} catch (SQLException e) {
+			Logger.getLogger(LoginSuccessHandler.class).debug("IGNORED: onAuthenticationSuccess");
+		}
+		
+		request.getSession().setAttribute("NCMIK_ELIB_LOGIN", "LOGIN");
+		String rtnUrl = request.getSession().getAttribute("returnURL") == null?"" :request.getSession().getAttribute("returnURL").toString() ;
+		String returnURL = StringUtils.isEmpty(rtnUrl) ? "/index/index.do" : rtnUrl;
+		
+		
+	    String requestURI = request.getRequestURI();
+			boolean isMeshURL = false;
+		
+			String pattern = request.getContextPath() + meshURL;
+			// 사용금지 System.out.println(pattern + ", " + requestURI);
+			if (Pattern.matches(pattern, requestURI)){
+				isMeshURL = true;
+			}
+			else {
+				// 사용금지 System.out.println("not mesh url");
+				isMeshURL = false;
+			}
+			// 사용금지 System.out.println("isMeshURL: " + isMeshURL);
+			
+			if( isMeshURL == true){
+				boolean meshChk = false;
+				pattern = request.getContextPath() + errorURL;
+				// 사용금지 System.out.println(pattern + ", " + requestURI);
+				if (Pattern.matches(pattern, requestURI)) {			
+					meshChk = true;
+				}
+				if(meshChk == false){
+					if (!hasPermissionToMesh(usrVo)) {
+						// 사용금지 System.out.println("!hasPermissionToMesh");
+						returnURL= "ncmik/mesh/authError.do";
+						meshChk = true;
+					}
+				}
+				
+				if(meshChk == false){
+					if (isIndexer(usrVo)) {
+						// 사용금지 System.out.println("isIndexer");
+						for(Iterator<String> it = this.indexerURL.iterator(); it.hasNext();){
+							String urlPattern = request.getContextPath() + it.next();
+							// 사용금지 System.out.println("isIndexer: " + urlPattern + ", " + requestURI);
+							if(Pattern.matches(urlPattern, requestURI)){
+								meshChk = true;
+							}
+						}
+					}
+					else if (isReviewer(usrVo)) {
+						// 사용금지 System.out.println("isReviewer");
+						for(Iterator<String> it = this.reviewerURL.iterator(); it.hasNext();){
+							String urlPattern = request.getContextPath() + it.next();
+							if(Pattern.matches(urlPattern, requestURI)){
+								meshChk = true;
+							}
+						}
+					}
+				}
+				
+				if(meshChk == false){
+					returnURL= "ncmik/mesh/authError.do";
+					       
+				}
+			}		
+		
+		response.sendRedirect(request.getContextPath() + returnURL);
+	}
+	
+    /**
+     * check if IP address match pattern
+     * 
+     * @param pattern
+     *            *.*.*.* , 192.168.1.0-255 , *
+     * @param address
+     *            - 192.168.1.1<BR>
+     *            <code>address = 10.2.88.12  pattern = *.*.*.*   result: true<BR>
+     *                address = 10.2.88.12  pattern = *   result: true<BR>
+     *                address = 10.2.88.12  pattern = 10.2.88.12-13   result: true<BR>
+     *                address = 10.2.88.12  pattern = 10.2.88.13-125   result: false<BR></code>
+     * @return true if address match pattern
+     */
+    private static boolean checkIPMatching(String pattern, String address) {
+    
+    	if (pattern.equals("*.*.*.*") || pattern.equals("*")) return true;
+	
+	    String[] mask = pattern.split("\\.");
+	    String[] ip_address = address.split("\\.");
+	    for (int i = 0; i < mask.length; i++) {
+		    if (mask[i].equals("*") || mask[i].equals(ip_address[i]))
+		    continue;
+		    else if (mask[i].contains("-")) {
+			    byte min = Byte.parseByte(mask[i].split("-")[0]);
+			    byte max = Byte.parseByte(mask[i].split("-")[1]);
+			    byte ip = Byte.parseByte(ip_address[i]);
+			    if (ip < min || ip > max) return false;
+		    }
+		    else {
+		    	return false;
+		    }
+	    }
+	    return true;
+    }
+	
+    
+    
+
+   	/*
+   	 * login session
+   	 */
+   	private boolean isLoggedIn(UserVo usrVo) {
+   		return (usrVo != null) ? true : false;
+   	}
+   	
+   	@SuppressWarnings("unused")
+   	private String getLoginID(UserVo usrVo) {
+   		if (!isLoggedIn(usrVo)) {
+   			return "";
+   		}
+   		
+   		return usrVo.getLoginid();
+   	}
+   	
+   	private boolean hasPermissionToMesh(UserVo usrVo) {
+   		if (!isLoggedIn(usrVo)) {
+   			return false;
+   		}	
+   		return (usrVo != null && usrVo.getMeshagree().equals("1")) ? true : false;
+   	}
+   	
+   	private boolean isIndexer(UserVo usrVo) {
+   		if (!hasPermissionToMesh(usrVo)) {
+   			return false;
+   		}
+   		
+   		return usrVo.getMesh().equalsIgnoreCase("1") ? true : false;
+   	}
+
+   	private boolean isReviewer(UserVo usrVo) {
+   		if (!hasPermissionToMesh(usrVo)){
+   			return false;
+   		} 	
+   		return usrVo.getMesh().equalsIgnoreCase("0") ? true : false;
+   	}
+
+}
