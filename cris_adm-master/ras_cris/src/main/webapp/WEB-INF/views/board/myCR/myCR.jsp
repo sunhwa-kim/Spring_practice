@@ -8,14 +8,16 @@
 
 <script type="text/javascript">
 	var longinInfo = 'devsuper';
-	var firstOfHtml="";
-	var lastOfHtml ="";
-	var regCnt=2;
+
+	
 	
 	param = {};
 	param.userId = longinInfo;
 
 $(function(){
+	var firstOfHtml="";
+	var lastOfHtml ="";
+	var regCnt=2;
 	$.ajax({
 		url: ctxt + '/board/myClinicalResearch/registration_mng.do',
 		data : param,
