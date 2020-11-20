@@ -18,9 +18,9 @@ public class PostMethod {
 
     // post 요청 테스트는 postman이나 크롬 확장 api로
 
-    //    @RequestMapping(method= RequestMethod.POST, path="/postMethod")
+//        @RequestMapping(method= RequestMethod.POST, path="/postMethod" , produces = {})
 //    @PostMapping(value = "/postMethod", produces = {"application-json"}) // json은 default
-    @PostMapping("/PostMethod")  //상단 보다 간단,
+//    @PostMapping("/PostMethod")  //상단 보다 간단,
     public SearchParameter postMethod(@RequestBody SearchParameter searchParameter){
         return searchParameter;
     }
