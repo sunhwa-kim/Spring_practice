@@ -1,10 +1,10 @@
-package com.adm.shopping;
+package com.sh.adm;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ShoppingApplicationTests {
+class AdmApplicationTests {
 
 	@Test
 	void contextLoads() {

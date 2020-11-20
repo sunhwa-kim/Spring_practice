@@ -1,13 +1,13 @@
-package com.adm.shopping;
+package com.sh.adm;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ShoppingApplication {
+public class AdmApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ShoppingApplication.class, args);
+		SpringApplication.run(AdmApplication.class, args);
 	}
 
 }
