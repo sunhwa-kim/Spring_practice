@@ -1,4 +1,4 @@
-package com.sh.adm.entity;
+package com.sh.adm.model.entity;
 
 import lombok.Getter;
 import lombok.Setter;

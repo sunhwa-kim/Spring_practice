@@ -1,7 +1,7 @@
 package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
-import com.sh.adm.entity.Users;
+import com.sh.adm.model.entity.Users;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -31,11 +31,11 @@ class UserRepositoryTest extends AdmApplicationTests {
         // given
         Users user = new Users();
 //        user.setId(); // Not null 이지만  Auto Increment 주의
-        user.setAccount("TestUser02");
-        user.setEmail("Test02@gmail.com");
+        user.setAccount("TestUser03");
+        user.setEmail("Test03@gmail.com");
         user.setPhoneNumber("010-2222-2222");
         user.setCreatedAt(LocalDateTime.now());  // NN
-        user.setCreatedBy("TestUser02");  // NN
+        user.setCreatedBy("TestUser03");  // NN
         // when
         Users rst = userRepository.save(user);
         // then
