@@ -1,17 +1,14 @@
 package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
-import com.sh.adm.model.entity.Users;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
+import com.sh.adm.model.entity.User;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class UserRepositoryTest extends AdmApplicationTests {
 //    UserRepository userRepository = new UserRepository(); // interface는 객체 생성 X, TDD로서 No, DI개념이 중요
@@ -26,28 +23,42 @@ class UserRepositoryTest extends AdmApplicationTests {
     
     
     @Test
-    @Transactional
+//    @Transactional
     public void create(){
         // given
-        Users user = new Users();
-//        user.setId(); // Not null 이지만  Auto Increment 주의
-        user.setAccount("TestUser03");
-        user.setEmail("Test03@gmail.com");
-        user.setPhoneNumber("010-2222-2222");
-        user.setCreatedAt(LocalDateTime.now());  // NN
-        user.setCreatedBy("TestUser03");  // NN
+        String account = "Test02";
+        String pwd = "1234567890";
+        String status = "UNREGISTERED";
+        String email = "Test02@gmail.com";
+        String phoneNumber = "010-2222-2222";
+        LocalDateTime registeredAt = LocalDateTime.now();
+        LocalDateTime createdAt = LocalDateTime.now();
+        String createdBy = "SunHwaKim";
+
+        User user = new User();
+        user.setAccount(account);
+        user.setPassword(pwd);
+        user.setStatus(status);
+        user.setEmail(email);
+        user.setPhoneNumber(phoneNumber);
+        user.setRegisteredAt(registeredAt);
+        user.setCreatedAt(createdAt);
+        user.setCreatedBy(createdBy);
+
         // when
-        Users rst = userRepository.save(user);
+        User rst = userRepository.save(user);
         // then
-        System.out.println(user.getId());  // 8L
-        org.junit.jupiter.api.Assertions.assertEquals(user, rst);
+        Assertions.assertNotNull(rst);
+
         // static : mport static org.assertj.core.api.Assertions.assertThat;
 //        assertThat(user.getId()).isEqualTo(6L);  // test 번복시 +1
     }
 
     @Test
     public void read(){
-        assertThat(userRepository.existsById(3L));
+        String status = "UNREGISTERED";
+        User user = userRepository.findFirstByStatusOrderByIdDesc(status);
+        Assertions.assertEquals(user.getStatus(), status);
     }
 
     @Test
@@ -69,13 +80,13 @@ class UserRepositoryTest extends AdmApplicationTests {
     @Test
     @Transactional
     public void delete(){
-        Optional<Users> test = userRepository.findById(8L);
-        Assertions.assertThat(test.isPresent());
-        test.ifPresent(users -> userRepository.delete(users));
+        Optional<User> test = userRepository.findById(8L);
+//        Assertions.assertThat(test.isPresent());
+        test.ifPresent(user -> userRepository.delete(user));
 //        org.junit.jupiter.api.Assertions.assertFalse(userRepository.existsById(3L));
 //        org.junit.jupiter.api.Assertions.assertFalse(test.isPresent());
         System.out.println(userRepository.findById(8L));  // Optional.empty -> isEmpty()로 확인 가능.
 //        Assertions.assertThat(!test.isPresent());
-        Assertions.assertThat(test.isEmpty());
+//        Assertions.assertThat(test.isEmpty());
     }
 }

@@ -1,5 +1,6 @@
 package com.sh.adm.model.entity;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,8 @@ import java.time.LocalDateTime;
 //@Table(name = "User")   // 동일시 자동 맵핑
 @Getter
 @Setter
-public class Users {
+@Data
+public class User {
 
     @Id  // 식별자
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,18 +21,17 @@ public class Users {
 
     private String account;
 
-   /*
-     public String getAccount() {
-        return account;
-    }
-    public void setAccount(String account) {
-        this.account = account;
-    }
-    */
+    private String password;
+
+    private String status;
 
     private String email;
 
     private String phoneNumber;  // camel case  != snake case(DB)
+
+    private LocalDateTime registeredAt;
+
+    private LocalDateTime unregisteredAt;
 
     private LocalDateTime createdAt;
 
@@ -40,3 +41,11 @@ public class Users {
 
     private  String updatedBy;
 }
+   /*
+     public String getAccount() {
+        return account;
+    }
+    public void setAccount(String account) {
+        this.account = account;
+    }
+    */
