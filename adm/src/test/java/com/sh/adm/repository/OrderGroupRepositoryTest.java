@@ -17,9 +17,10 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
     public void create() {
         OrderGroup orderGroup = new OrderGroup();
         orderGroup.setStatus("COMPLETED");
-        orderGroup.setOrderType("ALL");   // enum타입으로 관리
+        orderGroup.setOrderType("ALL");   // 이넘타입으로 관리?
         orderGroup.setRevAddress("서울시 강남구");
-        orderGroup.setPaymentType("서복");
+        orderGroup.setRevName("홍길동");
+        orderGroup.setPaymentType("CARD");
         orderGroup.setTotalPrice(BigDecimal.valueOf(900000));
         orderGroup.setTotalQuantity(1);
         orderGroup.setOrderAt(LocalDateTime.now().minusDays(2));
