@@ -1,16 +1,19 @@
 package com.sh.adm.controller;
 
 import com.sh.adm.model.SearchParameter;
+import com.sh.adm.model.network.Header;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api")
 public class GetMethod {
 
-//    @RequestMapping(method= RequestMethod.GET, path="/getMethod")
-//    public String getRequest() {
-//        return "get getMethod!";
-//    }
+    @RequestMapping(method= RequestMethod.GET, path="/getRequest")
+    public String getRequest() {
+        return "get getMethod!";
+    }
 
     @GetMapping("/getMethod")
     public String getMethod(@RequestParam String date, @RequestParam(name = "password") String pwd){
@@ -27,4 +30,10 @@ public class GetMethod {
         return param;  // JSON 방식
     }
 
+
+    @GetMapping("/getHeader")
+    public Header getHeader(){
+        // {"resultCode":"OK" , "description":"header test" }
+        return Header.builder().transactionTime(LocalDateTime.now()).resultCode("OK").description("test").build();
+    }
 }
