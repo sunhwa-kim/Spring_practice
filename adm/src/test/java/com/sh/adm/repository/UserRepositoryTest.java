@@ -55,10 +55,40 @@ class UserRepositoryTest extends AdmApplicationTests {
     }
 
     @Test
+    @Transactional   //could not initialize proxy - no Session 에러 처리
     public void read(){
-        String status = "UNREGISTERED";
-        User user = userRepository.findFirstByStatusOrderByIdDesc(status);
-        Assertions.assertEquals(user.getStatus(), status);
+        String phoneNumber = "010-2222-2222";
+        userRepository.findFirstByPhoneNumberOrderByIdDesc(phoneNumber)
+                .ifPresent(user -> {
+                    System.out.println("---- 사용자 주문 내역 ----");
+                    user.getOrderGroupList().forEach(orderGroup -> {
+                        System.out.println("수령인(주문타입) : "+orderGroup.getRevName()+"("+orderGroup.getOrderType()+")");
+                        System.out.println("주문날짜/도착예정일 :"+"["+orderGroup.getOrderAt()+"/"+orderGroup.getArrivalDate()+"]");
+                        System.out.println("수령지 : "+orderGroup.getRevAddress());
+                        System.out.println("총금액 : "+orderGroup.getTotalPrice());
+                        System.out.println("총수량 : "+orderGroup.getTotalQuantity());
+
+                        System.out.println("---- 주문 상세 ----");
+                        orderGroup.getOrderDetailList().forEach(orderDetail -> {
+                            System.out.println("주문 상태 : "+orderDetail.getStatus());
+                            System.out.println("도착예상일자 : "+ orderDetail.getArrivalDate());
+
+                            System.out.println("주문 아이템 : "+orderDetail.getItem().getName());
+                            
+                            System.out.println("파트너사 : "+orderDetail.getItem().getPartner().getName());
+                            System.out.println("파트너사 카테고리 : "+orderDetail.getItem().getPartner().getCategory().getTitle());
+
+                        });
+                    });
+                });
+
+
+
+
+//        String status = "UNREGISTERED";
+//        User user = userRepository.findFirstByStatusOrderByIdDesc(status);
+//        Assertions.assertEquals(user.getStatus(), status);
+
     }
 
     @Test

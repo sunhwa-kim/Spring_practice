@@ -38,6 +38,8 @@ public class PartnerRepositoryTest extends AdmApplicationTests {
         partner.setCreatedAt(createdAt);
         partner.setCreatedBy(createdBy);
 
+//        partner.setCategoryId(2L);
+
         Partner newPartner = partnerRepository.save(partner);
         Assertions.assertNotNull(newPartner);
     }

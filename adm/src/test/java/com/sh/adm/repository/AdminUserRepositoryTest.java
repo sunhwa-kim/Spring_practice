@@ -16,16 +16,18 @@ public class AdminUserRepositoryTest extends AdmApplicationTests {
     public void create() {
 
         AdminUser adminUser = new AdminUser();
-        adminUser.setAccount("AdminUser02");
-        adminUser.setPassword("AdminUser02");
+        adminUser.setAccount("AuditorTest1");
+        adminUser.setPassword("AuditorTest1");
         adminUser.setStatus("REGISTERED");
         adminUser.setRole("PARTNER");
 //        adminUser.setLastLoginAt();   // NULL 허용 건너뛰기
 //        adminUser.setPasswordUpdatedAt();
 //        adminUser.setLoginFailCount();
 //        adminUser.setRegisteredAt();
-        adminUser.setCreatedAt(LocalDateTime.now());
-        adminUser.setCreatedBy("AdminServer");
+
+//        adminUser.setCreatedAt(LocalDateTime.now());    //  -> JPA auditor
+//        adminUser.setCreatedBy("AdminServer");
+
 
         AdminUser newAdmUser = adminUserRepository.save(adminUser);
         Assertions.assertNotNull(newAdmUser);

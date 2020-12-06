@@ -3,15 +3,25 @@ package com.sh.adm.model.entity;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 //@Table(name = "User")   // 동일시 자동 맵핑
 @Getter
 @Setter
 @Data
+
+@EntityListeners(AuditingEntityListener.class)
+@ToString(exclude = {"orderGroupList"})
 public class User {
 
     @Id  // 식별자
@@ -33,13 +43,20 @@ public class User {
 
     private LocalDateTime unregisteredAt;
 
+    @CreatedDate
     private LocalDateTime createdAt;
 
+    @CreatedBy
     private String createdBy;
 
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    private  String updatedBy;
+    @LastModifiedBy
+    private String updatedBy;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<OrderGroup> orderGroupList;
 }
    /*
      public String getAccount() {
