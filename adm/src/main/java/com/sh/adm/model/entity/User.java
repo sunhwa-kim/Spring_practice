@@ -14,8 +14,8 @@ import java.util.List;
 @Entity
 //@Table(name = "User")   // 동일시 자동 맵핑
 @EntityListeners(AuditingEntityListener.class)
-@Getter
-@Setter
+//@Getter
+//@Setter
 @Data
 @Builder
 

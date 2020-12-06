@@ -42,8 +42,8 @@ class UserRepositoryTest extends AdmApplicationTests {
         user.setEmail(email);
         user.setPhoneNumber(phoneNumber);
         user.setRegisteredAt(registeredAt);
-        user.setCreatedAt(createdAt);
-        user.setCreatedBy(createdBy);
+//        user.setCreatedAt(createdAt);
+//        user.setCreatedBy(createdBy);
 
         // when
         User rst = userRepository.save(user);

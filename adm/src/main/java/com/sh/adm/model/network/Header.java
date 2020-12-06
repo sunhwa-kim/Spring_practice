@@ -28,4 +28,33 @@ public class Header<T> {
     // data  (항상 변하는, generic으로 받아)
     private T data;
 
+    // service 반환 형태
+    //  OK
+    public static <T> Header<T> OK() {
+        //  (Header<T>) : (build 한 거 ) 형변환 까지 해줘야...
+        return (Header<T>) Header.builder()
+                .transactionTime(LocalDateTime.now())
+                .resultCode("OK")
+                .description("OK")
+                .build();
+    }
+
+    //  DATA OK
+    public static <T> Header<T> OK(T data) {
+        return (Header<T>) Header.builder()
+                .transactionTime(LocalDateTime.now())
+                .resultCode("OK")
+                .description("data OK")
+                .data(data)
+                .build();
+    }
+
+    // ERROR
+    public static <T> Header<T> error(String description) {
+        return (Header<T>) Header.builder()
+                .transactionTime(LocalDateTime.now())
+                .resultCode("ERROR")
+                .description(description)
+                .build();
+    }
 }
