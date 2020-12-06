@@ -1,9 +1,6 @@
 package com.sh.adm.model.entity;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -16,11 +13,12 @@ import java.util.List;
 
 @Entity
 //@Table(name = "User")   // 동일시 자동 맵핑
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @Data
+@Builder
 
-@EntityListeners(AuditingEntityListener.class)
 @ToString(exclude = {"orderGroupList"})
 public class User {
 
