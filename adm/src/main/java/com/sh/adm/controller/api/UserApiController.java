@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserApiController implements CrudInterface<UserApiRequest, UserApiResponse> {
     // controller 마다 CRUD 반복 -> Ifs / CrudInterface
     // Header 공통 -> CrudInterface
-
     // REST 연동 전 규칙 설정 : @PostMapping, @GetMapping, @PutMapping, @DeleteMapping
+    //  -> 공통, 중복 부분 추상화 리팩토링
 
     @Autowired
     UserApiLoginService userApiLoginService;
@@ -42,20 +42,21 @@ public class UserApiController implements CrudInterface<UserApiRequest, UserApiR
 
     @Override
     @GetMapping("{ids}")   //"/api/user/{ids}"
-    public Header<UserApiResponse> read(@PathVariable("id") Long id) {
-        return null;
+    public Header<UserApiResponse> read(@PathVariable("ids") Long id) {
+        return userApiLoginService.read(id);
     }
 
     @Override
     @PutMapping("")
-    public Header<UserApiResponse> update(Header<UserApiRequest> request) {
-        return null;
+    public Header<UserApiResponse> update(@RequestBody Header<UserApiRequest> request) {
+        // @RequestBody 없으면 null exception
+        return userApiLoginService.update(request);
     }
 
     @Override
     @DeleteMapping("{id}")
     public Header delete(@PathVariable Long id) {
-        return null;
+        return userApiLoginService.delete(id);
     }
 
 }

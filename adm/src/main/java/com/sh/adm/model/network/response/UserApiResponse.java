@@ -1,5 +1,6 @@
 package com.sh.adm.model.network.response;
 
+import com.sh.adm.model.enumclass.UserStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;

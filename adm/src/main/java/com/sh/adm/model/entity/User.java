@@ -1,6 +1,8 @@
 package com.sh.adm.model.entity;
 
+import com.sh.adm.model.enumclass.UserStatus;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -17,9 +19,12 @@ import java.util.List;
 //@Getter
 //@Setter
 @Data
-@Builder
-
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString(exclude = {"orderGroupList"})
+
+@Builder
+@Accessors(chain = true)
 public class User {
 
     @Id  // 식별자
@@ -31,7 +36,8 @@ public class User {
 
     private String password;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
     private String email;
 
