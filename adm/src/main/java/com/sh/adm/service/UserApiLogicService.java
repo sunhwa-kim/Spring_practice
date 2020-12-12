@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-public class UserApiLoginService implements CrudInterface<UserApiRequest, UserApiResponse> {
+public class UserApiLogicService implements CrudInterface<UserApiRequest, UserApiResponse> {
     // req -> data 받아 -> DB save -> 생성 data + Header return
     @Autowired
     private UserRepository userRepository;      //  나중에 추상화로 분리

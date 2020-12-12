@@ -1,6 +1,8 @@
 package com.sh.adm.model.entity;
 
+import com.sh.adm.model.enumclass.OrderType;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -18,6 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Accessors(chain = true)
 
 @ToString(exclude = {"orderDetailList","user"})
 public class OrderGroup {
@@ -28,13 +31,14 @@ public class OrderGroup {
 
     private String status;
 
-    private String orderType;
+    @Enumerated(EnumType.STRING)
+    private OrderType orderType;   // 묶음 , 개별
 
     private String revAddress;
 
     private String revName;
 
-    private String paymentType;
+    private String paymentType;    // 현금, 카드,.
 
     private BigDecimal totalPrice;
 

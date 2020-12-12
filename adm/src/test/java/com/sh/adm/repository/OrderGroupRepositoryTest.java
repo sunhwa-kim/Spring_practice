@@ -2,6 +2,7 @@ package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
 import com.sh.adm.model.entity.OrderGroup;
+import com.sh.adm.model.enumclass.OrderType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
     public void create() {
         OrderGroup orderGroup = new OrderGroup();
         orderGroup.setStatus("COMPLETED");
-        orderGroup.setOrderType("ALL");   // 이넘타입으로 관리?
+        orderGroup.setOrderType(OrderType.ALL);   // 이넘타입으로 관리?
         orderGroup.setRevAddress("서울시 강남구");
         orderGroup.setRevName("홍길동");
         orderGroup.setPaymentType("CARD");
