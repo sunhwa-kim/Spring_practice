@@ -8,7 +8,11 @@ import com.sh.adm.model.network.response.UserApiResponse;
 import com.sh.adm.service.UserApiLogicService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @Slf4j
@@ -22,6 +26,13 @@ public class UserApiController implements CrudInterface<UserApiRequest, UserApiR
 
     @Autowired
     UserApiLogicService userApiLogicService;
+
+    @GetMapping("")
+    public Header<List<UserApiResponse>> getPage(@PageableDefault(sort = "id", size = 15) Pageable pageable) {
+        log.info("{}",pageable);
+        return userApiLogicService.getPages(pageable);
+    }
+
 
     @Override
     @PostMapping("")   // "/api/user"

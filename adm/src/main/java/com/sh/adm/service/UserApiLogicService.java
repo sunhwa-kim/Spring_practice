@@ -8,15 +8,29 @@ import com.sh.adm.model.network.request.UserApiRequest;
 import com.sh.adm.model.network.response.UserApiResponse;
 import com.sh.adm.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserApiLogicService implements CrudInterface<UserApiRequest, UserApiResponse> {
     // req -> data 받아 -> DB save -> 생성 data + Header return
     @Autowired
     private UserRepository userRepository;      //  나중에 추상화로 분리
+
+    public Header<List<UserApiResponse>> getPages(Pageable pageable) {
+        Page<User> users = userRepository.findAll(pageable);
+
+        List<UserApiResponse> res = users.stream()
+                .map(user -> response(user))
+                .collect(Collectors.toList());
+
+        return Header.OK(res);
+    }
 
     @Override
     public Header<UserApiResponse> create(Header<UserApiRequest> request) {
@@ -37,24 +51,9 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
 
         User newUser = userRepository.save(user);
 
-        return response(newUser);
+        return Header.OK(response(newUser));
     }
         // response 중복 -> response()
-       /* UserApiResponse userApiResponse = UserApiResponse.builder()
-                .id(newUser.getId())
-                .account(newUser.getAccount())
-                .password(newUser.getPassword())
-                .status(newUser.getStatus())
-                .email(newUser.getEmail())
-                .phoneNumber(newUser.getPhoneNumber())
-                .registeredAt(newUser.getRegisteredAt())
-                .unregisteredAt(newUser.getUnregisteredAt())
-                .build();
-
-//        return Header < userApiResponse >;   // error -> 반환값 가지는 메서드 추가
-        return Header.OK(userApiResponse);*/
-
-
 
     @Override
     public Header<UserApiResponse> read(Long id) {
@@ -62,6 +61,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
         return userRepository.findById(id)
 //                .map(entity -> response(entity))
                 .map(this::response)
+                .map(Header::OK)
                 .orElseGet(() -> Header.error("No data existed"));
     }
 
@@ -83,6 +83,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
                     return entity;
                 } )
                 .map(this::response)
+                .map(Header::OK)
                 .orElseGet(() -> Header.error("No data existed"));
     }
 
@@ -108,7 +109,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
         return entity;
     }
 
-    private Header<UserApiResponse> response(User user){
+    private UserApiResponse response(User user){
         // save ine response's date and send response data
         String getStatus = user.getStatus().getTitle();
         UserApiResponse userApiResponse = UserApiResponse.builder()
@@ -122,6 +123,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
                 .unregisteredAt(user.getUnregisteredAt())
                 .build();
 
-        return Header.OK(userApiResponse);
+        return userApiResponse;
+//        return Header.OK(userApiResponse);
     }
 }
