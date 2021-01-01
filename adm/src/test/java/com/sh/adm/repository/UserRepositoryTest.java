@@ -2,6 +2,7 @@ package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
 import com.sh.adm.model.entity.User;
+import com.sh.adm.model.enumclass.UserStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ class UserRepositoryTest extends AdmApplicationTests {
     
     
     @Test
-//    @Transactional
+    @Transactional
     public void create(){
         // given
         String account = "Test02";
@@ -38,7 +39,7 @@ class UserRepositoryTest extends AdmApplicationTests {
         User user = new User();
         user.setAccount(account);
         user.setPassword(pwd);
-        user.setStatus(status);
+        user.setStatus(UserStatus.REGISTERED);
         user.setEmail(email);
         user.setPhoneNumber(phoneNumber);
         user.setRegisteredAt(registeredAt);

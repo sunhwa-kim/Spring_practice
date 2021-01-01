@@ -16,14 +16,12 @@ import java.util.List;
 @Entity
 //@Table(name = "User")   // 동일시 자동 맵핑
 @EntityListeners(AuditingEntityListener.class)
-//@Getter
-//@Setter
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = {"orderGroupList"})
 
-@Builder
 @Accessors(chain = true)
 public class User {
 
@@ -61,6 +59,18 @@ public class User {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<OrderGroup> orderGroupList;
+
+    @Builder
+    public User(String account, String password, UserStatus status, String email, String phoneNumber, LocalDateTime registeredAt, LocalDateTime unregisteredAt, List<OrderGroup> orderGroupList) {
+        this.account = account;
+        this.password = password;
+        this.status = status;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.registeredAt = registeredAt;
+        this.unregisteredAt = unregisteredAt;
+        this.orderGroupList = orderGroupList;
+    }
 }
    /*
      public String getAccount() {
