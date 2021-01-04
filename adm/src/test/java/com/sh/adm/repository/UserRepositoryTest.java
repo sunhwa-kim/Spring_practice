@@ -27,6 +27,7 @@ class UserRepositoryTest extends AdmApplicationTests {
     @Transactional
     public void create(){
         // given
+        givenUserInfo();
         String account = "Test02";
         String pwd = "1234567890";
         String status = "UNREGISTERED";
@@ -53,6 +54,13 @@ class UserRepositoryTest extends AdmApplicationTests {
 
         // static : mport static org.assertj.core.api.Assertions.assertThat;
 //        assertThat(user.getId()).isEqualTo(6L);  // test 번복시 +1
+    }
+
+    private void givenUserInfo() {
+        givenUser();
+    }
+
+    private void givenUser() {
     }
 
     @Test

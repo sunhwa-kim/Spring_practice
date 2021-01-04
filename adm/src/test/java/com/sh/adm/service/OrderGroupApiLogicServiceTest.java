@@ -15,8 +15,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import java.time.LocalDateTime;
 
 public class OrderGroupApiLogicServiceTest extends AdmApplicationTests implements CrudInterface<OrderGroupApiRequest, OrderGroupApiResponse> {
-    @Autowired
-    private TestEntityManager testEntityManager;
 
     @Autowired
     OrderGroupRepository orderGroupRepository;

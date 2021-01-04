@@ -13,16 +13,16 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
 //@Table(name = "User")   // 동일시 자동 맵핑
-@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"orderGroupList"})
+@ToString
 
 @Accessors(chain = true)
+@EntityListeners(AuditingEntityListener.class)
+@Entity
 public class User {
 
     @Id  // 식별자
@@ -57,6 +57,7 @@ public class User {
     @LastModifiedBy
     private String updatedBy;
 
+    @ToString.Exclude
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<OrderGroup> orderGroupList;
 
