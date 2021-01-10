@@ -62,7 +62,8 @@ public class OrderGroup {
 
     //    private Long userId;
     // OrderGroup N : 1 User
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name="user_id")
     private User user;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "orderGroup")

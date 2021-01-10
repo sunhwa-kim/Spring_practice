@@ -27,7 +27,7 @@ public class User {
 
     @Id  // 식별자
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "id")  // 동일시 자동 맵핑
+    @Column(name = "user_id")  // 동일시 자동 맵핑
     private Long id;
 
     private String account;

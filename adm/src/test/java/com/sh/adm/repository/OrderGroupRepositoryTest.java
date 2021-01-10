@@ -2,6 +2,7 @@ package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
 import com.sh.adm.model.entity.OrderGroup;
+import com.sh.adm.model.entity.User;
 import com.sh.adm.model.enumclass.OrderType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -9,29 +10,44 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class OrderGroupRepositoryTest extends AdmApplicationTests {
     @Autowired
     OrderGroupRepository orderGroupRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
     @Test
     public void create() {
-        OrderGroup orderGroup = new OrderGroup();
-        orderGroup.setStatus("COMPLETED");
-        orderGroup.setOrderType(OrderType.ALL);   // 이넘타입으로 관리?
-        orderGroup.setRevAddress("서울시 강남구");
-        orderGroup.setRevName("홍길동");
-        orderGroup.setPaymentType("CARD");
-        orderGroup.setTotalPrice(BigDecimal.valueOf(900000));
-        orderGroup.setTotalQuantity(1);
-        orderGroup.setOrderAt(LocalDateTime.now().minusDays(2));
-        orderGroup.setArrivalDate(LocalDateTime.now());   // 도착일시는 LocalDate가 적절..
-        orderGroup.setCreatedAt(LocalDateTime.now());
-        orderGroup.setCreatedBy("AdminServer");
+        // given
+        OrderGroup orderGroup = givenInfo();
+        // when
+        OrderGroup newOrderGroup = orderGroupRepository.save(orderGroup);
+        //then
+        assertThat(newOrderGroup.getUser().getId()).isEqualTo(orderGroup.getUser().getId());
+        orderGroupRepository.findById(newOrderGroup.getId()).stream().forEach(System.out::println); // left outer join user -> inner join user
+    }
 
-//        orderGroup.setUserId(2L);
+    // user 별  주문 조회
+    // 주문 전체 조회
 
-        OrderGroup newOg = orderGroupRepository.save(orderGroup);
-        Assertions.assertNotNull(newOg);
+    private OrderGroup givenInfo() {
+        Optional<User> user = userRepository.findById(1L);
+        return OrderGroup.builder()
+                .status("ORDERED")
+                .orderType(OrderType.ALL)
+                .revAddress("서울시 강남구")
+                .revName("홍길동")
+                .paymentType("CARD")
+                .totalPrice(BigDecimal.valueOf(2000000))
+                .totalQuantity(1)
+                .orderAt(LocalDateTime.now().minusDays(4))
+                .arrivalDate(LocalDateTime.now().plusDays(1))
+                .user(user.get())
+                .build();
     }
 }
