@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ class UserApiLogicServiceTest {
 
     @Test
     @Transactional
+    @Rollback(value = false)
     void createTest() {
         // given
         Header<UserApiRequest> userApiRequest = givenUserInfo(null);
@@ -39,6 +41,7 @@ class UserApiLogicServiceTest {
 
     @Test
     @Transactional
+    @Rollback(value = false)
     void 중복_계정_예외_발생() {
         Header<UserApiRequest> userApiRequest = givenUserInfo(null);
 //        try {
@@ -47,8 +50,9 @@ class UserApiLogicServiceTest {
 //            return;
 //        }
 //        assertThatIllegalStateException()
-        assertThatCode(() -> userApiLogicService.create(userApiRequest))
-                .doesNotThrowAnyException();
+
+        assertThatCode(() -> userApiLogicService.create(userApiRequest));
+//                .doesNotThrowAnyException();
     }
 
     @Test

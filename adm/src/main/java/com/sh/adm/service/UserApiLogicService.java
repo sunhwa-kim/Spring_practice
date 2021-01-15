@@ -56,7 +56,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
 
     // response 중복 -> response()
     private void vaildateDupplicatedAccount(User user) {
-        long userCount = userRepository.findByAccount(user.getAccount()).stream().count();
+        long userCount = userRepository.findByAccount(user.getAccount()).size();
         if (userCount > 0) {
             throw new IllegalStateException("이미 존재하는 계정입니다.");
         }
