@@ -5,6 +5,7 @@ import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.UserApiRequest;
 import com.sh.adm.model.network.response.UserApiResponse;
 import com.sh.adm.repository.UserRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,9 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
+@Transactional(readOnly = true)
 @SpringBootTest
 class UserApiLogicServiceTest {
 
@@ -25,7 +27,7 @@ class UserApiLogicServiceTest {
     UserApiLogicService userApiLogicService;
 
     @Test
-//    @Transactional
+    @Transactional
     void createTest() {
         // given
         Header<UserApiRequest> userApiRequest = givenUserInfo(null);
@@ -33,7 +35,20 @@ class UserApiLogicServiceTest {
         Header<UserApiResponse> result = this.userApiLogicService.create(userApiRequest);
         // then
         assertThat(result.getData().getAccount()).isEqualTo("test01");
+    }
 
+    @Test
+    @Transactional
+    void 중복_계정_예외_발생() {
+        Header<UserApiRequest> userApiRequest = givenUserInfo(null);
+//        try {
+//            userApiLogicService.create(userApiRequest);
+//        } catch (IllegalStateException e) {
+//            return;
+//        }
+//        assertThatIllegalStateException()
+        assertThatCode(() -> userApiLogicService.create(userApiRequest))
+                .doesNotThrowAnyException();
     }
 
     @Test

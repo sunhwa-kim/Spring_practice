@@ -37,16 +37,6 @@ public class UserApiController implements CrudInterface<UserApiRequest, UserApiR
     @Override
     @PostMapping("")   // "/api/user"
     public Header<UserApiResponse> create(@RequestBody Header<UserApiRequest> request) {
-
-        //  req -> 받은 데이터? -> DB 저장 by 객체 생성 -> 저장 후 데이터 반환/응답 (저장내용 확인..) : 각각 데이터 별도로
-        //   ( Header<UserApiRequest> , User ,  Header<UserApiResponse> )
-        //  Service
-        //  여기는 요청/응답 만
-
-        // service(req) -> CRUD + DB : service 도 CrudInterface 구현...(맘에 안듦)
-        // return Header(service(req))
-        // return Header + service(req)
-
         log.info("{}",request);
         return userApiLogicService.create(request);
     }

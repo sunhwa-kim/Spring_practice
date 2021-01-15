@@ -21,25 +21,12 @@ public class OrderGroupApiLogicServiceTest extends AdmApplicationTests implement
     @Autowired
     UserRepository userRepository;
 
-
     @Override
     @Test
     public Header<OrderGroupApiResponse> create(Header<OrderGroupApiRequest> request) {
         OrderGroupApiRequest body = request.getData();   // Optional
-
         if (body != null) {
-            OrderGroup ogEntity = OrderGroup.builder()
-                    .status(body.getStatus())
-                    .orderType(body.getOrderType())
-                    .revAddress(body.getRevAddress())
-                    .revName(body.getRevName())
-                    .paymentType(body.getPaymentType())
-                    .totalPrice(body.getTotalPrice())
-                    .totalQuantity(body.getTotalQuantity())
-                    .orderAt(LocalDateTime.now())
-                    .user(userRepository.getOne(body.getUserId()))   // 실제는 받지 않음
-                    .build();
-            OrderGroup newOG = orderGroupRepository.save(ogEntity);
+            OrderGroup newOG = orderGroupRepository.save(givenOrder(body));
             return response(newOG);
         }
         return Header.error("No data exsited");
@@ -102,4 +89,19 @@ public class OrderGroupApiLogicServiceTest extends AdmApplicationTests implement
 
         return Header.OK(body);
     }
+
+    private OrderGroup givenOrder(OrderGroupApiRequest body){
+        return OrderGroup.builder()
+                .status(body.getStatus())
+                .orderType(body.getOrderType())
+                .revAddress(body.getRevAddress())
+                .revName(body.getRevName())
+                .paymentType(body.getPaymentType())
+                .totalPrice(body.getTotalPrice())
+                .totalQuantity(body.getTotalQuantity())
+                .orderAt(LocalDateTime.now())
+                .user(userRepository.getOne(body.getUserId()))   // 실제는 받지 않음
+                .build();
+    }
+
 }

@@ -19,6 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@EqualsAndHashCode
 
 @Accessors(chain = true)
 @EntityListeners(AuditingEntityListener.class)

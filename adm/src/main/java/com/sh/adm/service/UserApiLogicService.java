@@ -48,12 +48,19 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
                 .registeredAt(LocalDateTime.now())  // req != res
                 .build();
                 // createdAt 등은 @EnableJpaAuditing
-
+        vaildateDupplicatedAccount(user);
         User newUser = userRepository.save(user);
 
         return Header.OK(response(newUser));
     }
-        // response 중복 -> response()
+
+    // response 중복 -> response()
+    private void vaildateDupplicatedAccount(User user) {
+        long userCount = userRepository.findByAccount(user.getAccount()).stream().count();
+        if (userCount > 0) {
+            throw new IllegalStateException("이미 존재하는 계정입니다.");
+        }
+    }
 
     @Override
     public Header<UserApiResponse> read(Long id) {
