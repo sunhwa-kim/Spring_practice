@@ -1,5 +1,6 @@
 package com.sh.adm.service;
 
+import com.sh.adm.model.entity.User;
 import com.sh.adm.model.enumclass.UserStatus;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.UserApiRequest;
@@ -13,9 +14,11 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.BDDAssertions.then;
 
 @Transactional(readOnly = true)
 @SpringBootTest
@@ -27,16 +30,20 @@ class UserApiLogicServiceTest {
     @Autowired
     UserApiLogicService userApiLogicService;
 
+    Long testId = 1016L;
+
     @Test
     @Transactional
     @Rollback(value = false)
-    void createTest() {
+    void ceatAndReadTest() {
+        String test = "test01";
         // given
         Header<UserApiRequest> userApiRequest = givenUserInfo(null);
         // when
-        Header<UserApiResponse> result = this.userApiLogicService.create(userApiRequest);
+        this.userApiLogicService.create(userApiRequest);
         // then
-        assertThat(result.getData().getAccount()).isEqualTo("test01");
+        Header<UserApiResponse> result = this.userApiLogicService.read(1L);
+        then(result.getData().getAccount()).isEqualTo(test);
     }
 
     @Test
@@ -44,44 +51,40 @@ class UserApiLogicServiceTest {
     @Rollback(value = false)
     void 중복_계정_예외_발생() {
         Header<UserApiRequest> userApiRequest = givenUserInfo(null);
+        String message = "이미 존재하는 계정입니다.";
+//            userApiLogicService.create(userApiRequest);
+        assertThatIllegalStateException().isThrownBy(() -> {
+            userApiLogicService.create(userApiRequest);
+        }).withMessage(message).withNoCause();
 //        try {
 //            userApiLogicService.create(userApiRequest);
 //        } catch (IllegalStateException e) {
 //            return;
 //        }
+//        assertThatExceptionOfType()
 //        assertThatIllegalStateException()
-
-        assertThatCode(() -> userApiLogicService.create(userApiRequest));
-//                .doesNotThrowAnyException();
-    }
-
-    @Test
-    void readTest() {
-        // when
-        Header<UserApiResponse> result = this.userApiLogicService.read(1L);
-        // then
-        assertThat(result.getData().getAccount()).isEqualTo("test01");
     }
 
     @Test
     void updateTest() {
         // given
-        Header<UserApiRequest> request = givenUserInfo(1L);
+        Header<UserApiRequest> request = givenUserInfo(testId);
         request.getData().setStatus(UserStatus.REGISTERED);
         // when
-        Header<UserApiResponse> response = this.userApiLogicService.update(request);
+        this.userApiLogicService.update(request);
         // then
-        assertThat(response.getData().getStatus()).isEqualTo(UserStatus.REGISTERED.getTitle());
+        Header<UserApiResponse> getTest = this.userApiLogicService.read(testId);
+        then(getTest.getData().getStatus()).isEqualTo(UserStatus.REGISTERED.getTitle());
     }
 
     @Test
     void deleteTest() {
         // given
-        Long id = 1L;
+        then(userRepository.findById(testId).isPresent()).isTrue();
         // when
-        Header<UserApiResponse> response = this.userApiLogicService.delete(id);
+        Header<UserApiResponse> response = this.userApiLogicService.delete(testId);
         // then
-        assertThat(response.getResultCode()).isEqualTo("OK");
+        then(userRepository.findById(testId).isPresent()).isFalse();
     }
 
     private Header<UserApiRequest> givenUserInfo(Long id) {
