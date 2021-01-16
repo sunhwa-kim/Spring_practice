@@ -1,5 +1,6 @@
 package com.sh.adm.model.entity;
 
+import com.sh.adm.exception.NotEnoughStockException;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -36,6 +37,8 @@ public class Item {
 
     private BigDecimal price;
 
+    private int stockQuantity;
+
     private String brandName;
 
     private LocalDateTime registeredAt;
@@ -62,4 +65,17 @@ public class Item {
     // Item 1:N OrderDetail
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
     private List<OrderDetail> orderDetailList;
+
+
+    public void addStock(int quantity) {
+        this.stockQuantity += quantity;
+    }
+
+    public void outStock(int quanity) {
+        int checkStock = this.stockQuantity - quanity;
+        if (checkStock < 0) {
+            throw new NotEnoughStockException("need more");
+        }
+        this.stockQuantity = checkStock;
+    }
 }

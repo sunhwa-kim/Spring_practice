@@ -6,6 +6,7 @@ import lombok.*;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -32,7 +33,7 @@ public class OrderGroupApiRequest {
 
     private LocalDateTime orderAt;
 
-    private LocalDateTime arrivalDate;
+    private LocalDate arrivalDate;
 
     private Long userId;
 }

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -33,7 +34,7 @@ public class OrderGroupApiResponse {
 
     private LocalDateTime orderAt;
 
-    private LocalDateTime arrivalDate;
+    private LocalDate arrivalDate;
 
     private Long userId;
 }

@@ -4,15 +4,18 @@ import com.sh.adm.AdmApplicationTests;
 import com.sh.adm.model.entity.OrderGroup;
 import com.sh.adm.model.entity.User;
 import com.sh.adm.model.enumclass.OrderType;
+import com.sh.adm.model.enumclass.UserStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.BDDAssertions.then;
 
 public class OrderGroupRepositoryTest extends AdmApplicationTests {
     @Autowired
@@ -28,15 +31,15 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
         // when
         OrderGroup newOrderGroup = orderGroupRepository.save(orderGroup);
         //then
-        assertThat(newOrderGroup.getUser().getId()).isEqualTo(orderGroup.getUser().getId());
-        orderGroupRepository.findById(newOrderGroup.getId()).stream().forEach(System.out::println); // left outer join user -> inner join user
+        then(newOrderGroup.getUser().getId()).isEqualTo(orderGroup.getUser().getId());
+//        orderGroupRepository.findById(newOrderGroup.getId()).stream().forEach(System.out::println); // left outer join user -> inner join user
     }
 
     // user 별  주문 조회
     // 주문 전체 조회
 
     private OrderGroup givenInfo() {
-        Optional<User> user = userRepository.findById(1L);
+        User user = userRepository.save(givenUser());
         return OrderGroup.builder()
                 .status("ORDERED")
                 .orderType(OrderType.ALL)
@@ -46,8 +49,18 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
                 .totalPrice(BigDecimal.valueOf(2000000))
                 .totalQuantity(1)
                 .orderAt(LocalDateTime.now().minusDays(4))
-                .arrivalDate(LocalDateTime.now().plusDays(1))
-                .user(user.get())
+                .arrivalDate(LocalDate.now().plusDays(1))
+                .user(user)
+                .build();
+    }
+
+    private User givenUser() {
+        return User.builder()
+                .account("test01")
+                .password("20202021")
+                .status(UserStatus.REGISTERED)
+                .phoneNumber("010-2021-2021")
+                .registeredAt(LocalDateTime.now().minusMonths(1L))
                 .build();
     }
 }
