@@ -1,6 +1,7 @@
 package com.sh.adm.model.entity;
 
 import com.sh.adm.exception.NotEnoughStockException;
+import com.sh.adm.model.enumclass.ItemStatus;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -27,7 +28,7 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String status;
+    private ItemStatus status;  // READY, REGISTERED
 
     private String name;
 
@@ -65,7 +66,6 @@ public class Item {
     // Item 1:N OrderDetail
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
     private List<OrderDetail> orderDetailList;
-
 
     public void addStock(int quantity) {
         this.stockQuantity += quantity;

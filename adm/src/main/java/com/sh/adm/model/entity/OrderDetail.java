@@ -46,7 +46,6 @@ public class OrderDetail {
     @LastModifiedBy
     private String updatedBy;
 
-
     //    private Long orderGroupId;
     // OrderDetail N:1 OrderGroup
     @ManyToOne

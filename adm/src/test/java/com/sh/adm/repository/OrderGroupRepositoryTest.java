@@ -35,11 +35,13 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
 //        orderGroupRepository.findById(newOrderGroup.getId()).stream().forEach(System.out::println); // left outer join user -> inner join user
     }
 
-    // user 별  주문 조회
-    // 주문 전체 조회
-
     private OrderGroup givenInfo() {
-        User user = userRepository.save(givenUser());
+        User user = givenUser();
+        userRepository.save(user);
+        return givenOrderGroup(user);
+    }
+
+    private OrderGroup givenOrderGroup(User user) {
         return OrderGroup.builder()
                 .status("ORDERED")
                 .orderType(OrderType.ALL)
