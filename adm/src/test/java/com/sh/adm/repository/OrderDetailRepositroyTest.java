@@ -5,6 +5,7 @@ import com.sh.adm.model.entity.*;
 import com.sh.adm.model.enumclass.ItemStatus;
 import com.sh.adm.model.enumclass.OrderType;
 import com.sh.adm.model.enumclass.UserStatus;
+import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,40 +45,41 @@ public class OrderDetailRepositroyTest extends AdmApplicationTests {
     void 로직_테스트() {
         // given
         random = new Random();
-        Item item1 = getItem("LG 노트북", "LG 노트북 A100", 900000, 10);
+        int testPrice = 90000;
+        int testPrice2 = 140000;
+        int item1Count = 2;
+        int item2Count = 1;
+        int testResult1 = testPrice * item1Count;
+        int testResult2 = testPrice2 * item2Count;
+
+        Item item1 = getItem("LG 노트북", "LG 노트북 A100", testPrice, 10);
         itemRepository.save(item1);
-        Item item2 = getItem("FC750R", "LEOPOLD", 140000, 10);
+        Item item2 = getItem("FC750R", "LEOPOLD", testPrice2, 10);
         itemRepository.save(item2);
 
         // when
         User user = givenUserInfo();   // 사용자 주문
         userRepository.save(user);
-        int item1Count = 1;
-        int detailTotlaPrice1 = item1.getPrice().intValue()*item1Count;   // 주문 상품별 수량별 총합 가격
-        int item2Count = 1;
-        int detailTotlaPrice2 = item2.getPrice().intValue()*item2Count;
-        int totlaPrice = detailTotlaPrice1 + detailTotlaPrice2;
-        int totalQuantity = item1Count + item2Count;
-
+        OrderDetail od1 = givenOrderDetail(item1Count, item1);
+        od1.detailTotalPrice();       // 주문 상품별 수량별 총합 가격
+        OrderDetail od2 = givenOrderDetail(item2Count, item2);
+        od2.detailTotalPrice();
         List<OrderDetail> odList = new ArrayList<>();
-        odList.add(givenOrderDetail(detailTotlaPrice1, item1Count, item1));
-        odList.add(givenOrderDetail(detailTotlaPrice2, item1Count, item2));
-        OrderGroup orderGroup = givenOrderGroup(OrderType.ALL,totlaPrice,totalQuantity,user,odList);
+        odList.add(od1);
+        odList.add(od2);
+
+        // -> method 수정
+        OrderGroup orderGroup = givenOrderGroup(OrderType.ALL,user,odList);
+        orderGroup.orderGroupTotal();
         OrderGroup og = orderGroupRepository.save(orderGroup);
         Optional<OrderGroup> byId = orderGroupRepository.findById(og.getId());
         // exclude detail's DB save
 
         // then
-        then(byId.get().getOrderDetailList().get(0).getTotalPrice()).isEqualTo(item1.getPrice());
-        then(byId.get().getOrderDetailList().get(1).getTotalPrice()).isEqualTo(item2.getPrice());
+        then(byId.get().getOrderDetailList().get(0).getTotalPrice()).isEqualTo(BigDecimal.valueOf(testResult1));
+        then(byId.get().getOrderDetailList().get(1).getTotalPrice()).isEqualTo(BigDecimal.valueOf(testResult2));
         then(byId.get().getOrderDetailList().get(0).getItem().getName()).isEqualTo(item1.getName());
         then(byId.get().getOrderDetailList().get(1).getItem().getName()).isEqualTo(item2.getName());
-
-//        byId.stream().forEach(System.out::println);  // ordergruop 저장후 orderdetail update 실행...
-//        byId.get().getOrderDetailList().stream().forEach(orderDetail -> {
-//            System.out.println(orderDetail.getTotalPrice());
-//            System.out.println(orderDetail.getItem());
-//        });
     }
 
 
@@ -90,15 +92,13 @@ public class OrderDetailRepositroyTest extends AdmApplicationTests {
                 .registeredAt(LocalDateTime.now().minusMonths(1L))
                 .build();
     }
-    private OrderGroup givenOrderGroup(OrderType ot,int totalPrice, int totalQuantity,User user,List<OrderDetail> odt) {  // odt 안넣어주면 연결X
+    private OrderGroup givenOrderGroup(OrderType ot,User user,List<OrderDetail> odt) {  // odt 안넣어주면 연결X
         return OrderGroup.builder()
                 .status("WATING")
                 .orderType(ot)
                 .revAddress("서울시")
                 .revName("홍길동")
                 .paymentType("CARD")
-                .totalPrice(BigDecimal.valueOf(totalPrice))
-                .totalQuantity(totalQuantity)
                 .orderAt(LocalDateTime.now())
                 .arrivalDate(LocalDate.now().plusDays(5))
                 .orderAt(LocalDateTime.now().minusDays(1))
@@ -107,12 +107,12 @@ public class OrderDetailRepositroyTest extends AdmApplicationTests {
                 .build();
     }
 
-    OrderDetail givenOrderDetail(int totalprice, int quantity, Item item ) {
+    OrderDetail givenOrderDetail(int quantity, Item item ) {
         return OrderDetail.builder()
                 .status("WATING")
                 .arrivalDate(LocalDateTime.now().plusDays(2))
                 .quantity(quantity)
-                .totalPrice(BigDecimal.valueOf(totalprice))
+//                .totalPrice(BigDecimal.valueOf(totalprice))
 //                .orderGroup(og)
                 .item(item)
                 .build();

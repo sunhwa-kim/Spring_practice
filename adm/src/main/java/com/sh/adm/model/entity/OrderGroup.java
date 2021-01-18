@@ -15,15 +15,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"orderDetailList","user"})
 @Builder
 @Accessors(chain = true)
 
-@ToString(exclude = {"orderDetailList","user"})
+@EntityListeners(AuditingEntityListener.class)
+@Entity
 public class OrderGroup {
 
     @Id
@@ -69,4 +69,16 @@ public class OrderGroup {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "orderGroup")
     private List<OrderDetail> orderDetailList;
+
+    public void orderGroupTotal() {
+        BigDecimal tempPrice = new BigDecimal(0);
+        int tempQuantity = 0;
+        for (OrderDetail od : this.orderDetailList) {
+            tempPrice.add(od.getTotalPrice());
+            tempQuantity += od.getQuantity();
+        }
+        this.totalPrice = tempPrice;
+        this.totalQuantity = tempQuantity;
+    }
+
 }

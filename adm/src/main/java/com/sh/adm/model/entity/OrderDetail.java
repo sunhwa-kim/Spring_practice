@@ -57,6 +57,7 @@ public class OrderDetail {
 
 
     public void detailTotalPrice() {
-        this.totalPrice = this.item.getPrice().multiply(BigDecimal.valueOf(getQuantity()));
+        this.totalPrice = (BigDecimal) this.item.getPrice().multiply(BigDecimal.valueOf(getQuantity()));
     }
+
 }
