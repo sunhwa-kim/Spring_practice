@@ -1,34 +1,174 @@
 package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
-import com.sh.adm.model.entity.OrderDetail;
+import com.sh.adm.model.entity.*;
+import com.sh.adm.model.enumclass.ItemStatus;
+import com.sh.adm.model.enumclass.OrderType;
+import com.sh.adm.model.enumclass.UserStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 
+import static org.assertj.core.api.BDDAssertions.then;
+
+@Transactional
 public class OrderDetailRepositroyTest extends AdmApplicationTests {
+    Random random;
 
     @Autowired
     OrderDetailRepository orderDetailRepository;
+    @Autowired
+    OrderGroupRepository orderGroupRepository;
+     @Autowired
+     UserRepository userRepository;
+
+    @Autowired
+    CategoryRepository categoryRepository;
+    @Autowired
+    PartnerRepository partnerRepository;
+    @Autowired
+    ItemRepository itemRepository;
 
     @Test
-    public void create() {
-        OrderDetail orderDetail = new OrderDetail();
-        orderDetail.setStatus("WATING");
-        orderDetail.setArrivalDate(LocalDateTime.now().plusDays(2));
-        orderDetail.setQuantity(1);
-        orderDetail.setTotalPrice(BigDecimal.valueOf(900000));
-        orderDetail.setCreatedAt(LocalDateTime.now());
-        orderDetail.setCreatedBy("Admin Server");
+    @Rollback(value = false)
+    void 로직_테스트() {
+        // given
+        random = new Random();
+        Item item1 = getItem("LG 노트북", "LG 노트북 A100", 900000, 10);
+        itemRepository.save(item1);
+        Item item2 = getItem("FC750R", "LEOPOLD", 140000, 10);
+        itemRepository.save(item2);
 
-//        orderDetail.setOrderGroupId(2L);
-//        orderDetail.setItemId(2L);
+        // when
+        User user = givenUserInfo();   // 사용자 주문
+        userRepository.save(user);
+        int item1Count = 1;
+        int detailTotlaPrice1 = item1.getPrice().intValue()*item1Count;   // 주문 상품별 수량별 총합 가격
+        int item2Count = 1;
+        int detailTotlaPrice2 = item2.getPrice().intValue()*item2Count;
+        int totlaPrice = detailTotlaPrice1 + detailTotlaPrice2;
+        int totalQuantity = item1Count + item2Count;
 
-        OrderDetail newOd = orderDetailRepository.save(orderDetail);
-        Assertions.assertNotNull(newOd);
+        List<OrderDetail> odList = new ArrayList<>();
+        odList.add(givenOrderDetail(detailTotlaPrice1, item1Count, item1));
+        odList.add(givenOrderDetail(detailTotlaPrice2, item1Count, item2));
+        OrderGroup orderGroup = givenOrderGroup(OrderType.ALL,totlaPrice,totalQuantity,user,odList);
+        OrderGroup og = orderGroupRepository.save(orderGroup);
+        Optional<OrderGroup> byId = orderGroupRepository.findById(og.getId());
+        // exclude detail's DB save
 
+        // then
+        then(byId.get().getOrderDetailList().get(0).getTotalPrice()).isEqualTo(item1.getPrice());
+        then(byId.get().getOrderDetailList().get(1).getTotalPrice()).isEqualTo(item2.getPrice());
+        then(byId.get().getOrderDetailList().get(0).getItem().getName()).isEqualTo(item1.getName());
+        then(byId.get().getOrderDetailList().get(1).getItem().getName()).isEqualTo(item2.getName());
+
+//        byId.stream().forEach(System.out::println);  // ordergruop 저장후 orderdetail update 실행...
+//        byId.get().getOrderDetailList().stream().forEach(orderDetail -> {
+//            System.out.println(orderDetail.getTotalPrice());
+//            System.out.println(orderDetail.getItem());
+//        });
+    }
+
+
+    private User givenUserInfo() {
+        return User.builder()
+                .account("test02")
+                .password("20202021")
+                .status(UserStatus.UNREGISTERED)
+                .phoneNumber("010-2021-2021")
+                .registeredAt(LocalDateTime.now().minusMonths(1L))
+                .build();
+    }
+    private OrderGroup givenOrderGroup(OrderType ot,int totalPrice, int totalQuantity,User user,List<OrderDetail> odt) {  // odt 안넣어주면 연결X
+        return OrderGroup.builder()
+                .status("WATING")
+                .orderType(ot)
+                .revAddress("서울시")
+                .revName("홍길동")
+                .paymentType("CARD")
+                .totalPrice(BigDecimal.valueOf(totalPrice))
+                .totalQuantity(totalQuantity)
+                .orderAt(LocalDateTime.now())
+                .arrivalDate(LocalDate.now().plusDays(5))
+                .orderAt(LocalDateTime.now().minusDays(1))
+                .user(user)
+                .orderDetailList(odt)
+                .build();
+    }
+
+    OrderDetail givenOrderDetail(int totalprice, int quantity, Item item ) {
+        return OrderDetail.builder()
+                .status("WATING")
+                .arrivalDate(LocalDateTime.now().plusDays(2))
+                .quantity(quantity)
+                .totalPrice(BigDecimal.valueOf(totalprice))
+//                .orderGroup(og)
+                .item(item)
+                .build();
+    }
+
+    private Item getItem(String name, String title, int price, int quantity) {
+        random = new Random();
+        Category category = givenCategory();
+        categoryRepository.save(category);
+        Partner partner = givenPartner(category);
+        partnerRepository.save(partner);
+        return givenItem(partner,name,title,price,quantity);
+    }
+
+    private Item givenItem(Partner partner,String name,String title, int price,int quantity) {
+        return Item.builder()
+                .status(ItemStatus.UNREGISTERED)
+                .name(name)
+                .title(title)
+                .content("2020년형")
+                .price(BigDecimal.valueOf(price))
+                .stockQuantity(quantity)
+                .brandName("LG")
+                .registeredAt(LocalDateTime.now())
+                .partner(partner)
+                .build();
+    }
+
+    private Partner givenPartner(Category category) {
+//        Category category = givenCategory();
+        String status = "REGISTERED";
+        return Partner.builder()
+                .name(category.getTitle())
+                .status(status)
+                .address("서울시 강남구 1번길 1000-100")
+                .callCenter("070-1111-1111")
+                .partnerNumber("010-1111-1111")
+                .businessNumber("123456 2")
+                .ceoName("1 대표")
+                .registeredAt(getRandomDate())
+                .unregisteredAt(status.equals("UNREGISTERED") ? getRandomDate() : null)  // UNREGISTED -> getRandomDate()
+                .category(category)
+                .build();
+    }
+
+    private Category givenCategory() {
+        return Category.builder()
+                .type("전자제품")
+                .title("컴퓨터")
+                .build();
+    }
+
+    private LocalDateTime getRandomDate(){
+        return LocalDateTime.of(2020,getRandomNumber(),getRandomNumber(),getRandomNumber(),getRandomNumber(),getRandomNumber());
+    }
+    private int getRandomNumber(){
+        return random.nextInt(11)+1;
     }
 }

@@ -55,4 +55,8 @@ public class OrderDetail {
     @ManyToOne
     private Item item;
 
+
+    public void detailTotalPrice() {
+        this.totalPrice = this.item.getPrice().multiply(BigDecimal.valueOf(getQuantity()));
+    }
 }
