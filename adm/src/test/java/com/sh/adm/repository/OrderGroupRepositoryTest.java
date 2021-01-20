@@ -46,7 +46,7 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
                 .status("ORDERED")
                 .orderType(OrderType.ALL)
                 .revAddress("서울시 강남구")
-                .revName("홍길동")
+                .revName("길동아파트")
                 .paymentType("CARD")
                 .totalPrice(BigDecimal.valueOf(2000000))
                 .totalQuantity(1)

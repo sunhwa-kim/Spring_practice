@@ -46,7 +46,6 @@ public class AdminUserRepositoryTest extends AdmApplicationTests {
 
     }
 
-
     @Test
     public void update(){
         // from entity : @Accessors(chain = true)

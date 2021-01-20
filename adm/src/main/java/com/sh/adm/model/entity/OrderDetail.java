@@ -1,6 +1,7 @@
 package com.sh.adm.model.entity;
 
 import lombok.*;
+import org.hibernate.annotations.Fetch;
 import org.hibernate.criterion.Order;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -24,6 +25,7 @@ public class OrderDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_detail_id")
     private Long id;
 
     private String status;
@@ -48,13 +50,26 @@ public class OrderDetail {
 
     //    private Long orderGroupId;
     // OrderDetail N:1 OrderGroup
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private OrderGroup orderGroup;
     //    private Long itemId;
 //   OrderDetail N:1 Item
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
 
+    /**
+     * 기본 주문 생성자 메서드 -> 추가 : 상태, 날짜, 할인
+     * @param item
+     * @param count
+     * @return
+     */
+    public OrderDetail(Item item, int count) {
+//        OrderDetail orderDetail = new OrderDetail();
+        this.setItem(item);
+        this.setQuantity(count);
+        this.detailTotalPrice();
+        item.outStock(count);
+    }
 
     public void detailTotalPrice() {
         this.totalPrice = (BigDecimal) this.item.getPrice().multiply(BigDecimal.valueOf(getQuantity()));

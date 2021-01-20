@@ -41,7 +41,7 @@ public class OrderDetailRepositroyTest extends AdmApplicationTests {
     ItemRepository itemRepository;
 
     @Test
-    @Rollback(value = false)
+//    @Rollback(value = false)
     void 로직_테스트() {
         // given
         random = new Random();
@@ -53,13 +53,17 @@ public class OrderDetailRepositroyTest extends AdmApplicationTests {
         int testResult2 = testPrice2 * item2Count;
 
         Item item1 = getItem("LG 노트북", "LG 노트북 A100", testPrice, 10);
-        itemRepository.save(item1);
         Item item2 = getItem("FC750R", "LEOPOLD", testPrice2, 10);
-        itemRepository.save(item2);
-
+        int testItemQunatity = item1.getStockQuantity();
         // when
         User user = givenUserInfo();   // 사용자 주문
         userRepository.save(user);
+
+        item1.outStock(item1Count);  // 제고량 update
+        item2.outStock(item2Count);
+        itemRepository.save(item1);
+        itemRepository.save(item2);
+
         OrderDetail od1 = givenOrderDetail(item1Count, item1);
         od1.detailTotalPrice();       // 주문 상품별 수량별 총합 가격
         OrderDetail od2 = givenOrderDetail(item2Count, item2);
@@ -76,6 +80,7 @@ public class OrderDetailRepositroyTest extends AdmApplicationTests {
         // exclude detail's DB save
 
         // then
+        then(item1.getStockQuantity()).isEqualTo(testItemQunatity - item1Count);
         then(byId.get().getOrderDetailList().get(0).getTotalPrice()).isEqualTo(BigDecimal.valueOf(testResult1));
         then(byId.get().getOrderDetailList().get(1).getTotalPrice()).isEqualTo(BigDecimal.valueOf(testResult2));
         then(byId.get().getOrderDetailList().get(0).getItem().getName()).isEqualTo(item1.getName());
@@ -109,7 +114,7 @@ public class OrderDetailRepositroyTest extends AdmApplicationTests {
 
     OrderDetail givenOrderDetail(int quantity, Item item ) {
         return OrderDetail.builder()
-                .status("WATING")
+                .status("ORDERING")  // orderType -> ALL : ORDERING , SPLIT :
                 .arrivalDate(LocalDateTime.now().plusDays(2))
                 .quantity(quantity)
 //                .totalPrice(BigDecimal.valueOf(totalprice))

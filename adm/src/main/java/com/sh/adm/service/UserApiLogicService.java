@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class UserApiLogicService implements CrudInterface<UserApiRequest, UserApiResponse> {
     // req -> data 받아 -> DB save -> 생성 data + Header return
     @Autowired
-    private UserRepository userRepository;      //  나중에 추상화로 분리
+    private UserRepository userRepository;
 
     public Header<List<UserApiResponse>> getPages(Pageable pageable) {
         Page<User> users = userRepository.findAll(pageable);
@@ -41,7 +41,6 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
         User user = User.builder()
                 .account(userApiRequest.getAccount())
                 .password(userApiRequest.getPassword())
-//                .status("REGISTERED")     // -> ENUM
                 .status(userApiRequest.getStatus())     // ENUM
                 .email(userApiRequest.getEmail())
                 .phoneNumber(userApiRequest.getPhoneNumber())

@@ -3,6 +3,8 @@ package com.sh.adm.model.entity;
 import com.sh.adm.model.enumclass.OrderType;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.aspectj.weaver.ast.Or;
+import org.hibernate.criterion.Order;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -13,6 +15,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -28,6 +31,7 @@ public class OrderGroup {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="order_group_id")
     private Long id;
 
     private String status;
@@ -68,13 +72,23 @@ public class OrderGroup {
     private User user;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "orderGroup")
-    private List<OrderDetail> orderDetailList;
+    private List<OrderDetail> orderDetailList = new ArrayList<>();
+
+    public OrderGroup(User user, List<OrderDetail> orderDetails) {
+        this.user = user;
+//        this.orderDetailList = orderDetail;  // no
+        for (OrderDetail od : orderDetails) {
+            this.orderDetailList.add(od);
+            od.setOrderGroup(this);
+        }
+        this.orderGroupTotal();
+    }
 
     public void orderGroupTotal() {
         BigDecimal tempPrice = new BigDecimal(0);
         int tempQuantity = 0;
         for (OrderDetail od : this.orderDetailList) {
-            tempPrice.add(od.getTotalPrice());
+            tempPrice = tempPrice.add(od.getTotalPrice());
             tempQuantity += od.getQuantity();
         }
         this.totalPrice = tempPrice;

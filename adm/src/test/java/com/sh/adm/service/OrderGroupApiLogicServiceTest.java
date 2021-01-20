@@ -2,24 +2,95 @@ package com.sh.adm.service;
 
 import com.sh.adm.AdmApplicationTests;
 import com.sh.adm.ifs.CrudInterface;
-import com.sh.adm.model.entity.OrderGroup;
+import com.sh.adm.model.entity.*;
+import com.sh.adm.model.enumclass.ItemStatus;
+import com.sh.adm.model.enumclass.UserStatus;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.OrderGroupApiRequest;
 import com.sh.adm.model.network.response.OrderGroupApiResponse;
+import com.sh.adm.repository.ItemRepository;
+import com.sh.adm.repository.OrderDetailRepository;
 import com.sh.adm.repository.OrderGroupRepository;
 import com.sh.adm.repository.UserRepository;
+import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
+import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.*;
 
+import static org.assertj.core.api.BDDAssertions.then;
+
+
+@Transactional
 public class OrderGroupApiLogicServiceTest extends AdmApplicationTests implements CrudInterface<OrderGroupApiRequest, OrderGroupApiResponse> {
+    Random random;
 
     @Autowired
     OrderGroupRepository orderGroupRepository;
     @Autowired
+    OrderDetailRepository orderDetailRepository;
+    @Autowired
     UserRepository userRepository;
+    @Autowired
+    ItemRepository itemRepository;
+
+
+    @Test
+    void orderServiceTest() {
+        // given : 사용자가 고른 item 주문
+        int testPrice = 900000;
+        int testPrice2 = 140000;
+        int item1OriginConut = 10;
+        int item2OriginCount = 10;
+        int item1Count = 2;
+        int item2Count = 1;
+        int testResult1 = (testPrice * item1Count) + (testPrice2 * item2Count);
+
+        random = new Random();
+        User user = givenUserInfo();
+        userRepository.save(user);
+        Item item1 = getItem("LG 노트북", "LG 노트북 A100", testPrice, item1OriginConut);
+        Item item2 = getItem("FC750R", "LEOPOLD", testPrice2, item2OriginCount);
+//        int seletedItemCount = 2;    // for another case
+        itemRepository.save(item1);
+        itemRepository.save(item2);
+
+        // when
+        List<OrderDetail> orderDetailList = new ArrayList<>();
+         // 주문 요청 : item_id + 수량, 사용자 (data in request) -> entity 조회
+        itemRepository.findById(item1.getId());   // requst 받아온 item_id로 조회
+        itemRepository.findById(item2.getId());
+        // 주문 상품
+        /**
+         * item 별 주문 수량 : OrderDetail
+         *  item 가진 OrderDetail 생성 -> OrderGroup 생성
+         */
+        OrderDetail orderDetail = new OrderDetail(item1, item1Count);
+        OrderDetail orderDetail2 = new OrderDetail(item2, item2Count);
+        orderDetailList.add(orderDetail);
+        orderDetailList.add(orderDetail2);
+
+        // 주문
+        orderDetailRepository.save(orderDetail);
+        orderDetailRepository.save(orderDetail2);
+        OrderGroup orderGroup = new OrderGroup(user, orderDetailList);
+        OrderGroup testOg = orderGroupRepository.save(orderGroup);
+        // OrderGroup 저장하면 연관된 애들도 저장 되는지.. 테스트 - jpashop은 그랬던 거 같아
+        System.out.println(testOg.getTotalPrice());
+        System.out.println("testResult1 : "+testResult1);
+        then(testOg.getTotalPrice().intValue()).isEqualTo(testResult1);
+        then(testOg.getTotalQuantity()).isEqualTo(item1Count + item2Count);
+        Optional<Item> item1Id = itemRepository.findById(item1.getId());
+        then(item1Id.get().getStockQuantity()).isEqualTo(item1OriginConut - item1Count);
+
+    }
+
+
+
+
 
     @Override
     @Test
@@ -102,6 +173,69 @@ public class OrderGroupApiLogicServiceTest extends AdmApplicationTests implement
                 .orderAt(LocalDateTime.now())
                 .user(userRepository.getOne(body.getUserId()))   // 실제는 받지 않음
                 .build();
+    }
+
+
+    private User givenUserInfo() {
+        return User.builder()
+                .account("test02")
+                .password("20202021")
+                .status(UserStatus.UNREGISTERED)
+                .phoneNumber("010-2021-2021")
+                .registeredAt(LocalDateTime.now().minusMonths(1L))
+                .build();
+    }
+
+    private Item getItem(String name, String title, int price, int quantity) {
+        random = new Random();
+        Category category = givenCategory();
+        Partner partner = givenPartner(category);
+        return givenItem(partner,name,title,price,quantity);
+    }
+
+    private Item givenItem(Partner partner,String name,String title, int price,int quantity) {
+        return Item.builder()
+                .status(ItemStatus.UNREGISTERED)
+                .name(name)
+                .title(title)
+                .content("2020년형")
+                .price(BigDecimal.valueOf(price))
+                .stockQuantity(quantity)
+                .brandName("LG")
+                .registeredAt(LocalDateTime.now())
+                .partner(partner)
+                .build();
+    }
+
+    private Partner givenPartner(Category category) {
+//        Category category = givenCategory();
+        String status = "REGISTERED";
+        return Partner.builder()
+                .name(category.getTitle())
+                .status(status)
+                .address("서울시 강남구 1번길 1000-100")
+                .callCenter("070-1111-1111")
+                .partnerNumber("010-1111-1111")
+                .businessNumber("123456 2")
+                .ceoName("1 대표")
+                .registeredAt(getRandomDate())
+                .unregisteredAt(status.equals("UNREGISTERED") ? getRandomDate() : null)  // UNREGISTED -> getRandomDate()
+                .category(category)
+                .build();
+    }
+
+    private Category givenCategory() {
+        return Category.builder()
+                .type("전자제품")
+                .title("컴퓨터")
+                .build();
+    }
+
+    private LocalDateTime getRandomDate(){
+        return LocalDateTime.of(2020,getRandomNumber(),getRandomNumber(),getRandomNumber(),getRandomNumber(),getRandomNumber());
+    }
+    private int getRandomNumber(){
+        return random.nextInt(11)+1;
     }
 
 }
