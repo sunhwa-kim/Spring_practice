@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 
@@ -63,12 +63,13 @@ public class OrderDetail {
      * @param count
      * @return
      */
-    public OrderDetail(Item item, int count) {
-//        OrderDetail orderDetail = new OrderDetail();
-        this.setItem(item);
-        this.setQuantity(count);
-        this.detailTotalPrice();
+    public static OrderDetail createOrderDetail(Item item, int count) {
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setItem(item);
+        orderDetail.setQuantity(count);
+        orderDetail.detailTotalPrice();
         item.outStock(count);
+        return orderDetail;
     }
 
     public void detailTotalPrice() {

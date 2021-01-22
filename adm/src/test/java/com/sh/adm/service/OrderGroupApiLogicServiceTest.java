@@ -12,7 +12,6 @@ import com.sh.adm.repository.ItemRepository;
 import com.sh.adm.repository.OrderDetailRepository;
 import com.sh.adm.repository.OrderGroupRepository;
 import com.sh.adm.repository.UserRepository;
-import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,6 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.sh.adm.model.entity.OrderDetail.createOrderDetail;
 import static org.assertj.core.api.BDDAssertions.then;
 
 
@@ -36,7 +36,6 @@ public class OrderGroupApiLogicServiceTest extends AdmApplicationTests implement
     UserRepository userRepository;
     @Autowired
     ItemRepository itemRepository;
-
 
     @Test
     void orderServiceTest() {
@@ -68,28 +67,19 @@ public class OrderGroupApiLogicServiceTest extends AdmApplicationTests implement
          * item 별 주문 수량 : OrderDetail
          *  item 가진 OrderDetail 생성 -> OrderGroup 생성
          */
-        OrderDetail orderDetail = new OrderDetail(item1, item1Count);
-        OrderDetail orderDetail2 = new OrderDetail(item2, item2Count);
-        orderDetailList.add(orderDetail);
-        orderDetailList.add(orderDetail2);
-
+        orderDetailList.add(OrderDetail.createOrderDetail(item1, item1Count));
+        orderDetailList.add(OrderDetail.createOrderDetail(item2, item2Count));
         // 주문
-        orderDetailRepository.save(orderDetail);
-        orderDetailRepository.save(orderDetail2);
-        OrderGroup orderGroup = new OrderGroup(user, orderDetailList);
+        OrderGroup orderGroup = OrderGroup.createOrderGroup(user, orderDetailList);
         OrderGroup testOg = orderGroupRepository.save(orderGroup);
-        // OrderGroup 저장하면 연관된 애들도 저장 되는지.. 테스트 - jpashop은 그랬던 거 같아
-        System.out.println(testOg.getTotalPrice());
-        System.out.println("testResult1 : "+testResult1);
+
+        Optional<Item> item1Id = itemRepository.findById(item1.getId());
+        Optional<OrderDetail> orderDetailId = orderDetailRepository.findById(1L);
         then(testOg.getTotalPrice().intValue()).isEqualTo(testResult1);
         then(testOg.getTotalQuantity()).isEqualTo(item1Count + item2Count);
-        Optional<Item> item1Id = itemRepository.findById(item1.getId());
         then(item1Id.get().getStockQuantity()).isEqualTo(item1OriginConut - item1Count);
-
+        then(orderDetailId.get().getItem().getName()).isEqualTo(item1.getName());
     }
-
-
-
 
 
     @Override

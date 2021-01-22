@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString(exclude = {"orderDetailList","user"})
 @Builder
@@ -71,17 +71,19 @@ public class OrderGroup {
     @JoinColumn(name="user_id")
     private User user;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "orderGroup")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "orderGroup",cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetailList = new ArrayList<>();
 
-    public OrderGroup(User user, List<OrderDetail> orderDetails) {
-        this.user = user;
+    public static OrderGroup createOrderGroup(User user, List<OrderDetail> orderDetails) {
+        OrderGroup orderGroup = new OrderGroup();
+        orderGroup.user = user;
 //        this.orderDetailList = orderDetail;  // no
         for (OrderDetail od : orderDetails) {
-            this.orderDetailList.add(od);
-            od.setOrderGroup(this);
+            orderGroup.orderDetailList.add(od);
+            od.setOrderGroup(orderGroup);
         }
-        this.orderGroupTotal();
+        orderGroup.orderGroupTotal();
+        return orderGroup;
     }
 
     public void orderGroupTotal() {
