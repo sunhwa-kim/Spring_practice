@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class UserApiController implements CrudInterface<UserApiRequest, UserApiR
 
     @Override
     @PostMapping("")   // "/api/user"
+    @ResponseStatus(HttpStatus.CREATED)  // 201
     public Header<UserApiResponse> create(@RequestBody Header<UserApiRequest> request) {
         log.info("{}",request);
         return userApiLogicService.create(request);
@@ -54,10 +56,19 @@ public class UserApiController implements CrudInterface<UserApiRequest, UserApiR
         return userApiLogicService.update(request);
     }
 
+    @PatchMapping("{id}")
+    public Header update(@PathVariable Long id, String password) {
+        return userApiLogicService.update(id, password);
+    }
+
     @Override
     @DeleteMapping("{id}")
     public Header delete(@PathVariable Long id) {
         return userApiLogicService.delete(id);
     }
 
+    @GetMapping("/deleted_users")
+    public Header<List<UserApiResponse>> deletedUsers() {
+        return userApiLogicService.getPagesDeletedUser();
+    }
 }

@@ -3,6 +3,8 @@ package com.sh.adm.model.entity;
 import com.sh.adm.model.enumclass.UserStatus;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -21,6 +23,7 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 
+@Where(clause = "deleted = false")
 @Accessors(chain = true)
 @EntityListeners(AuditingEntityListener.class)
 @Entity
@@ -45,6 +48,9 @@ public class User {
     private LocalDateTime registeredAt;
 
     private LocalDateTime unregisteredAt;
+
+    @ColumnDefault("0")
+    private boolean deleted;
 
     @CreatedDate
     private LocalDateTime createdAt;

@@ -3,6 +3,7 @@ package com.sh.adm.repository;
 import com.sh.adm.AdmApplicationTests;
 import com.sh.adm.model.entity.User;
 import com.sh.adm.model.enumclass.UserStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,7 +14,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.BDDAssertions.then;
 
+@Slf4j
 @Transactional
 class UserRepositoryTest extends AdmApplicationTests {
 //    UserRepository userRepository = new UserRepository(); // interface는 객체 생성 X, TDD로서 No, DI개념이 중요
@@ -23,12 +26,6 @@ class UserRepositoryTest extends AdmApplicationTests {
     @Autowired
     EntityManager em;
 
-/*    @AfterEach
-    public void afterEach(){
-        // 콜랙 메서드 ; 각 테스트 끝날 때마다 작동  (@Transactional 로 롤백처리해서 사용X
-    }*/
-    
-    
 //    @Test
 //    @Rollback(value = false)
     void create(){
@@ -39,10 +36,9 @@ class UserRepositoryTest extends AdmApplicationTests {
         List<User> findUser = userRepository.findByAccount(user.getAccount());
         // then
         em.flush();
-        assertThat(findUser.stream().count() == 1).isTrue();
+        then(findUser.stream().count() == 1).isTrue();
 
 //        assertThat(findUser.stream().count())
-//        assertThat(findUser.isPresent()).isTrue();
 //        findUser.stream().forEach(System.out::println);
     }
 
@@ -63,24 +59,29 @@ class UserRepositoryTest extends AdmApplicationTests {
 
     @Test
     void update(){
-        // Optional<Users> user = userRepository.findById(id);
         userRepository.findById(3L).ifPresent(modUser -> {
-            // Id로 찾아가므로 수정은 X
             String test = "sh-test";
             modUser.setUpdatedAt(LocalDateTime.now());
             modUser.setUpdatedBy(test);
-//            System.out.println(modUser.getId());
-            userRepository.save(modUser);
-            assertThat(modUser.getUpdatedBy()).isEqualTo(test);
+            then(modUser.getUpdatedBy()).isEqualTo(test);
         });
-
     }
 
     @Test
     void delete(){
+//        userRepository.deleteById(1L);
         Optional<User> test = userRepository.findById(8L);
         test.ifPresent(user -> userRepository.delete(user));
         System.out.println(userRepository.findById(8L));  // Optional.empty -> isEmpty()로 확인 가능.
+    }
+
+    @Test
+    void findUsersDeleted() {
+        userRepository.findById(1L).ifPresent(user -> user.setDeleted(true));
+        List<User> userDeleted = userRepository.findUserDeleted();   // where ( user0_.deleted = 0) and user0_.deleted=1 -> nativeQuery
+        log.info("deleted -> {} ", userDeleted);
+        then(userDeleted.get(0).getId()).withFailMessage("id=1 삭제목록 확인 합니다.").isEqualTo(1L);
+        then(userDeleted.get(0).getAccount()).withFailMessage("test02 확인 합니다.").isNotEqualTo("test02");
     }
 
     @Test

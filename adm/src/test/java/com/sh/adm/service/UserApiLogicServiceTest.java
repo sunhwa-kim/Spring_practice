@@ -6,6 +6,7 @@ import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.UserApiRequest;
 import com.sh.adm.model.network.response.UserApiResponse;
 import com.sh.adm.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+@Slf4j
 @Transactional
 @SpringBootTest
 class UserApiLogicServiceTest {
@@ -33,43 +35,53 @@ class UserApiLogicServiceTest {
     @Autowired
     UserApiLogicService userApiLogicService;
 
-    Header<UserApiRequest> userApiRequest;
-    @BeforeEach
-    public void beforeAll() {
-        userApiRequest = givenUserInfo(null);
-        userApiLogicService.create(userApiRequest);
-    }
-
     @Test
+    @DisplayName("서비스 CRUD 테스트")
     void crud() {
-        String test = "test02";
         // given
+        String test = "test100";
         Long userId;
-        UserStatus testStatus = UserStatus.REGISTERED;
+        Header<UserApiRequest> userApiRequest = givenUserInfo(null, test,UserStatus.REGISTERED);
         // when
-        List<User> byAccount = userRepository.findByAccount(userApiRequest.getData().getAccount());
+        Header<UserApiResponse> getUser = userApiLogicService.create(userApiRequest);
+
+        List<User> byAccount = userRepository.findByAccount(getUser.getData().getAccount());
+        
         userId = byAccount.get(0).getId();
         Header<UserApiResponse> getUserRead = userApiLogicService.read(userId);
-        userApiRequest.getData().setId(userId);
-        userApiRequest.getData().setStatus(testStatus);
-        Header<UserApiResponse> getUserUpdate = userApiLogicService.update(userApiRequest);
+
         Header deleteOk = userApiLogicService.delete(userId);
+
+        List<User> all = userRepository.findAll();
+//        all.stream().mapToLong(User::getId).forEach(System.out::println);
         // then
         assertAll(
-                () -> then(getUserRead.getData().getStatus()).withFailMessage("변경 전 해지 상태 확인합니다.").isEqualTo(UserStatus.UNREGISTERED.getTitle()),
                 () -> then(getUserRead.getData().getAccount()).isEqualTo(test),
-                () -> then(getUserUpdate.getData().getStatus()).withFailMessage("변경 결과는 등록 입니다.").isEqualTo(testStatus.getTitle()),
-                () -> then(deleteOk.getResultCode()).withFailMessage("삭제 성공시 헤더 메세지는 OK 입니다.").isEqualTo("OK")
+                () -> then(deleteOk.getResultCode()).withFailMessage("삭제 성공시 헤더 메세지는 OK 입니다.").isEqualTo("OK"),
+                () -> then(userRepository.findUserDeleted().stream().anyMatch(user -> user.getAccount().equals(test))).isTrue(),
+                () -> then(all.get(0).getAccount()).isNotEqualTo(test)
         );
     }
 
     @Test
+    @DisplayName("서비스 수정 테스트")
+    void update_test() {
+        String testAccount = "test01";
+        UserStatus changed = UserStatus.UNREGISTERED;
+        Header<UserApiRequest> userApiRequest = givenUserInfo(1L, testAccount, changed);
+        userApiLogicService.update(userApiRequest);
+        User user = userRepository.findById(1L).get();
+        then(user.getAccount()).isEqualTo(testAccount);
+        then(user.getStatus()).withFailMessage("변경 결과는 등록 입니다.").isEqualTo(changed);
+
+    }
+
+    @Test
     void 중복_계정_예외_발생() {
-//        Header<UserApiRequest> userApiRequest = givenUserInfo(null);
+        Header<UserApiRequest> test01 = givenUserInfo(null, "test01", UserStatus.REGISTERED);
         String message = "이미 존재하는 계정입니다.";
-//            userApiLogicService.create(userApiRequest);
         assertThatIllegalStateException().isThrownBy(() -> {
-            userApiLogicService.create(userApiRequest);
+            userApiLogicService.create(test01);
         }).withMessageContaining(message);
 //        try {
 //            userApiLogicService.create(userApiRequest);
@@ -80,17 +92,16 @@ class UserApiLogicServiceTest {
 //        assertThatIllegalStateException()
     }
 
-    private Header<UserApiRequest> givenUserInfo(Long id) {
+    private Header<UserApiRequest> givenUserInfo(Long id, String account, UserStatus status) {
         UserApiRequest.UserApiRequestBuilder builder = UserApiRequest.builder()
-                .account("test02")
+                .account(account)
                 .password("test111")
-                .status(UserStatus.UNREGISTERED)
+                .status(status)
                 .email("goldiy@naver.com")
                 .phoneNumber("010-1111-1111")
                 .registeredAt(LocalDateTime.now());
 
         if( id != null ) builder.id(id);
-
         return Header.OK(builder.build());
     }
 }

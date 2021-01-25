@@ -2,26 +2,33 @@ package com.sh.adm.service;
 
 import com.sh.adm.ifs.CrudInterface;
 import com.sh.adm.model.entity.User;
-import com.sh.adm.model.enumclass.UserStatus;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.UserApiRequest;
 import com.sh.adm.model.network.response.UserApiResponse;
 import com.sh.adm.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.sh.adm.model.network.Header.error;
+
+@Slf4j
+@Transactional
 @Service
 public class UserApiLogicService implements CrudInterface<UserApiRequest, UserApiResponse> {
     // req -> data 받아 -> DB save -> 생성 data + Header return
     @Autowired
     private UserRepository userRepository;
 
+    @Transactional(readOnly = true)
     public Header<List<UserApiResponse>> getPages(Pageable pageable) {
         Page<User> users = userRepository.findAll(pageable);
 
@@ -31,7 +38,6 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
 
         return Header.OK(res);
     }
-
     @Override
     public Header<UserApiResponse> create(Header<UserApiRequest> request) {
 
@@ -60,15 +66,13 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
             throw new IllegalStateException("이미 존재하는 계정입니다.");
         }
     }
-
+    @Transactional(readOnly = true)
     @Override
     public Header<UserApiResponse> read(Long id) {
-
         return userRepository.findById(id)
-//                .map(entity -> response(entity))
                 .map(this::response)
                 .map(Header::OK)
-                .orElseGet(() -> Header.error("No data existed"));
+                .orElseGet(() -> error("No data existed"));
     }
 
     @Override
@@ -76,7 +80,6 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
         // id -> data -> change data(req) -> update
         UserApiRequest userReq = request.getData();
         return userRepository.findById(userReq.getId())
-//                .map(entity -> UserChain(entity,userReq) )
                 .map(entity -> {
                     entity
                             .setAccount(userReq.getAccount())
@@ -90,18 +93,40 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
                 } )
                 .map(this::response)
                 .map(Header::OK)
-                .orElseGet(() -> Header.error("No data existed"));
+                .orElseGet(() -> error("No data existed"));
+    }
+
+    public Header update(Long id, String password) {
+        return userRepository.findById(id)
+                .map(user -> user.setPassword(password))
+                .map(this::response)
+                .map(Header::OK)
+                .orElseGet(() -> error("No data existed"));
     }
 
     @Override
     public Header delete(Long id) {
         return userRepository.findById(id)
                 .map(entity -> {
-                    userRepository.delete(entity);
+//                    log.info("user -> {}",userRepository.findAll());
+                    entity.setDeleted(true);
+//                    userRepository.save(entity);   // jpa !
                     return Header.OK();
-                }).orElseGet(() -> Header.error("No data exited"));
+                }).orElseGet(() -> error("No data exited"));
     }
 
+    @Transactional(readOnly = true)
+    public Header<List<UserApiResponse>> getPagesDeletedUser() {
+        List<UserApiResponse> res =new ArrayList<>();
+        List<User> userDeleted = userRepository.findUserDeleted();
+        if (userDeleted.size() > 0) {
+            List<UserApiResponse> collect = userDeleted.stream()
+                    .map(user -> response(user)).collect(Collectors.toUnmodifiableList());
+            return Header.OK(collect);
+        }
+            return error("No data existed");
+
+    }
     //  not good...
    private User UserChain(User entity, UserApiRequest req) {
           entity
