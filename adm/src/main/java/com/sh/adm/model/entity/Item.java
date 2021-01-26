@@ -76,7 +76,7 @@ public class Item {
     public void outStock(int quanity) {
         int checkStock = this.stockQuantity - quanity;
         if (checkStock < 0) {
-            throw new NotEnoughStockException("need more");
+            throw new NotEnoughStockException(this.id+"-"+this.getName()+ " need more" );
         }
         this.stockQuantity = checkStock;
     }

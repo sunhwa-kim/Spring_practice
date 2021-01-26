@@ -10,19 +10,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.NestedServletException;
 
-import javax.persistence.EntityManager;
-import javax.swing.text.html.parser.Entity;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
 @Transactional
@@ -64,19 +61,6 @@ class UserApiLogicServiceTest {
     }
 
     @Test
-    @DisplayName("서비스 수정 테스트")
-    void update_test() {
-        String testAccount = "test01";
-        UserStatus changed = UserStatus.UNREGISTERED;
-        Header<UserApiRequest> userApiRequest = givenUserInfo(1L, testAccount, changed);
-        userApiLogicService.update(userApiRequest);
-        User user = userRepository.findById(1L).get();
-        then(user.getAccount()).isEqualTo(testAccount);
-        then(user.getStatus()).withFailMessage("변경 결과는 등록 입니다.").isEqualTo(changed);
-
-    }
-
-    @Test
     void 중복_계정_예외_발생() {
         Header<UserApiRequest> test01 = givenUserInfo(null, "test01", UserStatus.REGISTERED);
         String message = "이미 존재하는 계정입니다.";
@@ -92,7 +76,33 @@ class UserApiLogicServiceTest {
 //        assertThatIllegalStateException()
     }
 
+    @Test
+    @DisplayName("서비스 수정 테스트")
+    void update_test() {
+        String testAccount = "test01";
+        UserStatus changed = UserStatus.UNREGISTERED;
+        Header<UserApiRequest> userApiRequest = givenUserInfo(1L, testAccount, changed);
+        userApiLogicService.update(userApiRequest);
+        User user = userRepository.findById(1L).get();
+        then(user.getAccount()).isEqualTo(testAccount);
+        then(user.getStatus()).withFailMessage("변경 결과는 등록 입니다.").isEqualTo(changed);
+    }
+
+    @Test
+    @DisplayName("서비스 계정명 변경 불가 예외처리")
+    void update_exception_test() {
+        // given
+        String testAccount = "cannotChange";
+        Header<UserApiRequest> userApiRequest = givenUserInfo(1L, testAccount, UserStatus.REGISTERED);
+
+        assertThatExceptionOfType(RuntimeException.class).isThrownBy(
+                () -> {
+                    userApiLogicService.update(userApiRequest);
+                }).withMessageContaining("ID");
+    }
+
     private Header<UserApiRequest> givenUserInfo(Long id, String account, UserStatus status) {
+
         UserApiRequest.UserApiRequestBuilder builder = UserApiRequest.builder()
                 .account(account)
                 .password("test111")
@@ -101,7 +111,7 @@ class UserApiLogicServiceTest {
                 .phoneNumber("010-1111-1111")
                 .registeredAt(LocalDateTime.now());
 
-        if( id != null ) builder.id(id);
+        if (id != null) builder.id(id);
         return Header.OK(builder.build());
     }
 }

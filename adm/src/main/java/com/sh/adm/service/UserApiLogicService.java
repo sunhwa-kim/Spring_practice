@@ -2,6 +2,7 @@ package com.sh.adm.service;
 
 import com.sh.adm.ifs.CrudInterface;
 import com.sh.adm.model.entity.User;
+import com.sh.adm.model.enumclass.UserAccount;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.UserApiRequest;
 import com.sh.adm.model.network.response.UserApiResponse;
@@ -61,8 +62,8 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
 
     // response 중복 -> response()
     private void vaildateDupplicatedAccount(User user) {
-        long userCount = userRepository.findByAccount(user.getAccount()).size();
-        if (userCount > 0) {
+        int getCount = userRepository.findByAccount(user.getAccount()).size();
+        if (getCount > 0) {
             throw new IllegalStateException("이미 존재하는 계정입니다.");
         }
     }
@@ -79,6 +80,8 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     public Header<UserApiResponse> update(Header<UserApiRequest> request) {
         // id -> data -> change data(req) -> update
         UserApiRequest userReq = request.getData();
+        checkUnChangedAccount(userReq.getId(), userReq.getAccount());
+
         return userRepository.findById(userReq.getId())
                 .map(entity -> {
                     entity
@@ -96,7 +99,12 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
                 .orElseGet(() -> error("No data existed"));
     }
 
-    public Header update(Long id, String password) {
+    private void checkUnChangedAccount(Long id, String userName) {
+        User user = userRepository.findById(id).get();
+        if(!user.getAccount().equals(userName)) throw new RuntimeException("ID를 변경 하실 수 없습니다.");
+    }
+
+    public Header<UserApiResponse> update(Long id, String password) {
         return userRepository.findById(id)
                 .map(user -> user.setPassword(password))
                 .map(this::response)

@@ -1,12 +1,14 @@
 package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
+import com.sh.adm.exception.NotEnoughStockException;
 import com.sh.adm.model.entity.*;
 import com.sh.adm.model.enumclass.ItemStatus;
 import com.sh.adm.model.enumclass.OrderType;
 import com.sh.adm.model.enumclass.UserStatus;
 import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.BDDAssertions.then;
 
 @Transactional
@@ -87,6 +90,21 @@ public class OrderDetailRepositroyTest extends AdmApplicationTests {
         then(byId.get().getOrderDetailList().get(1).getItem().getName()).isEqualTo(item2.getName());
     }
 
+    @Test
+    @DisplayName("제고 품절 예외 발생")
+    void outOfStockExceptionTest() {
+        random = new Random();
+        int testPrice = 90000;
+        int itemStock = 1;
+        int itemCount = 2;
+
+        Item item = getItem("LG 노트북", "LG 노트북 A100", testPrice, itemStock);
+        // when
+        itemRepository.save(item);
+        assertThatExceptionOfType(NotEnoughStockException.class).isThrownBy(
+                () -> {OrderDetail.createOrderDetail(item,itemCount);})
+        .withMessageContaining(item.getName());
+    }
 
     private User givenUserInfo() {
         return User.builder()

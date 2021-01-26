@@ -1,17 +1,25 @@
 package com.sh.adm.controller.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sh.adm.model.enumclass.UserStatus;
+import com.sh.adm.model.network.Header;
+import com.sh.adm.model.network.request.UserApiRequest;
 import com.sh.adm.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.util.NestedServletException;
 
 import javax.transaction.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -26,7 +34,45 @@ class UserApiControllerTest {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     private MockMvc mockMvc;
+
+    @Test
+    @DisplayName("회원 정보 변경")
+    void update() throws Exception {
+        UserApiRequest request = new UserApiRequest(1L, "test01", "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111",null,null);
+
+        mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+                .content(toJsonString(request)))
+//                .andDo(print())
+                .andExpect(jsonPath("$.data.account").value("test01"))
+                .andExpect(jsonPath("$..password").value("1234"))
+                .andExpect(jsonPath("$..status").value(UserStatus.UNREGISTERED.getTitle()))
+                .andExpect(jsonPath("$..email").value("email"))
+                .andExpect(jsonPath("$..phoneNumber").value("010-1111-1111"));
+    }
+
+    @Test
+    @DisplayName("회원명 변경 예외 확인")
+    void update_account_exception() {
+        String test = "notChanged";
+        UserApiRequest request = new UserApiRequest(1L, test, "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111",null,null);
+
+        mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
+        assertThatExceptionOfType(NestedServletException.class)
+                .isThrownBy(
+                        () -> {
+                            mockMvc.perform(MockMvcRequestBuilders.put("/api/user")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .characterEncoding("UTF-8")
+                                    .content(toJsonString(request)));
+                        }).withMessageContaining("ID");
+    }
 
     @Test
     @DisplayName("회원 비밀번호 변경")
@@ -36,8 +82,9 @@ class UserApiControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/user/1")
                 .param("password", test))
                 .andDo(print())
-                .andExpect(status().isOk());
-        then(userRepository.findById(1L).get().getPassword()).isEqualTo(test);
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.password").value(test));
+//        then(userRepository.findById(1L).get().getPassword()).isEqualTo(test);
     }
 
     @Test
@@ -70,5 +117,7 @@ class UserApiControllerTest {
                 .andExpect(jsonPath("data[1].account").value("test02"));
     }
 
-
+    private String toJsonString(UserApiRequest request) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(Header.OK(request));
+    }
 }
