@@ -1,4 +1,4 @@
-package sh.mycontact_info.domain.entity;
+package sh.mycontact_info.domain;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

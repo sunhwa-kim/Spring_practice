@@ -4,7 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import sh.mycontact_info.domain.entity.Address;
+import sh.mycontact_info.domain.Address;
+import sh.mycontact_info.domain.Birthday;
 import sh.mycontact_info.domain.entity.Person;
 
 import java.time.LocalDate;
@@ -29,7 +30,7 @@ class PersonRepositoryTest {
                 () ->  then(getPerson.getName()).isEqualTo("testName"),
                 () ->  then(getPerson.getPhoneNumber()).isEqualTo("010-1111-1111"),
                 () ->  then(getPerson.getAddress()).isEqualTo(Address.of("city","street","zip")),
-                () ->  then(getPerson.getBirthday()).isEqualTo(LocalDate.of(2000,1,1)),
+                () ->  then(getPerson.getBirthday()).isEqualTo(Birthday.of(LocalDate.of(2000,1,1))),
                 () -> then(getPerson.isDeleted()).isFalse()
         );
     }
@@ -77,7 +78,31 @@ class PersonRepositoryTest {
         );
     }
 
+    @Test
+    void findBirthdayOfMonth() {
+        Person person1 = givenPerson("testName1","010-1111-1111" ,Address.of("city","street","zip") ,LocalDate.of(2000, 1, 1));
+        Person person2 = givenPerson("testName2","010-2222-2222" ,Address.of("city","street","zip") ,LocalDate.of(2000, 1, 1));
+        Person person3 = givenPerson("testName3","010-3333-3333" ,Address.of("city","street","zip") ,LocalDate.of(2001, 2, 2));
+
+        personRepository.save(person1);
+        personRepository.save(person3);
+        personRepository.save(person2);
+
+        List<Person> monthOfBirthday = personRepository.findMonthOfBirthday(1);
+        assertAll(
+                () -> then(monthOfBirthday.size()).isEqualTo(2),
+                () -> then(monthOfBirthday.get(0).getName()).isEqualTo("testName1"),
+                () -> then(monthOfBirthday.get(1).getName()).isEqualTo("testName2"),
+                () -> then(monthOfBirthday.get(0).getPhoneNumber()).isEqualTo("010-1111-1111"),
+                () -> then(monthOfBirthday.get(1).getPhoneNumber()).isEqualTo("010-2222-2222" ),
+                () -> then(monthOfBirthday.get(0).getBirthday()).isEqualTo(Birthday.of(LocalDate.of(2000, 1, 1))),
+                () -> then(monthOfBirthday.get(1).getBirthday()).isEqualTo(Birthday.of(LocalDate.of(2000, 1, 1))),
+                () -> then(monthOfBirthday.get(0).isDeleted()).isFalse(),
+                () -> then(monthOfBirthday.get(1).isDeleted()).isFalse()
+        );
+    }
+
     private Person givenPerson(String name, String phone, Address address, LocalDate birthday) {
-        return new Person(name, phone,address,birthday);
+        return new Person(name, phone,address, Birthday.of(birthday));
     }
 }

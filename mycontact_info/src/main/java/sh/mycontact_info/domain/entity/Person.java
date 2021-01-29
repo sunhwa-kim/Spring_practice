@@ -3,11 +3,11 @@ package sh.mycontact_info.domain.entity;
 
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.Where;
+import sh.mycontact_info.domain.Address;
+import sh.mycontact_info.domain.Birthday;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
 @Getter
@@ -32,12 +32,13 @@ public class Person {
     @Embedded
     private Address address;
 
-    private LocalDate birthday;
+    @Embedded
+    private Birthday birthday;
 
     @ColumnDefault("0")
     private boolean deleted;
 
-    public Person(String name, String phoneNumber, Address address, LocalDate birthday) {
+    public Person(String name, String phoneNumber, Address address, Birthday birthday) {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.address = address;
