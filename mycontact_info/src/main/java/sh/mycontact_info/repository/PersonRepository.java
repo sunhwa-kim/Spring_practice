@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import sh.mycontact_info.domain.entity.Person;
 
-import java.time.LocalDate;
 import java.util.List;
 
 
