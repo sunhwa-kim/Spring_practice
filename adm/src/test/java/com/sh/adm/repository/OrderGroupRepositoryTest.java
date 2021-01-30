@@ -57,12 +57,6 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
     }
 
     private User givenUser() {
-        return User.builder()
-                .account("test01")
-                .password("20202021")
-                .status(UserStatus.REGISTERED)
-                .phoneNumber("010-2021-2021")
-                .registeredAt(LocalDateTime.now().minusMonths(1L))
-                .build();
+        return new User("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222");
     }
 }

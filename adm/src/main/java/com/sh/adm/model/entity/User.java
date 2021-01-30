@@ -17,7 +17,6 @@ import java.util.List;
 
 //@Table(name = "User")   // 동일시 자동 맵핑
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
@@ -68,23 +67,37 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<OrderGroup> orderGroupList;
 
-    @Builder
-    public User(String account, String password, UserStatus status, String email, String phoneNumber, LocalDateTime registeredAt, LocalDateTime unregisteredAt, List<OrderGroup> orderGroupList) {
+    public User(String account, String password, UserStatus status, String email, String phoneNumber) {
         this.account = account;
         this.password = password;
         this.status = status;
         this.email = email;
         this.phoneNumber = phoneNumber;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public void setRegisteredAt(LocalDateTime registeredAt) {
         this.registeredAt = registeredAt;
+    }
+
+    public void setUnregisteredAt(LocalDateTime unregisteredAt) {
         this.unregisteredAt = unregisteredAt;
+    }
+
+    public void setOrderGroupList(List<OrderGroup> orderGroupList) {
         this.orderGroupList = orderGroupList;
     }
+
+    public void updatedDateAndBy(LocalDateTime updatedAt, String updatedBy) {
+        this.updatedAt = updatedAt;
+        this.updatedBy = updatedBy;
+    }
+
 }
-   /*
-     public String getAccount() {
-        return account;
-    }
-    public void setAccount(String account) {
-        this.account = account;
-    }
-    */

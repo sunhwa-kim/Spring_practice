@@ -107,14 +107,9 @@ public class OrderDetailRepositroyTest extends AdmApplicationTests {
     }
 
     private User givenUserInfo() {
-        return User.builder()
-                .account("test02")
-                .password("20202021")
-                .status(UserStatus.UNREGISTERED)
-                .phoneNumber("010-2021-2021")
-                .registeredAt(LocalDateTime.now().minusMonths(1L))
-                .build();
+        return new User("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222");
     }
+
     private OrderGroup givenOrderGroup(OrderType ot,User user,List<OrderDetail> odt) {  // odt 안넣어주면 연결X
         return OrderGroup.builder()
                 .status("WATING")

@@ -7,6 +7,7 @@ import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.UserApiRequest;
 import com.sh.adm.model.network.response.UserApiResponse;
 import com.sh.adm.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +25,13 @@ import static com.sh.adm.model.network.Header.error;
 
 @Slf4j
 @Transactional
+@RequiredArgsConstructor
 @Service
 public class UserApiLogicService implements CrudInterface<UserApiRequest, UserApiResponse> {
-    // req -> data 받아 -> DB save -> 생성 data + Header return
-    @Autowired
-    private UserRepository userRepository;
 
+    private final UserRepository userRepository;
+
+    // req -> data 받아 -> DB save -> 생성 data + Header return
     @Transactional(readOnly = true)
     public Header<List<UserApiResponse>> getPages(Pageable pageable) {
         Page<User> users = userRepository.findAll(pageable);
@@ -39,34 +42,20 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
 
         return Header.OK(res);
     }
+
     @Override
     public Header<UserApiResponse> create(Header<UserApiRequest> request) {
-
-//        request.getData().getAccount();
         UserApiRequest userApiRequest = request.getData();
-
-        User user = User.builder()
-                .account(userApiRequest.getAccount())
-                .password(userApiRequest.getPassword())
-                .status(userApiRequest.getStatus())     // ENUM
-                .email(userApiRequest.getEmail())
-                .phoneNumber(userApiRequest.getPhoneNumber())
-                .registeredAt(LocalDateTime.now())  // req != res
-                .build();
-                // createdAt 등은 @EnableJpaAuditing
-        vaildateDupplicatedAccount(user);
+        vaildateDupplicatedAccount(userApiRequest.getAccount());
+        User user = new User(userApiRequest.getAccount(), userApiRequest.getPassword(), userApiRequest.getStatus(), userApiRequest.getEmail(), userApiRequest.getPhoneNumber());
+        user.setRegisteredAt(userApiRequest.getRegisteredAt());
+        // createdAt 등은 @EnableJpaAuditing
         User newUser = userRepository.save(user);
-
         return Header.OK(response(newUser));
     }
 
-    // response 중복 -> response()
-    private void vaildateDupplicatedAccount(User user) {
-        int getCount = userRepository.findByAccount(user.getAccount()).size();
-        if (getCount > 0) {
-            throw new IllegalStateException("이미 존재하는 계정입니다.");
-        }
-    }
+
+
     @Transactional(readOnly = true)
     @Override
     public Header<UserApiResponse> read(Long id) {
@@ -80,33 +69,27 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     public Header<UserApiResponse> update(Header<UserApiRequest> request) {
         // id -> data -> change data(req) -> update
         UserApiRequest userReq = request.getData();
-        checkUnChangedAccount(userReq.getId(), userReq.getAccount());
-
+        validateEqualsAccount(userReq.getId(),userReq.getAccount());
         return userRepository.findById(userReq.getId())
                 .map(entity -> {
-                    entity
-                            .setAccount(userReq.getAccount())
-                            .setPassword(userReq.getPassword())
-                            .setStatus(userReq.getStatus())
-                            .setEmail(userReq.getEmail())
-                            .setPhoneNumber(userReq.getPhoneNumber())
-                            .setRegisteredAt(userReq.getRegisteredAt())
-                            .setUnregisteredAt(userReq.getUnregisteredAt());
+                    entity = new User(userReq.getAccount(),userReq.getPassword(),userReq.getStatus(),userReq.getEmail(),userReq.getPhoneNumber());
+                    entity.updatedDateAndBy(LocalDateTime.now(),entity.getAccount());
                     return entity;
-                } )
+                })
                 .map(this::response)
                 .map(Header::OK)
                 .orElseGet(() -> error("No data existed"));
     }
 
-    private void checkUnChangedAccount(Long id, String userName) {
-        User user = userRepository.findById(id).get();
-        if(!user.getAccount().equals(userName)) throw new RuntimeException("ID를 변경 하실 수 없습니다.");
-    }
-
     public Header<UserApiResponse> update(Long id, String password) {
+//                .orElseThrow(() -> new RuntimeException("ID가 존재 하지 않습니다."));
         return userRepository.findById(id)
-                .map(user -> user.setPassword(password))
+                .map(user -> {
+                    if(user.getPassword().equals(password)) throw new RuntimeException("비밀번호를 변경해 주세요.");
+                    user.setPassword(password);
+                    user.updatedDateAndBy(LocalDateTime.now(),user.getAccount());
+                    return user;
+                })
                 .map(this::response)
                 .map(Header::OK)
                 .orElseGet(() -> error("No data existed"));
@@ -125,30 +108,30 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
 
     @Transactional(readOnly = true)
     public Header<List<UserApiResponse>> getPagesDeletedUser() {
-        List<UserApiResponse> res =new ArrayList<>();
+        List<UserApiResponse> res = new ArrayList<>();
         List<User> userDeleted = userRepository.findUserDeleted();
         if (userDeleted.size() > 0) {
             List<UserApiResponse> collect = userDeleted.stream()
                     .map(user -> response(user)).collect(Collectors.toUnmodifiableList());
             return Header.OK(collect);
         }
-            return error("No data existed");
+        return error("No data existed");
 
     }
-    //  not good...
-   private User UserChain(User entity, UserApiRequest req) {
-          entity
-                .setAccount(req.getAccount())
-                .setPassword(req.getPassword())
-                .setStatus(req.getStatus())
-                .setEmail(req.getEmail())
-                .setPhoneNumber(req.getPhoneNumber())
-                .setRegisteredAt(req.getRegisteredAt())
-                .setUnregisteredAt(req.getUnregisteredAt());
-        return entity;
+
+    // response 중복 -> response()
+    private void vaildateDupplicatedAccount(String account) {
+        int getCount = userRepository.findByAccount(account).size();
+        if (getCount > 0) {
+            throw new IllegalStateException("이미 존재하는 계정입니다.");
+        }
     }
 
-    private UserApiResponse response(User user){
+    private void validateEqualsAccount(Long id, String account) {
+        User getUser = userRepository.findById(1L).orElseThrow(() -> new RuntimeException("The id dose not exist"));
+        if(!getUser.getAccount().equals(account)) throw new RuntimeException("You can't change your Account");
+    }
+    private UserApiResponse response(User user) {
         // save ine response's date and send response data
         String getStatus = user.getStatus().getTitle();
         UserApiResponse userApiResponse = UserApiResponse.builder()

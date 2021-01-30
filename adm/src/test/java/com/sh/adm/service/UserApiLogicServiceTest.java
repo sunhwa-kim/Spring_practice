@@ -7,85 +7,93 @@ import com.sh.adm.model.network.request.UserApiRequest;
 import com.sh.adm.model.network.response.UserApiResponse;
 import com.sh.adm.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.NestedServletException;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 @Slf4j
-@Transactional
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class UserApiLogicServiceTest {
 
-    @Autowired
+    @InjectMocks
+    UserApiLogicService userApiLogicService;
+    @Mock
     UserRepository userRepository;
 
-    @Autowired
-    UserApiLogicService userApiLogicService;
+    private String test = "test01";
+    private String password = "test1122";
+    private UserStatus testStatus = UserStatus.REGISTERED;
+    private String phontNumber = "010-1111-2222";
+    private String email = "email@gmail.com";
+
 
     @Test
-    @DisplayName("서비스 CRUD 테스트")
-    void crud() {
+    @DisplayName("서비스 사용자 등록")
+    void create() {
         // given
-        String test = "test100";
-        Long userId;
-        Header<UserApiRequest> userApiRequest = givenUserInfo(null, test,UserStatus.REGISTERED);
+        when(userRepository.save(any(User.class))).thenReturn(testUser());
         // when
-        Header<UserApiResponse> getUser = userApiLogicService.create(userApiRequest);
-
-        List<User> byAccount = userRepository.findByAccount(getUser.getData().getAccount());
-        
-        userId = byAccount.get(0).getId();
-        Header<UserApiResponse> getUserRead = userApiLogicService.read(userId);
-
-        Header deleteOk = userApiLogicService.delete(userId);
-
-        List<User> all = userRepository.findAll();
-//        all.stream().mapToLong(User::getId).forEach(System.out::println);
-        // then
+        Header<UserApiResponse> userApiResponse = userApiLogicService.create(givenUserInfo(null, test, UserStatus.REGISTERED));
+        LocalDateTime testTime = userApiResponse.getData().getRegisteredAt();
         assertAll(
-                () -> then(getUserRead.getData().getAccount()).isEqualTo(test),
-                () -> then(deleteOk.getResultCode()).withFailMessage("삭제 성공시 헤더 메세지는 OK 입니다.").isEqualTo("OK"),
-                () -> then(userRepository.findUserDeleted().stream().anyMatch(user -> user.getAccount().equals(test))).isTrue(),
-                () -> then(all.get(0).getAccount()).isNotEqualTo(test)
+                () -> then(userApiResponse.getData().getAccount()).isEqualTo(test),
+                () -> then(userApiResponse.getData().getPassword()).isEqualTo(password),
+                () -> then(userApiResponse.getData().getStatus()).isEqualTo(testStatus.getTitle()),
+                () -> then(userApiResponse.getData().getEmail()).isEqualTo(email),
+                () -> then(userApiResponse.getData().getPhoneNumber()).isEqualTo(phontNumber),
+                () -> then(userApiResponse.getData().getRegisteredAt()).isEqualTo(testTime)
+        );
+
+    }
+
+    @Test
+    @DisplayName("사용자 조회")
+    void read() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser()));
+        Header<UserApiResponse> userApiResponse = userApiLogicService.read(1L);
+        assertAll(
+                () -> then(userApiResponse.getData().getAccount()).isEqualTo(test),
+                () -> then(userApiResponse.getData().getPassword()).isEqualTo(password),
+                () -> then(userApiResponse.getData().getStatus()).isEqualTo(testStatus.getTitle()),
+                () -> then(userApiResponse.getData().getEmail()).isEqualTo(email),
+                () -> then(userApiResponse.getData().getPhoneNumber()).isEqualTo(phontNumber)
         );
     }
 
     @Test
     void 중복_계정_예외_발생() {
-        Header<UserApiRequest> test01 = givenUserInfo(null, "test01", UserStatus.REGISTERED);
+
         String message = "이미 존재하는 계정입니다.";
+        when(userRepository.findByAccount(test)).thenReturn(Lists.newArrayList(testUser()));
         assertThatIllegalStateException().isThrownBy(() -> {
-            userApiLogicService.create(test01);
+            userApiLogicService.create(givenUserInfo(null, test, UserStatus.REGISTERED));
         }).withMessageContaining(message);
-//        try {
-//            userApiLogicService.create(userApiRequest);
-//        } catch (IllegalStateException e) {
-//            return;
-//        }
-//        assertThatExceptionOfType()
-//        assertThatIllegalStateException()
     }
 
     @Test
     @DisplayName("서비스 수정 테스트")
     void update_test() {
-        String testAccount = "test01";
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser()));
         UserStatus changed = UserStatus.UNREGISTERED;
-        Header<UserApiRequest> userApiRequest = givenUserInfo(1L, testAccount, changed);
-        userApiLogicService.update(userApiRequest);
-        User user = userRepository.findById(1L).get();
-        then(user.getAccount()).isEqualTo(testAccount);
-        then(user.getStatus()).withFailMessage("변경 결과는 등록 입니다.").isEqualTo(changed);
+        Header<UserApiResponse> userApiResponse = userApiLogicService.update(givenUserInfo(1L, test, changed));
+        assertAll(
+                () -> then(userApiResponse.getData().getAccount()).isEqualTo(test),
+                () -> then(userApiResponse.getData().getPassword()).isEqualTo(password),
+                () -> then(userApiResponse.getData().getStatus()).isEqualTo(changed.getTitle()),
+                () -> then(userApiResponse.getData().getEmail()).isEqualTo(email),
+                () -> then(userApiResponse.getData().getPhoneNumber()).isEqualTo(phontNumber)
+        );
     }
 
     @Test
@@ -93,25 +101,28 @@ class UserApiLogicServiceTest {
     void update_exception_test() {
         // given
         String testAccount = "cannotChange";
-        Header<UserApiRequest> userApiRequest = givenUserInfo(1L, testAccount, UserStatus.REGISTERED);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser()));
 
         assertThatExceptionOfType(RuntimeException.class).isThrownBy(
                 () -> {
-                    userApiLogicService.update(userApiRequest);
-                }).withMessageContaining("ID");
+                    userApiLogicService.update(givenUserInfo(1L, testAccount, UserStatus.REGISTERED));
+                }).withMessageContaining("You can't change your Account");
+    }
+
+    private User testUser() {
+        return new User(test, password, testStatus, email, phontNumber);
     }
 
     private Header<UserApiRequest> givenUserInfo(Long id, String account, UserStatus status) {
-
         UserApiRequest.UserApiRequestBuilder builder = UserApiRequest.builder()
                 .account(account)
-                .password("test111")
+                .password(password)
                 .status(status)
-                .email("goldiy@naver.com")
-                .phoneNumber("010-1111-1111")
-                .registeredAt(LocalDateTime.now());
+                .email(email)
+                .phoneNumber(phontNumber);
 
-        if (id != null) builder.id(id);
+        if (id != null) builder.id(id).registeredAt(LocalDateTime.now());
         return Header.OK(builder.build());
     }
+
 }

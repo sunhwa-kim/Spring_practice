@@ -14,5 +14,5 @@ public enum UserStatus {
     private String title;
     private String description;
 
-    //  데이터 적용부분 entity -> request, response
+
 }

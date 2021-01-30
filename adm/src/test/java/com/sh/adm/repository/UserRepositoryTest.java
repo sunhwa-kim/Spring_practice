@@ -61,8 +61,7 @@ class UserRepositoryTest extends AdmApplicationTests {
     void update(){
         userRepository.findById(3L).ifPresent(modUser -> {
             String test = "sh-test";
-            modUser.setUpdatedAt(LocalDateTime.now());
-            modUser.setUpdatedBy(test);
+            modUser.updatedDateAndBy(LocalDateTime.now(), test);
             then(modUser.getUpdatedBy()).isEqualTo(test);
         });
     }
@@ -114,13 +113,7 @@ class UserRepositoryTest extends AdmApplicationTests {
     }
 
     private User givenUserInfo() {
-        return User.builder()
-                .account("test02")
-                .password("20202021")
-                .status(UserStatus.UNREGISTERED)
-                .phoneNumber("010-2021-2021")
-                .registeredAt(LocalDateTime.now().minusMonths(1L))
-                .build();
+        return new User("test01", "pwd01", UserStatus.REGISTERED, "email@gmail.com", "010-1111-2222");
     }
 
 }

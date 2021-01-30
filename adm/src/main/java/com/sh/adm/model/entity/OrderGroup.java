@@ -77,7 +77,6 @@ public class OrderGroup {
     public static OrderGroup createOrderGroup(User user, List<OrderDetail> orderDetails) {
         OrderGroup orderGroup = new OrderGroup();
         orderGroup.user = user;
-//        this.orderDetailList = orderDetail;  // no
         for (OrderDetail od : orderDetails) {
             orderGroup.orderDetailList.add(od);
             od.setOrderGroup(orderGroup);
@@ -85,6 +84,9 @@ public class OrderGroup {
         orderGroup.orderGroupTotal();
         return orderGroup;
     }
+
+//        this.orderDetailList = orderDetail;  // no
+
 
     public void orderGroupTotal() {
         BigDecimal tempPrice = new BigDecimal(0);
