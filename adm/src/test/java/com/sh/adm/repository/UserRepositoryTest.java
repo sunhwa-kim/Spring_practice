@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @Slf4j
 @Transactional
@@ -67,23 +68,34 @@ class UserRepositoryTest extends AdmApplicationTests {
     }
 
     @Test
+    @Transactional
     void delete(){
-//        userRepository.deleteById(1L);
-        Optional<User> test = userRepository.findById(8L);
-        test.ifPresent(user -> userRepository.delete(user));
-        System.out.println(userRepository.findById(8L));  // Optional.empty -> isEmpty()로 확인 가능.
+        LocalDateTime testTime = LocalDateTime.now();
+        userRepository.findById(3L)
+                .map(user -> {
+                    user.deledtedAccount(LocalDateTime.now(), UserStatus.UNREGISTERED, true);
+                    return user;
+                }).orElseThrow(()-> new RuntimeException("test 중 에러"));
+        then(userRepository.findByAccount("test03").size()).isEqualTo(0);
     }
 
     @Test
     void findUsersDeleted() {
-        userRepository.findById(1L).ifPresent(user -> user.setDeleted(true));
+        LocalDateTime testTime = LocalDateTime.now();
+        userRepository.findById(1L).ifPresent(user -> user.deledtedAccount(testTime,UserStatus.UNREGISTERED,true));
         List<User> userDeleted = userRepository.findUserDeleted();   // where ( user0_.deleted = 0) and user0_.deleted=1 -> nativeQuery
-        log.info("deleted -> {} ", userDeleted);
-        then(userDeleted.get(0).getId()).withFailMessage("id=1 삭제목록 확인 합니다.").isEqualTo(1L);
-        then(userDeleted.get(0).getAccount()).withFailMessage("test02 확인 합니다.").isNotEqualTo("test02");
+//        log.info("deleted -> {} ", userDeleted);
+        assertAll(
+                () -> then(userDeleted.size()).withFailMessage("조회 결과 1").isEqualTo(1),
+                () -> then(userDeleted.get(0).getId()).withFailMessage("id=1 삭제목록 확인 합니다.").isEqualTo(1L),
+                () -> then(userDeleted.get(0).getAccount()).withFailMessage("test01 확인 합니다.").isEqualTo("test01"),
+                () -> then(userDeleted.get(0).getAccount()).withFailMessage("다른 이름 확인").isNotEqualTo("NoThisName"),
+                () -> then(userDeleted.get(0).getUnregisteredAt()).withFailMessage("해지 날짜, 시간 확인합니다.").isEqualTo(testTime),
+                () -> then(userDeleted.get(0).getStatus()).withFailMessage("UNREGISTERD 확인 합니다.").isEqualTo(UserStatus.UNREGISTERED)
+        );
     }
 
-    @Test
+
     void ex(){
         String phoneNumber = "010-2222-2222";
         userRepository.findFirstByPhoneNumberOrderByIdDesc(phoneNumber)

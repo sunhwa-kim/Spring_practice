@@ -86,7 +86,7 @@ public class ItemRepositoryTest extends AdmApplicationTests {
         //when
         assertThatExceptionOfType(NotEnoughStockException.class).isThrownBy(() -> {
             item.outStock(test);
-        }).withMessage("1-LG 노트북 need more");
+        }).withMessage("LG 노트북 need more");
     }
 
     private Item getItem(int quantity) {

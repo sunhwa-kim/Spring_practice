@@ -19,6 +19,8 @@ import org.springframework.web.util.NestedServletException;
 
 import javax.transaction.Transactional;
 
+import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -71,7 +73,7 @@ class UserApiControllerTest {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .characterEncoding("UTF-8")
                                     .content(toJsonString(request)));
-                        }).withMessageContaining("ID");
+                        }).withMessageContaining("You can't change your Account");
     }
 
     @Test
@@ -104,10 +106,10 @@ class UserApiControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
 //        LongStream.range(0,2).forEach(i->userRepository.findAll().stream().filter(user -> user.getId()==i).map(user -> user.setDeleted(true)) );  // error
         userRepository.findById(1L).ifPresent(user -> {
-            user.setDeleted(true);
+            user.deledtedAccount(LocalDateTime.now(),UserStatus.UNREGISTERED,true);
         });
         userRepository.findById(2L).ifPresent(user -> {
-            user.setDeleted(true);
+            user.deledtedAccount(LocalDateTime.now(),UserStatus.UNREGISTERED,true);
         });
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/user/deleted_users"))

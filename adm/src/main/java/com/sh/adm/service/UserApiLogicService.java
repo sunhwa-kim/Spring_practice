@@ -3,6 +3,7 @@ package com.sh.adm.service;
 import com.sh.adm.ifs.CrudInterface;
 import com.sh.adm.model.entity.User;
 import com.sh.adm.model.enumclass.UserAccount;
+import com.sh.adm.model.enumclass.UserStatus;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.UserApiRequest;
 import com.sh.adm.model.network.response.UserApiResponse;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.sh.adm.model.network.Header.error;
@@ -39,7 +41,6 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
         List<UserApiResponse> res = users.stream()
                 .map(user -> response(user))
                 .collect(Collectors.toList());
-
         return Header.OK(res);
     }
 
@@ -51,10 +52,8 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
         user.setRegisteredAt(userApiRequest.getRegisteredAt());
         // createdAt 등은 @EnableJpaAuditing
         User newUser = userRepository.save(user);
-        return Header.OK(response(newUser));
+        return Header.OK(response(user));
     }
-
-
 
     @Transactional(readOnly = true)
     @Override
@@ -62,14 +61,14 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
         return userRepository.findById(id)
                 .map(this::response)
                 .map(Header::OK)
-                .orElseGet(() -> error("No data existed"));
+                .orElseGet(() -> error("The id dose not existed"));
     }
 
     @Override
     public Header<UserApiResponse> update(Header<UserApiRequest> request) {
         // id -> data -> change data(req) -> update
         UserApiRequest userReq = request.getData();
-        validateEqualsAccount(userReq.getId(),userReq.getAccount());
+        validateEqualsAccount(userReq.getId(), userReq.getAccount());
         return userRepository.findById(userReq.getId())
                 .map(entity -> {
                     entity = new User(userReq.getAccount(),userReq.getPassword(),userReq.getStatus(),userReq.getEmail(),userReq.getPhoneNumber());
@@ -78,14 +77,14 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
                 })
                 .map(this::response)
                 .map(Header::OK)
-                .orElseGet(() -> error("No data existed"));
+                .orElseGet(() -> error("The Account dose not existed"));
     }
 
     public Header<UserApiResponse> update(Long id, String password) {
 //                .orElseThrow(() -> new RuntimeException("ID가 존재 하지 않습니다."));
         return userRepository.findById(id)
                 .map(user -> {
-                    if(user.getPassword().equals(password)) throw new RuntimeException("비밀번호를 변경해 주세요.");
+                    if(user.getPassword().equals(password)) throw new RuntimeException("Enter a different number");
                     user.setPassword(password);
                     user.updatedDateAndBy(LocalDateTime.now(),user.getAccount());
                     return user;
@@ -99,9 +98,8 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     public Header delete(Long id) {
         return userRepository.findById(id)
                 .map(entity -> {
-//                    log.info("user -> {}",userRepository.findAll());
-                    entity.setDeleted(true);
-//                    userRepository.save(entity);   // jpa !
+                    entity.deledtedAccount(LocalDateTime.now(), UserStatus.UNREGISTERED, true);
+//                    userRepository.save(entity);
                     return Header.OK();
                 }).orElseGet(() -> error("No data exited"));
     }
@@ -116,21 +114,22 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
             return Header.OK(collect);
         }
         return error("No data existed");
-
     }
 
     // response 중복 -> response()
     private void vaildateDupplicatedAccount(String account) {
         int getCount = userRepository.findByAccount(account).size();
         if (getCount > 0) {
-            throw new IllegalStateException("이미 존재하는 계정입니다.");
+            throw new IllegalStateException("The account already exists");
         }
     }
 
     private void validateEqualsAccount(Long id, String account) {
-        User getUser = userRepository.findById(1L).orElseThrow(() -> new RuntimeException("The id dose not exist"));
+        User getUser = userRepository.findById(1L).orElseThrow(() -> new RuntimeException("No data exist"));
         if(!getUser.getAccount().equals(account)) throw new RuntimeException("You can't change your Account");
     }
+//                .orElseThrow(() -> new RuntimeException("The account is not available."));  // 가능할까...?
+
     private UserApiResponse response(User user) {
         // save ine response's date and send response data
         String getStatus = user.getStatus().getTitle();

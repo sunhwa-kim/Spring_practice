@@ -21,9 +21,8 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-
-@Where(clause = "deleted = false")
 @Accessors(chain = true)
+@Where(clause = "deleted = false")
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 public class User {
@@ -79,16 +78,8 @@ public class User {
         this.password = password;
     }
 
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
-
     public void setRegisteredAt(LocalDateTime registeredAt) {
         this.registeredAt = registeredAt;
-    }
-
-    public void setUnregisteredAt(LocalDateTime unregisteredAt) {
-        this.unregisteredAt = unregisteredAt;
     }
 
     public void setOrderGroupList(List<OrderGroup> orderGroupList) {
@@ -100,4 +91,9 @@ public class User {
         this.updatedBy = updatedBy;
     }
 
+    public void deledtedAccount(LocalDateTime unregisteredAt, UserStatus status, boolean deleted) {
+        this.unregisteredAt = unregisteredAt;
+        this.status = status;
+        this.deleted = deleted;
+    }
 }
