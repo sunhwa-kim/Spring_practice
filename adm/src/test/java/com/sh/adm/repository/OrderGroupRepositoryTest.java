@@ -57,6 +57,6 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
     }
 
     private User givenUser() {
-        return new User("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222");
+        return new User("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222",LocalDateTime.now());
     }
 }

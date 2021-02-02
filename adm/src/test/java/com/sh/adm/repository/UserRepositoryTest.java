@@ -3,6 +3,7 @@ package com.sh.adm.repository;
 import com.sh.adm.AdmApplicationTests;
 import com.sh.adm.model.entity.User;
 import com.sh.adm.model.enumclass.UserStatus;
+import com.sh.adm.model.network.request.UserApiRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,17 +28,19 @@ class UserRepositoryTest extends AdmApplicationTests {
     @Autowired
     EntityManager em;
 
-//    @Test
+    @Test
 //    @Rollback(value = false)
     void create(){
         // given
-        User user = givenUserInfo();
+        LocalDateTime rigisterTime = LocalDateTime.now();
+        User user = new User("test100", "010-1111-1111", UserStatus.REGISTERED, "email@gmail.com", "010-1000-1000", rigisterTime);
         // when
         User result = userRepository.save(user);
         List<User> findUser = userRepository.findByAccount(user.getAccount());
+        log.info("user test >> {}",findUser);
         // then
         em.flush();
-        then(findUser.stream().count() == 1).isTrue();
+        then(findUser.size()).isEqualTo(1);
 
 //        assertThat(findUser.stream().count())
 //        findUser.stream().forEach(System.out::println);
@@ -47,7 +50,7 @@ class UserRepositoryTest extends AdmApplicationTests {
 
     @Test
     void 사용자_계정_중복_확인() {
-        String account = givenUserInfo().getAccount();
+        String account = "test01";
         String message = "이미 존재하는 계정입니다.";
         long userCount = userRepository.findByAccount(account).size();
         if (userCount > 0) {
@@ -60,11 +63,19 @@ class UserRepositoryTest extends AdmApplicationTests {
 
     @Test
     void update(){
-        userRepository.findById(3L).ifPresent(modUser -> {
-            String test = "sh-test";
-            modUser.updatedDateAndBy(LocalDateTime.now(), test);
-            then(modUser.getUpdatedBy()).isEqualTo(test);
+        User user = new User("test100", "010-1111-1111", UserStatus.REGISTERED, "email@gmail.com", "010-1000-1000", LocalDateTime.now());
+        // when
+        User result = userRepository.save(user);
+        userRepository.findById(4L).ifPresent(modUser -> {
+
+            modUser.userUpdate(request());
+//            modUser.updatedDateAndBy(LocalDateTime.now(), test);
+//            then(modUser.getUpdatedBy()).isEqualTo(test);
         });
+
+        Optional<User> byId = userRepository.findById(4L);
+        log.info(" user >> {}", user);
+        log.info("update user >> {}",byId);
     }
 
     @Test
@@ -124,8 +135,7 @@ class UserRepositoryTest extends AdmApplicationTests {
 
     }
 
-    private User givenUserInfo() {
-        return new User("test01", "pwd01", UserStatus.REGISTERED, "email@gmail.com", "010-1111-2222");
+    private UserApiRequest request() {
+        return UserApiRequest.of(null, "test01", "change test", null, "email@gmail.com", null, null, null, null);
     }
-
 }

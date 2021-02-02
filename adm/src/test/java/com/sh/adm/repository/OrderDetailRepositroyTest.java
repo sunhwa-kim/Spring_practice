@@ -107,7 +107,7 @@ public class OrderDetailRepositroyTest extends AdmApplicationTests {
     }
 
     private User givenUserInfo() {
-        return new User("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222");
+        return new User("test111", "pwd1111", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222",LocalDateTime.now());
     }
 
     private OrderGroup givenOrderGroup(OrderType ot,User user,List<OrderDetail> odt) {  // odt 안넣어주면 연결X

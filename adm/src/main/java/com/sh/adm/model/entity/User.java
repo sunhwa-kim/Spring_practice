@@ -12,8 +12,11 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,8 +37,11 @@ public class User {
     @Column(name = "user_id")  // 동일시 자동 맵핑
     private Long id;
 
+
+    @NotBlank
     private String account;
 
+    @NotBlank
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -43,6 +49,7 @@ public class User {
 
     private String email;
 
+    @NotBlank
     private String phoneNumber;  // camel case  != snake case(DB)
 
     @Embedded
@@ -71,29 +78,34 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<OrderGroup> orderGroupList;
 
-    public User(String account, String password, UserStatus status, String email, String phoneNumber) {
+    public User(String account, String password, UserStatus status, String email, String phoneNumber, LocalDateTime registeredAt) {
         this.account = account;
         this.password = password;
         this.status = status;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.registeredAt = registeredAt;
+    }
+
+    public void userUpdate(UserApiRequest request) {
+        if( !ObjectUtils.isEmpty(request.getStatus()) ) this.status = request.getStatus();
+        if( request.getBirthday() != null) this.birthday = Birthday.of(request.getBirthday());  // data type casting
     }
 
     public void setPassword(String password) {
         this.password = password;
     }
 
-    public void setRegisteredAt(LocalDateTime registeredAt) {
-        this.registeredAt = registeredAt;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public void setOrderGroupList(List<OrderGroup> orderGroupList) {
         this.orderGroupList = orderGroupList;
-    }
-
-    public void updatedDateAndBy(LocalDateTime updatedAt, String updatedBy) {
-        this.updatedAt = updatedAt;
-        this.updatedBy = updatedBy;
     }
 
     public void deledtedAccount(LocalDateTime unregisteredAt, UserStatus status, boolean deleted) {

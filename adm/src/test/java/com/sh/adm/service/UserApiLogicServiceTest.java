@@ -163,7 +163,7 @@ class UserApiLogicServiceTest {
     }
 
     private User testUser() {
-        return new User(test, password, testStatus, email, phontNumber);
+        return new User(test, password, testStatus, email, phontNumber,LocalDateTime.now());
     }
 
     private Header<UserApiRequest> givenUserInfo(Long id, String account, String pwd,UserStatus status) {

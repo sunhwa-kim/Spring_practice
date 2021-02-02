@@ -53,8 +53,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     public Header<UserApiResponse> create(Header<UserApiRequest> request) {
         UserApiRequest userApiRequest = request.getData();
         vaildateDupplicatedAccount(userApiRequest.getAccount());
-        User user = new User(userApiRequest.getAccount(), userApiRequest.getPassword(), userApiRequest.getStatus(), userApiRequest.getEmail(), userApiRequest.getPhoneNumber());
-        user.setRegisteredAt(userApiRequest.getRegisteredAt());
+        User user = new User(userApiRequest.getAccount(), userApiRequest.getPassword(), userApiRequest.getStatus(), userApiRequest.getEmail(), userApiRequest.getPhoneNumber(),LocalDateTime.now());
         User newUser = userRepository.save(user);  // createdAt 등은 @EnableJpaAuditing
         return Header.OK(response(user));
     }
@@ -71,12 +70,11 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     @Override
     public Header<UserApiResponse> update(Header<UserApiRequest> request) {
         // id -> data -> change data(req) -> update
-        UserApiRequest userReq = request.getData();
-        validateEqualsAccount(userReq.getId(), userReq.getAccount());
-        return userRepository.findById(userReq.getId())
+        UserApiRequest userApiRequest = request.getData();
+        validateEqualsAccount(userApiRequest.getId(), userApiRequest.getAccount());
+        return userRepository.findById(userApiRequest.getId())
                 .map(entity -> {
-                    entity = new User(userReq.getAccount(),userReq.getPassword(),userReq.getStatus(),userReq.getEmail(),userReq.getPhoneNumber());
-                    entity.updatedDateAndBy(LocalDateTime.now(),entity.getAccount());
+                    entity.userUpdate(userApiRequest);
                     return entity;
                 })
                 .map(this::response)
@@ -85,12 +83,10 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     }
 
     public Header<UserApiResponse> update(Long id, String password) {
-//                .orElseThrow(() -> new RuntimeException("ID가 존재 하지 않습니다."));
         return userRepository.findById(id)
                 .map(user -> {
                     if(user.getPassword().equals(password)) throw new RuntimeException("Enter a different number");
                     user.setPassword(password);
-                    user.updatedDateAndBy(LocalDateTime.now(),user.getAccount());
                     return user;
                 })
                 .map(this::response)
