@@ -1,3 +1,0 @@
-insert into user(`user_id`,`account`,`password`,`status`,`email`,`phone_number`) values (1,'test01','success','UNREGISTERED','email@gmail.com','010-1111-1111');
-insert into user(`user_id`,`account`,`password`,`status`,`email`,`phone_number`) values (2,'test02','success','REGISTERED','email@gmail.com','010-2222-2222');
-insert into user(`user_id`,`account`,`password`,`status`,`email`,`phone_number`) values (3,'test03','success','REGISTERED','email@gmail.com','010-3333-3333');

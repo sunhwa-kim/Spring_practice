@@ -2,7 +2,6 @@ package com.sh.adm.service;
 
 import com.sh.adm.ifs.CrudInterface;
 import com.sh.adm.model.entity.User;
-import com.sh.adm.model.enumclass.UserAccount;
 import com.sh.adm.model.enumclass.UserStatus;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.UserApiRequest;
@@ -10,17 +9,14 @@ import com.sh.adm.model.network.response.UserApiResponse;
 import com.sh.adm.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.sh.adm.model.network.Header.error;
