@@ -19,6 +19,7 @@ import org.springframework.web.util.NestedServletException;
 
 import javax.transaction.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -44,7 +45,7 @@ class UserApiControllerTest {
     @Test
     @DisplayName("회원 정보 변경")
     void update() throws Exception {
-        UserApiRequest request = new UserApiRequest(1L, "test01", "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111",null,null);
+        UserApiRequest request = new UserApiRequest(1L, "test01", "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111", LocalDate.of(2000,1,1),null,null);
 
         mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
         mockMvc.perform(MockMvcRequestBuilders.put("/api/user")
@@ -63,7 +64,7 @@ class UserApiControllerTest {
     @DisplayName("회원명 변경 예외 확인")
     void update_account_exception() {
         String test = "notChanged";
-        UserApiRequest request = new UserApiRequest(1L, test, "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111",null,null);
+        UserApiRequest request = new UserApiRequest(1L, test, "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111",LocalDate.of(2000,1,1),null,null);
 
         mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
         assertThatExceptionOfType(NestedServletException.class)

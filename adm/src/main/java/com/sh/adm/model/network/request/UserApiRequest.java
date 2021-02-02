@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class
 UserApiRequest {
     private Long id;   // + update
@@ -24,20 +25,13 @@ UserApiRequest {
 
     private String phoneNumber;
 
+    private LocalDate birthday;
+
     private LocalDateTime registeredAt;
 
     private LocalDateTime unregisteredAt;
 
-    @Builder
-    public UserApiRequest(Long id, String account, String password, UserStatus status, String email, String phoneNumber,LocalDateTime registeredAt, LocalDateTime unregisteredAt) {
-        this.id = id;
-        this.account = account;
-        this.password = password;
-        this.status = status;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.registeredAt = (registeredAt == null) ? null : registeredAt;
-        this.unregisteredAt = (unregisteredAt == null) ? null : unregisteredAt;
+    public static UserApiRequest of(Long id, String account, String password, UserStatus status, String email, String phoneNumber,LocalDate bithday,LocalDateTime registeredAt, LocalDateTime unregisteredAt) {
+        return new UserApiRequest(id, account, password, status, email, phoneNumber, bithday, registeredAt, unregisteredAt);
     }
-    //  요청 데이터만 정리, 서버 로직 데이터는 제외
 }

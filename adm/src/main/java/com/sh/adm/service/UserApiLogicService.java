@@ -34,6 +34,11 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     private final UserRepository userRepository;
 
     // req -> data 받아 -> DB save -> 생성 data + Header return
+    
+    /*
+    service 내 UserApiRequest -> User 변환 로직
+    Controller 내 request data null값 반환 -> User 내에서 자체 변환, User 생성
+     */
     @Transactional(readOnly = true)
     public Header<List<UserApiResponse>> getPages(Pageable pageable) {
         Page<User> users = userRepository.findAll(pageable);
@@ -50,8 +55,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
         vaildateDupplicatedAccount(userApiRequest.getAccount());
         User user = new User(userApiRequest.getAccount(), userApiRequest.getPassword(), userApiRequest.getStatus(), userApiRequest.getEmail(), userApiRequest.getPhoneNumber());
         user.setRegisteredAt(userApiRequest.getRegisteredAt());
-        // createdAt 등은 @EnableJpaAuditing
-        User newUser = userRepository.save(user);
+        User newUser = userRepository.save(user);  // createdAt 등은 @EnableJpaAuditing
         return Header.OK(response(user));
     }
 

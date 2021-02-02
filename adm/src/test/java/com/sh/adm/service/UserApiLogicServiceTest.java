@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -34,6 +35,7 @@ class UserApiLogicServiceTest {
     private UserStatus testStatus = UserStatus.REGISTERED;
     private String phontNumber = "010-1111-2222";
     private String email = "email@gmail.com";
+    private LocalDate birthday = LocalDate.of(2000, 1, 1);
 
 
     @Test
@@ -158,7 +160,6 @@ class UserApiLogicServiceTest {
                 () -> then(userRepository.findById(2L).get().getStatus()).isEqualTo(UserStatus.UNREGISTERED),
                 () -> then(userRepository.findById(2L).get().isDeleted()).isTrue()
         );
-
     }
 
     private User testUser() {
@@ -166,14 +167,7 @@ class UserApiLogicServiceTest {
     }
 
     private Header<UserApiRequest> givenUserInfo(Long id, String account, String pwd,UserStatus status) {
-        UserApiRequest.UserApiRequestBuilder builder = UserApiRequest.builder()
-                .account(account)
-                .password(pwd)
-                .status(status)
-                .email(email)
-                .phoneNumber(phontNumber);
-        if (id != null) builder.id(id).registeredAt(LocalDateTime.now());
-        return Header.OK(builder.build());
+        return Header.OK(UserApiRequest.of(id, account, pwd, status, email, phontNumber, birthday,null,null));
     }
 
 }

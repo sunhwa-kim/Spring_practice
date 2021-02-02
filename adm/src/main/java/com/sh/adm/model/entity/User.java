@@ -1,6 +1,8 @@
 package com.sh.adm.model.entity;
 
+import com.sh.adm.model.dto.Birthday;
 import com.sh.adm.model.enumclass.UserStatus;
+import com.sh.adm.model.network.request.UserApiRequest;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.ColumnDefault;
@@ -42,6 +44,9 @@ public class User {
     private String email;
 
     private String phoneNumber;  // camel case  != snake case(DB)
+
+    @Embedded
+    private Birthday birthday;
 
     private LocalDateTime registeredAt;
 
