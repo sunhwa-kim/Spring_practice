@@ -49,7 +49,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     public Header<UserApiResponse> create(Header<UserApiRequest> request) {
         UserApiRequest userApiRequest = request.getData();
         vaildateDupplicatedAccount(userApiRequest.getAccount());
-        User user = new User(userApiRequest.getAccount(), userApiRequest.getPassword(), userApiRequest.getStatus(), userApiRequest.getEmail(), userApiRequest.getPhoneNumber(),LocalDateTime.now());
+        User user = new User(userApiRequest.getAccount(), userApiRequest.getPassword(), userApiRequest.getStatus(), userApiRequest.getEmail(), userApiRequest.getPhoneNumber(),userApiRequest.getBirthday(),LocalDateTime.now());
         User newUser = userRepository.save(user);  // createdAt 등은 @EnableJpaAuditing
         return Header.OK(response(user));
     }

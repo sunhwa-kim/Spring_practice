@@ -6,7 +6,6 @@ import com.sh.adm.model.entity.User;
 import com.sh.adm.model.enumclass.UserStatus;
 import com.sh.adm.model.network.request.UserApiRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.BDDAssertions.then;
@@ -128,10 +126,22 @@ class UserRepositoryTest extends AdmApplicationTests {
         );
     }
 
-    private User createUser() {
-        return new User(account, password, status, email, phoneNumber, LocalDateTime.now());
+    @Test
+    @Transactional
+    @DisplayName("생일 월별 조회")
+    void findMonthOfBithday() {
+        User user1 = new User("test2", "1234pwd", UserStatus.REGISTERED, "email", "phone", LocalDate.of(1900, 8, 8), LocalDateTime.now());
+        User user2 = new User("test3", "1234pwd", UserStatus.REGISTERED, "email", "phone", LocalDate.of(1800, 1, 20), LocalDateTime.now());
+
+        userRepository.save(createUser());
+        userRepository.save(user1);
+        userRepository.save(user2);
+
+        then(userRepository.findByMonthOfBirthday(2)).isEmpty();
+        then(userRepository.findByMonthOfBirthday(1).size()).isEqualTo(2);
     }
 
-
-
+    private User createUser() {
+        return new User(account, password, status, email, phoneNumber,LocalDate.of(2000,1,1), LocalDateTime.now());
+    }
 }

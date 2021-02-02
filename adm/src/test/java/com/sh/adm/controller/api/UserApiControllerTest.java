@@ -2,6 +2,7 @@ package com.sh.adm.controller.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sh.adm.model.entity.User;
 import com.sh.adm.model.enumclass.UserStatus;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.UserApiRequest;
@@ -45,7 +46,7 @@ class UserApiControllerTest {
     @Test
     @DisplayName("회원 정보 변경")
     void update() throws Exception {
-        UserApiRequest request = new UserApiRequest(1L, "test01", "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111", LocalDate.of(2000,1,1),null,null);
+        UserApiRequest request = UserApiRequest.of(1L, "test01", "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111", LocalDate.of(2000,1,1),null,null);
 
         mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
         mockMvc.perform(MockMvcRequestBuilders.put("/api/user")
@@ -64,7 +65,7 @@ class UserApiControllerTest {
     @DisplayName("회원명 변경 예외 확인")
     void update_account_exception() {
         String test = "notChanged";
-        UserApiRequest request = new UserApiRequest(1L, test, "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111",LocalDate.of(2000,1,1),null,null);
+        UserApiRequest request =  UserApiRequest.of(1L, test, "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111",LocalDate.of(2000,1,1),null,null);
 
         mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
         assertThatExceptionOfType(NestedServletException.class)
@@ -80,10 +81,16 @@ class UserApiControllerTest {
     @Test
     @DisplayName("회원 비밀번호 변경")
     void modify() throws Exception {
+        // given
         String test = "010-modified";
+        User user = new User("test", "pwd", UserStatus.REGISTERED, "email", "phoneNumber", LocalDate.of(2000, 1, 1), LocalDateTime.now());
+        userRepository.save(user);
+        // when
         mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/user/1")
-                .param("password", test))
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/user/change_password/1")
+                .param("password", test)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.password").value(test));

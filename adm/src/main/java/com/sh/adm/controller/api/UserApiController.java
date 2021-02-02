@@ -56,7 +56,7 @@ public class UserApiController implements CrudInterface<UserApiRequest, UserApiR
         return userApiLogicService.update(request);
     }
 
-    @PatchMapping("{id}")
+    @PatchMapping("/change_password/{id}")
     public Header update(@PathVariable Long id, String password) {
         return userApiLogicService.update(id, password);
     }

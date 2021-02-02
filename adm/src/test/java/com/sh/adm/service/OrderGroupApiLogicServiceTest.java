@@ -167,7 +167,7 @@ public class OrderGroupApiLogicServiceTest extends AdmApplicationTests implement
 
 
     private User givenUserInfo() {
-        return new User("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222",LocalDateTime.now());
+        return new User("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222",null,LocalDateTime.now());
 
     }
 

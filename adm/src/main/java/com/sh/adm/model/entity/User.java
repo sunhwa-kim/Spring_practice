@@ -78,12 +78,13 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<OrderGroup> orderGroupList;
 
-    public User(String account, String password, UserStatus status, String email, String phoneNumber, LocalDateTime registeredAt) {
+    public User(String account, String password, UserStatus status, String email, String phoneNumber,LocalDate birthday ,LocalDateTime registeredAt) {
         this.account = account;
         this.password = password;
         this.status = status;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.birthday = Birthday.of(birthday);
         this.registeredAt = registeredAt;
     }
 
