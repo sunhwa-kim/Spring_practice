@@ -17,10 +17,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
-@ToString(exclude = {"partnerList"})
+//@ToString(exclude = {"partnerList"})
 public class Category {
     @Id
+    @Column(name = "category_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -41,6 +41,7 @@ public class Category {
     private String updatedBy;
 
     // Category 1 : N Partner
+    @ToString.Exclude
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
     private List<Partner> partnerList;
 }

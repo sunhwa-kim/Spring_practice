@@ -21,13 +21,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
-@ToString(exclude = {"partner","orderDetailList"})
 public class Item {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="item_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private ItemStatus status;  // READY, REGISTERED
@@ -62,7 +60,8 @@ public class Item {
 
     //    private Long partnerId;
     // Partner 1: N Item
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
     private Partner partner;
 
     // Item 1:N OrderDetail

@@ -21,17 +21,15 @@ import java.util.List;
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@ToString(exclude = {"orderDetailList","user"})
 @Builder
 @Accessors(chain = true)
-
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 public class OrderGroup {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="order_group_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String status;
@@ -67,10 +65,12 @@ public class OrderGroup {
 
     //    private Long userId;
     // OrderGroup N : 1 User
+    @ToString.Exclude
     @ManyToOne(optional = false)
     @JoinColumn(name="user_id")
     private User user;
 
+    @ToString.Exclude
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "orderGroup",cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetailList = new ArrayList<>();
 

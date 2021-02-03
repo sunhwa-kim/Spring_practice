@@ -17,10 +17,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
-@ToString(exclude = {"category","itemList"})
 public class Partner {
     @Id
+    @Column(name = "partner_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -56,10 +55,12 @@ public class Partner {
 
 
     //    private Long categoryId;
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
     private Category category;
 
     // Partner 1: N Item
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "partner")
+    @ToString.Exclude
+    @OneToMany(mappedBy = "partner", cascade = CascadeType.ALL)
     private List<Item> itemList;
 }

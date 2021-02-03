@@ -1,6 +1,7 @@
 package com.sh.adm.model.entity;
 
 import com.sh.adm.model.dto.Birthday;
+import com.sh.adm.model.entity.coupon.Coupon;
 import com.sh.adm.model.enumclass.UserStatus;
 import com.sh.adm.model.network.request.UserApiRequest;
 import lombok.*;
@@ -18,6 +19,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 //@Table(name = "User")   // 동일시 자동 맵핑
@@ -27,8 +29,8 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 @Accessors(chain = true)
-@Where(clause = "deleted = false")
 @EntityListeners(AuditingEntityListener.class)
+@Where(clause = "deleted = false")
 @Entity
 public class User {
 
@@ -75,8 +77,12 @@ public class User {
     private String updatedBy;
 
     @ToString.Exclude
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    @OneToMany(mappedBy = "user")
     private List<OrderGroup> orderGroupList;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "users")
+    private List<Coupon> coupons;
 
     public User(String account, String password, UserStatus status, String email, String phoneNumber,LocalDate birthday ,LocalDateTime registeredAt) {
         this.account = account;
@@ -87,12 +93,6 @@ public class User {
         this.birthday = Birthday.of(birthday);
         this.registeredAt = registeredAt;
     }
-
-    public void userUpdate(UserApiRequest request) {
-        if( !ObjectUtils.isEmpty(request.getStatus()) ) this.status = request.getStatus();
-        if( request.getBirthday() != null) this.birthday = Birthday.of(request.getBirthday());  // data type casting
-    }
-
     public void setPassword(String password) {
         this.password = password;
     }
@@ -114,4 +114,10 @@ public class User {
         this.status = status;
         this.deleted = deleted;
     }
+
+    public void userUpdate(UserApiRequest request) {
+        if( !ObjectUtils.isEmpty(request.getStatus()) ) this.status = request.getStatus();
+        if( request.getBirthday() != null) this.birthday = Birthday.of(request.getBirthday());  // data type casting
+    }
+
 }

@@ -19,13 +19,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-
-@ToString(exclude = {"item","orderGroup"})
 public class OrderDetail {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_detail_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String status;
@@ -50,10 +48,12 @@ public class OrderDetail {
 
     //    private Long orderGroupId;
     // OrderDetail N:1 OrderGroup
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private OrderGroup orderGroup;
     //    private Long itemId;
 //   OrderDetail N:1 Item
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
 
