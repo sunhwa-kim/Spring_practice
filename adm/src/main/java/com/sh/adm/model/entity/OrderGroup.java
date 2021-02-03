@@ -66,15 +66,20 @@ public class OrderGroup {
     //    private Long userId;
     // OrderGroup N : 1 User
     @ToString.Exclude
-    @ManyToOne(optional = false)
-    @JoinColumn(name="user_id")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private User user;
 
     @ToString.Exclude
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "orderGroup",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "orderGroup",cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetailList = new ArrayList<>();
 
-    public static OrderGroup createOrderGroup(User user, List<OrderDetail> orderDetails) {
+    public static OrderGroup createOrderGroup(User user) {
+        OrderGroup orderGroup = new OrderGroup();
+        orderGroup.user = user;
+        return orderGroup;
+    }
+
+    public static OrderGroup placeAnOrder(User user, List<OrderDetail> orderDetails) {
         OrderGroup orderGroup = new OrderGroup();
         orderGroup.user = user;
         for (OrderDetail od : orderDetails) {
@@ -84,9 +89,6 @@ public class OrderGroup {
         orderGroup.orderGroupTotal();
         return orderGroup;
     }
-
-//        this.orderDetailList = orderDetail;  // no
-
 
     public void orderGroupTotal() {
         BigDecimal tempPrice = new BigDecimal(0);

@@ -130,8 +130,8 @@ class UserRepositoryTest extends AdmApplicationTests {
     @Transactional
     @DisplayName("생일 월별 조회")
     void findMonthOfBithday() {
-        User user1 = new User("test2", "1234pwd", UserStatus.REGISTERED, "email", "phone", LocalDate.of(1900, 8, 8), LocalDateTime.now());
-        User user2 = new User("test3", "1234pwd", UserStatus.REGISTERED, "email", "phone", LocalDate.of(1800, 1, 20), LocalDateTime.now());
+        User user1 = User.of("test2", "1234pwd", UserStatus.REGISTERED, "email", "phone", LocalDate.of(1900, 8, 8), LocalDateTime.now());
+        User user2 = User.of("test3", "1234pwd", UserStatus.REGISTERED, "email", "phone", LocalDate.of(1800, 1, 20), LocalDateTime.now());
 
         userRepository.save(createUser());
         userRepository.save(user1);
@@ -142,6 +142,6 @@ class UserRepositoryTest extends AdmApplicationTests {
     }
 
     private User createUser() {
-        return new User(account, password, status, email, phoneNumber,LocalDate.of(2000,1,1), LocalDateTime.now());
+        return User.of(account, password, status, email, phoneNumber,LocalDate.of(2000,1,1), LocalDateTime.now());
     }
 }

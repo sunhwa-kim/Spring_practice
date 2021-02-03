@@ -39,7 +39,6 @@ public class User {
     @Column(name = "user_id")  // 동일시 자동 맵핑
     private Long id;
 
-
     @NotBlank
     private String account;
 
@@ -84,7 +83,20 @@ public class User {
     @OneToMany(mappedBy = "users")
     private List<Coupon> coupons;
 
-    public User(String account, String password, UserStatus status, String email, String phoneNumber,LocalDate birthday ,LocalDateTime registeredAt) {
+
+    public static User of(@NotBlank String account, @NotBlank String password, UserStatus status, String email, @NotBlank String phoneNumber, LocalDate birthday, LocalDateTime registeredAt) {
+        User user = new User();
+        user.account = account;
+        user.password = password;
+        if( !ObjectUtils.isEmpty(status) ) user.status = status;
+        if( !ObjectUtils.isEmpty(email) ) user.email = email;
+        user.phoneNumber = phoneNumber;
+        if( !ObjectUtils.isEmpty(birthday) ) user.birthday = Birthday.of(birthday);
+        user.registeredAt = registeredAt;
+        return user;
+    }
+
+/*    public User(String account, String password, UserStatus status, String email, String phoneNumber, LocalDate birthday , LocalDateTime registeredAt) {
         this.account = account;
         this.password = password;
         this.status = status;
@@ -92,7 +104,7 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.birthday = Birthday.of(birthday);
         this.registeredAt = registeredAt;
-    }
+    }*/
     public void setPassword(String password) {
         this.password = password;
     }

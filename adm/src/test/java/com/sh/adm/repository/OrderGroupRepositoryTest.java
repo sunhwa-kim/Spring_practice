@@ -5,6 +5,7 @@ import com.sh.adm.model.entity.OrderGroup;
 import com.sh.adm.model.entity.User;
 import com.sh.adm.model.enumclass.OrderType;
 import com.sh.adm.model.enumclass.UserStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.BDDAssertions.then;
 
+@Slf4j
 public class OrderGroupRepositoryTest extends AdmApplicationTests {
     @Autowired
     OrderGroupRepository orderGroupRepository;
@@ -30,9 +33,11 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
         OrderGroup orderGroup = givenInfo();
         // when
         OrderGroup newOrderGroup = orderGroupRepository.save(orderGroup);
+        User userId = userRepository.findById(1L).get();
+        List<OrderGroup> userBasket = orderGroupRepository.findByUser(userId);
+        log.info("order_group user >> {} ",userBasket);
         //then
         then(newOrderGroup.getUser().getId()).isEqualTo(orderGroup.getUser().getId());
-//        orderGroupRepository.findById(newOrderGroup.getId()).stream().forEach(System.out::println); // left outer join user -> inner join user
     }
 
     private OrderGroup givenInfo() {
@@ -57,6 +62,6 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
     }
 
     private User givenUser() {
-        return new User("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222",null,LocalDateTime.now());
+        return User.of("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222",null,LocalDateTime.now());
     }
 }

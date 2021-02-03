@@ -70,7 +70,7 @@ public class OrderGroupApiLogicServiceTest extends AdmApplicationTests implement
         orderDetailList.add(OrderDetail.createOrderDetail(item1, item1Count));
         orderDetailList.add(OrderDetail.createOrderDetail(item2, item2Count));
         // 주문
-        OrderGroup orderGroup = OrderGroup.createOrderGroup(user, orderDetailList);
+        OrderGroup orderGroup = OrderGroup.placeAnOrder(user, orderDetailList);
         OrderGroup testOg = orderGroupRepository.save(orderGroup);
 
         Optional<Item> item1Id = itemRepository.findById(item1.getId());
@@ -167,7 +167,7 @@ public class OrderGroupApiLogicServiceTest extends AdmApplicationTests implement
 
 
     private User givenUserInfo() {
-        return new User("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222",null,LocalDateTime.now());
+        return User.of("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222",null,LocalDateTime.now());
 
     }
 

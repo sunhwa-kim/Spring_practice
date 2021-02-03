@@ -28,7 +28,7 @@ public class OrderDetail {
 
     private String status;
 
-    private LocalDateTime arrivalDate;
+    private LocalDateTime arrivalDate;  // 창고 등 != 사용자
 
     private Integer quantity;
 

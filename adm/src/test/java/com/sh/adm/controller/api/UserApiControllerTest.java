@@ -83,7 +83,7 @@ class UserApiControllerTest {
     void modify() throws Exception {
         // given
         String test = "010-modified";
-        User user = new User("test", "pwd", UserStatus.REGISTERED, "email", "phoneNumber", LocalDate.of(2000, 1, 1), LocalDateTime.now());
+        User user = User.of("test", "pwd", UserStatus.REGISTERED, "email", "phoneNumber", LocalDate.of(2000, 1, 1), LocalDateTime.now());
         userRepository.save(user);
         // when
         mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();

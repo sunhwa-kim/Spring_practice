@@ -45,7 +45,7 @@ public class Coupon {
     @Enumerated(EnumType.STRING)
     private DiscountRatio discountRatio;
 
-    @NotNull
+    @Column(nullable = false, precision = 10,scale = 1)
     private BigDecimal abjustPrice;
 
     private String couponDescription;
@@ -86,14 +86,14 @@ public class Coupon {
         return coupon;
     }
 
-    public static Coupon birthdayCoupon(@NotBlank String couponName, @NotBlank LocalDate startDate, int count) {
+    public static Coupon birthdayCoupon(@NotBlank LocalDate startDate, int count) {
         Coupon coupon = new Coupon();
-        coupon.couponName = couponName;
+        coupon.couponName = startDate.getMonthValue()+"월 생일 쿠폰";
         coupon.startDate = startDate;
         coupon.endDate = YearMonth.from(startDate).atEndOfMonth();
         coupon.discountRatio = DiscountRatio.FORTY;
         coupon.abjustPrice = BigDecimal.ZERO;
-        coupon.couponDescription = "월별 생일자 적용";
+        coupon.couponDescription = "월별, 사용자 생일 적용 쿠폰";
         coupon.numberOfIssues += count;
         coupon.issueDetail = IssueDetail.ISSUEBIRTHDY;
         return coupon;

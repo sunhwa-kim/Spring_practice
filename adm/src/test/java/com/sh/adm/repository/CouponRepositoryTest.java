@@ -30,9 +30,8 @@ class CouponRepositoryTest {
     void post() {
         Coupon coupon = Coupon.createCoupon("가입 쿠폰", LocalDate.now(), LocalDate.now().plusDays(14), DiscountRatio.FIVE, BigDecimal.valueOf(10000), "회원 가입 기본 지급 쿠폰", IssueDetail.ISSUEEVENT);
         couponRepository.save(coupon);
-
         List<Coupon> registerCoupon = couponRepository.findByCouponName("가입 쿠폰");
-        log.info("register coupon >> {}",registerCoupon);
+//        log.info("register coupon >> {}",registerCoupon);
         assertAll(
                 () -> then(registerCoupon.get(0).getCouponName()).isEqualTo("가입 쿠폰"),
                 () -> then(registerCoupon.get(0).getStartDate()).isEqualTo(LocalDate.now()),
@@ -47,8 +46,8 @@ class CouponRepositoryTest {
     @Test
     void postOfBirthday() {
         LocalDate start = LocalDate.of(2021, 2, 1);
-        Coupon coupon = Coupon.birthdayCoupon("2월 생일 쿠폰", start, 100);
-        log.info(" birthday >> {}",coupon);
+        Coupon coupon = Coupon.birthdayCoupon(start, 100);
+//        log.info(" birthday >> {}",coupon);
         Coupon savedCoupon = couponRepository.save(coupon);
         assertAll(
                 () -> then(savedCoupon.getCouponName()).isEqualTo("2월 생일 쿠폰"),
@@ -56,10 +55,9 @@ class CouponRepositoryTest {
                 () -> then(savedCoupon.getEndDate()).isEqualTo(YearMonth.from(start).atEndOfMonth()),
                 () -> then(savedCoupon.getDiscountRatio()).isEqualTo(DiscountRatio.FORTY),
                 () -> then(savedCoupon.getAbjustPrice()).isEqualTo(BigDecimal.ZERO),
-                () -> then(savedCoupon.getCouponDescription()).isEqualTo("월별 생일자 적용"),
+                () -> then(savedCoupon.getCouponDescription()).isEqualTo("월별, 사용자 생일 적용 쿠폰"),
                 () -> then(savedCoupon.getNumberOfIssues()>=100).isTrue(),
                 () -> then(savedCoupon.getIssueDetail()).isEqualTo(IssueDetail.ISSUEBIRTHDY)
         );
-
     }
 }
