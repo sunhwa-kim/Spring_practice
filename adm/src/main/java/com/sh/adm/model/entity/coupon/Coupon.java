@@ -3,9 +3,7 @@ package com.sh.adm.model.entity.coupon;
 import com.sh.adm.model.entity.User;
 import com.sh.adm.model.enumclass.DiscountRatio;
 import com.sh.adm.model.enumclass.IssueDetail;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedBy;
@@ -22,11 +20,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 
-@ToString
 @Getter
+@ToString
+@EqualsAndHashCode
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 @Where(clause = "blocked = false")
+@EntityListeners(AuditingEntityListener.class)
 @Entity
 public class Coupon {
 
@@ -70,9 +69,15 @@ public class Coupon {
     @LastModifiedBy
     private String updatedBy;
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    private User users;
+    private User user;
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @Builder
     public static Coupon createCoupon(@NotBlank String couponName, @NotNull LocalDate startDate, @NotNull LocalDate endDate, @NotNull DiscountRatio discountRatio, @NotNull BigDecimal abjustPrice, String description, IssueDetail issueDetail) {
         Coupon coupon = new Coupon();
         coupon.couponName = couponName;

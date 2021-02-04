@@ -15,12 +15,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
-@Data
+@Getter
+@EqualsAndHashCode
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@EntityListeners(AuditingEntityListener.class)
+@Entity
 public class Item {
 
     @Id
@@ -65,8 +66,27 @@ public class Item {
     private Partner partner;
 
     // Item 1:N OrderDetail
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
-//    private List<OrderDetail> orderDetailList = new ArrayList<>();
+    @ToString.Exclude
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+    private List<OrderDetail> orderDetailList = new ArrayList<>();
+
+    public void setPartner(Partner partner) {
+        this.partner = partner;
+        partner.setItem(this);
+    }
+
+    @Builder
+    public Item(ItemStatus status, String name, String title, String content, BigDecimal price, int stockQuantity, String brandName, LocalDateTime registeredAt, Partner partner) {
+        this.status = status;
+        this.name = name;
+        this.title = title;
+        this.content = content;
+        this.price = price;
+        this.stockQuantity = stockQuantity;
+        this.brandName = brandName;
+        this.registeredAt = registeredAt;
+        this.setPartner(partner);
+    }
 
     public void addStock(int quantity) {
         this.stockQuantity += quantity;

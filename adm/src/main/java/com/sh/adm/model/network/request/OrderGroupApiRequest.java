@@ -1,5 +1,6 @@
 package com.sh.adm.model.network.request;
 
+import com.sh.adm.model.enumclass.OrderStatus;
 import com.sh.adm.model.enumclass.OrderType;
 import lombok.*;
 
@@ -17,13 +18,9 @@ import java.time.LocalDateTime;
 public class OrderGroupApiRequest {
     private Long id;   // update
 
-    private String status;
+    private OrderStatus status;
 
     private OrderType orderType;   // 묶음 , 개별
-
-    private String revAddress;
-
-    private String revName;
 
     private String paymentType;    // 현금, 카드,.
 
@@ -32,8 +29,6 @@ public class OrderGroupApiRequest {
     private Integer totalQuantity;
 
     private LocalDateTime orderAt;
-
-    private LocalDate arrivalDate;
 
     private Long userId;
 }

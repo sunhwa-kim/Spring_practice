@@ -72,7 +72,7 @@ public class ItemRepositoryTest extends AdmApplicationTests {
                 throw new NotEnoughStockException("need more!");
             }).withMessage("%s!", "need more").withMessageContaining("need").withNoCause();
         } else {
-            item.setStockQuantity(item.getStockQuantity() - 1);
+            item.outStock(1);
         }
         // 저장은 repository 별도...
     }
@@ -124,16 +124,12 @@ public class ItemRepositoryTest extends AdmApplicationTests {
                 .businessNumber("123456 2")
                 .ceoName("1 대표")
                 .registeredAt(getRandomDate())
-                .unregisteredAt(status.equals("UNREGISTERED") ? getRandomDate() : null)  // UNREGISTED -> getRandomDate()
                 .category(category)
                 .build();
     }
 
     private Category givenCategory() {
-        return Category.builder()
-                .type("전자제품")
-                .title("컴퓨터")
-                .build();
+        return new Category("전자제품", "컴퓨터");
     }
 
     private LocalDateTime getRandomDate(){

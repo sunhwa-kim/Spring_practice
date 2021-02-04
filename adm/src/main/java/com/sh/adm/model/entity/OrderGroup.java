@@ -1,6 +1,8 @@
 package com.sh.adm.model.entity;
 
+import com.sh.adm.model.enumclass.OrderStatus;
 import com.sh.adm.model.enumclass.OrderType;
+import com.sh.adm.model.enumclass.PaymentType;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.aspectj.weaver.ast.Or;
@@ -10,6 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -17,12 +20,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
-@Data
+@Getter
+@ToString
+@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
-@Accessors(chain = true)
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 public class OrderGroup {
@@ -32,24 +36,20 @@ public class OrderGroup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @Enumerated(EnumType.STRING)
     private OrderType orderType;   // 묶음 , 개별
 
-    private String revAddress;
-
-    private String revName;
-
-    private String paymentType;    // 현금, 카드,.
+    @Enumerated(EnumType.STRING)
+    private PaymentType paymentType;    // 현금, 카드,.
 
     private BigDecimal totalPrice;
 
     private Integer totalQuantity;
 
     private LocalDateTime orderAt;
-
-    private LocalDate arrivalDate;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -63,42 +63,58 @@ public class OrderGroup {
     @LastModifiedBy
     private String updatedBy;
 
-    //    private Long userId;
-    // OrderGroup N : 1 User
+    @ToString.Exclude
+    @OneToMany(mappedBy = "orderGroups")
+    private List<Delivery> delivery = new ArrayList<>();
+
+    // private Long userId;
     @ToString.Exclude
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private User user;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "orderGroup",cascade = CascadeType.ALL)
-    private List<OrderDetail> orderDetailList = new ArrayList<>();
+    @OneToMany(mappedBy = "orderGroup")
+    private List<OrderDetail> orderDetails = new ArrayList<>();
 
-    public static OrderGroup createOrderGroup(User user) {
+    /*   양방향 관계 - 연관관계 편의 메서드   */
+    public void setUser(User user) {
+        this.user = user;
+        user.setOrderGroupList(this);
+    }
+
+    public void setDelivery(Delivery delivery) {
+        this.delivery.add(delivery);
+        delivery.setOrderGroups(this);
+    }
+
+    public void setOrderDetails(OrderDetail orderDetail) {
+        this.orderDetails.add(orderDetail);
+        orderDetail.setOrderGroup(this);
+    }
+
+    /*  생성자 메서드   */
+    public static OrderGroup createOrderGroup(User user,OrderDetail orderDetail) {
         OrderGroup orderGroup = new OrderGroup();
-        orderGroup.user = user;
+        orderGroup.setUser(user);
+        orderGroup.setOrderDetails(orderDetail);
+        orderGroup.getTotalPrice();
+        orderGroup.getTotalQuantity();
         return orderGroup;
     }
 
-    public static OrderGroup placeAnOrder(User user, List<OrderDetail> orderDetails) {
-        OrderGroup orderGroup = new OrderGroup();
-        orderGroup.user = user;
-        for (OrderDetail od : orderDetails) {
-            orderGroup.orderDetailList.add(od);
-            od.setOrderGroup(orderGroup);
+    public BigDecimal getTotalPrice() {
+/*        BigDecimal prices = new BigDecimal(0);
+        for (OrderDetail od : this.orderDetails) {
+            prices = prices.add(od.getTotalPrice());
         }
-        orderGroup.orderGroupTotal();
-        return orderGroup;
+        this.totalPrice = prices;*/
+
+//        BigDecimal colletResult = this.orderDetails.stream().map(OrderDetail::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return this.orderDetails.stream().map(OrderDetail::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public void orderGroupTotal() {
-        BigDecimal tempPrice = new BigDecimal(0);
-        int tempQuantity = 0;
-        for (OrderDetail od : this.orderDetailList) {
-            tempPrice = tempPrice.add(od.getTotalPrice());
-            tempQuantity += od.getQuantity();
-        }
-        this.totalPrice = tempPrice;
-        this.totalQuantity = tempQuantity;
+    public int getTotalQuantity() {
+        return this.orderDetails.stream().mapToInt(OrderDetail::getQuantity).sum();
     }
 
 }

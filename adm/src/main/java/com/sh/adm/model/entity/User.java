@@ -24,10 +24,10 @@ import java.util.List;
 
 //@Table(name = "User")   // 동일시 자동 맵핑
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @ToString
 @EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 @Accessors(chain = true)
 @EntityListeners(AuditingEntityListener.class)
 @Where(clause = "deleted = false")
@@ -44,6 +44,9 @@ public class User {
 
     @NotBlank
     private String password;
+
+    @Embedded
+    private Address address;
 
     @Enumerated(EnumType.STRING)
     private UserStatus status;
@@ -76,13 +79,33 @@ public class User {
     private String updatedBy;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "user")
-    private List<OrderGroup> orderGroupList;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<OrderGroup> orderGroupList = new ArrayList<>();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "users")
-    private List<Coupon> coupons;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<Coupon> coupons = new ArrayList<>();
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setOrderGroupList(OrderGroup orderGroup) {
+        this.orderGroupList.add(orderGroup);
+    }
+
+    public void setCoupons(Coupon coupon) {
+        this.coupons.add(coupon);
+        coupon.setUser(this);
+    }
 
     public static User of(@NotBlank String account, @NotBlank String password, UserStatus status, String email, @NotBlank String phoneNumber, LocalDate birthday, LocalDateTime registeredAt) {
         User user = new User();
@@ -105,21 +128,6 @@ public class User {
         this.birthday = Birthday.of(birthday);
         this.registeredAt = registeredAt;
     }*/
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public void setOrderGroupList(List<OrderGroup> orderGroupList) {
-        this.orderGroupList = orderGroupList;
-    }
 
     public void deledtedAccount(LocalDateTime unregisteredAt, UserStatus status, boolean deleted) {
         this.unregisteredAt = unregisteredAt;

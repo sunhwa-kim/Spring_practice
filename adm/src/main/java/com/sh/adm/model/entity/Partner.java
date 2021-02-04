@@ -9,14 +9,16 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
-@Data
+@Getter
+@EqualsAndHashCode
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@EntityListeners(AuditingEntityListener.class)
+@Entity
 public class Partner {
     @Id
     @Column(name = "partner_id")
@@ -53,7 +55,6 @@ public class Partner {
     @LastModifiedBy
     private String updatedBy;
 
-
     //    private Long categoryId;
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
@@ -62,5 +63,27 @@ public class Partner {
     // Partner 1: N Item
     @ToString.Exclude
     @OneToMany(mappedBy = "partner", cascade = CascadeType.ALL)
-    private List<Item> itemList;
+    private List<Item> itemList = new ArrayList<>();
+
+    public void setCategory(Category category) {
+        this.category = category;
+        category.setPartner(this);
+    }
+
+    public void setItem(Item item) {
+        this.itemList.add(item);
+    }
+
+    @Builder
+    public Partner(String name, String status, String address, String callCenter, String partnerNumber, String businessNumber, String ceoName, LocalDateTime registeredAt, Category category) {
+        this.name = name;
+        this.status = status;
+        this.address = address;
+        this.callCenter = callCenter;
+        this.partnerNumber = partnerNumber;
+        this.businessNumber = businessNumber;
+        this.ceoName = ceoName;
+        this.registeredAt = registeredAt;
+        this.setCategory(category);
+    }
 }

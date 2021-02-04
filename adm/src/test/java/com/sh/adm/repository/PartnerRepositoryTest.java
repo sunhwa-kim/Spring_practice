@@ -26,19 +26,9 @@ public class PartnerRepositoryTest extends AdmApplicationTests {
         LocalDateTime createdAt = LocalDateTime.now();
         String createdBy = "AdminServer";
 
-        Partner partner = new Partner();
-        partner.setName(name);
-        partner.setStatus(status);
-        partner.setAddress(address);
-        partner.setCallCenter(callCenter);
-        partner.setPartnerNumber(partnerNumber);
-        partner.setBusinessNumber(businessNumber);
-        partner.setCeoName(ceoName);
-        partner.setRegisteredAt(registeredAt);
-        partner.setCreatedAt(createdAt);
-        partner.setCreatedBy(createdBy);
-
-//        partner.setCategoryId(2L);
+        Partner partner = Partner.builder().name(name).status(status).address(address)
+                .callCenter(callCenter).partnerNumber(partnerNumber).businessNumber(businessNumber)
+                .ceoName(ceoName).registeredAt(registeredAt).build();
 
         Partner newPartner = partnerRepository.save(partner);
         Assertions.assertNotNull(newPartner);

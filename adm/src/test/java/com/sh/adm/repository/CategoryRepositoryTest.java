@@ -2,11 +2,13 @@ package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
 import com.sh.adm.model.entity.Category;
+import com.sh.adm.model.entity.Partner;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 
 public class CategoryRepositoryTest extends AdmApplicationTests {
     @Autowired
@@ -19,14 +21,27 @@ public class CategoryRepositoryTest extends AdmApplicationTests {
         String title = "자동차";
         String type = "car";
 
-        Category category = new Category();
-        category.setTitle(title);
-        category.setType(type);
-        category.setCreatedAt(createAt);
-        category.setCreatedBy(createdBy);
-
+        Partner partner = givenPartner();
+        Category category = new Category(title, type);
         Category newCategory = categoryRepository.save(category);
         Assertions.assertNotNull(newCategory);
     }
 
+    private Partner givenPartner() {
+        String status = "REGISTERED";
+        return Partner.builder()
+                .name("파트너사")
+                .status(status)
+                .address("서울시 강남구 1번길 1000-100")
+                .callCenter("070-1111-1111")
+                .partnerNumber("010-1111-1111")
+                .businessNumber("123456 2")
+                .ceoName("1 대표")
+                .registeredAt(LocalDateTime.now())
+                .build();
+    }
+
+    private Category givenCategory() {
+        return new Category("전자제품","컴퓨터");
+    }
 }

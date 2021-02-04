@@ -1,5 +1,6 @@
 package com.sh.adm.model.entity;
 
+import com.sh.adm.model.enumclass.OrderStatus;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.criterion.Order;
@@ -13,12 +14,14 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
-@Data
+@Getter
+@ToString
+@EqualsAndHashCode
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
+@EntityListeners(AuditingEntityListener.class)
+@Entity
 public class OrderDetail {
 
     @Id
@@ -26,7 +29,7 @@ public class OrderDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String status;
+    private OrderStatus status;
 
     private LocalDateTime arrivalDate;  // 창고 등 != 사용자
 
@@ -51,11 +54,16 @@ public class OrderDetail {
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private OrderGroup orderGroup;
+
     //    private Long itemId;
 //   OrderDetail N:1 Item
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
+
+    public void setOrderGroup(OrderGroup orderGroup) {
+        this.orderGroup = orderGroup;
+    }
 
     /**
      * 기본 주문 생성자 메서드 -> 추가 : 상태, 날짜, 할인
@@ -65,8 +73,8 @@ public class OrderDetail {
      */
     public static OrderDetail createOrderDetail(Item item, int count) {
         OrderDetail orderDetail = new OrderDetail();
-        orderDetail.setItem(item);
-        orderDetail.setQuantity(count);
+        orderDetail.item = item;
+        orderDetail.quantity = count;
         orderDetail.detailTotalPrice();
         item.outStock(count);
         return orderDetail;

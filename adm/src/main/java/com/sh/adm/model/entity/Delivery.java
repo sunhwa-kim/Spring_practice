@@ -1,6 +1,10 @@
 package com.sh.adm.model.entity;
 
-import lombok.*;
+import com.sh.adm.model.enumclass.DeliveryStatus;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -8,26 +12,30 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
-@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @Entity
-public class Category {
+public class Delivery {
     @Id
-    @Column(name = "category_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "delivery_id")
     private Long id;
 
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus deliveryStatus;
 
-    private String title;
+    @Embedded
+    private Address receiveAddress;
+
+    private String receiveName;
+
+    private LocalDate arriveDate;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -41,17 +49,16 @@ public class Category {
     @LastModifiedBy
     private String updatedBy;
 
-    // Category 1 : N Partner
     @ToString.Exclude
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    private List<Partner> partnerList = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    private OrderGroup orderGroups;
 
-    public void setPartner(Partner partner) {
-        this.partnerList.add(partner);
+    public void setOrderGroups(OrderGroup orderGroup) {
+        this.orderGroups = orderGroup;
     }
 
-    public Category(String type, String title) {
-        this.type = type;
-        this.title = title;
+    public Delivery(Address receiveAddress, String receiveName) {
+        this.receiveAddress = receiveAddress;   // 기본 사용자 주소
+        this.receiveName = receiveName;  // 기본 사용자명
     }
 }

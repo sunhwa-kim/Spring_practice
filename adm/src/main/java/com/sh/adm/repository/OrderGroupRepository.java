@@ -10,5 +10,4 @@ import java.util.List;
 @Repository
 public interface OrderGroupRepository extends JpaRepository<OrderGroup,Long> {
 
-    List<OrderGroup> findByUser(User user);
 }
