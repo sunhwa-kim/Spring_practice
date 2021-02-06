@@ -16,7 +16,6 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class OrderGroupApiRequest {
     private Long id;   // update
 
@@ -44,7 +43,7 @@ public class OrderGroupApiRequest {
 
     // OrderDetail
     @NotEmpty(message = "상품 없이 주문 할 수 없습니다.")
-    private String orderDetailsId;
+    private String orderDetailsId;  // "id,id,id" // 중복없이
 
     @Builder
     public OrderGroupApiRequest(Long id, OrderStatus status, OrderType orderType, PaymentType paymentType, BigDecimal totalPrice, Integer totalQuantity, LocalDateTime orderAt, Long userId, String city, String street, String zipcode, String receiveName, @NotEmpty(message = "상품 없이 주문 할 수 없습니다.") String orderDetailId) {

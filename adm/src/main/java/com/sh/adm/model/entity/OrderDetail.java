@@ -1,6 +1,7 @@
 package com.sh.adm.model.entity;
 
 import com.sh.adm.model.enumclass.OrderStatus;
+import com.sh.adm.model.network.request.OrderDetailApiRequest;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.criterion.Order;
@@ -9,6 +10,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -78,6 +80,16 @@ public class OrderDetail {
         orderDetail.detailTotalPrice();
         item.outStock(count);
         return orderDetail;
+    }
+
+    public void updateAddOrderDetail(int increasedQuantity, Item item) {
+        int difference = 0;
+        if( this.quantity < increasedQuantity ) {
+            difference = (increasedQuantity - this.quantity);
+            this.quantity += difference;
+            this.detailTotalPrice();
+            item.outStock(difference);
+        }
     }
 
     public void detailTotalPrice() {

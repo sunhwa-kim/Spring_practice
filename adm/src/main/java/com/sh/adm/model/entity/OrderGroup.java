@@ -76,6 +76,11 @@ public class OrderGroup {
     @OneToMany(mappedBy = "orderGroup")
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
+    }
+
     /*   양방향 관계 - 연관관계 편의 메서드   */
     public void setUser(User user) {
         this.user = user;
@@ -95,6 +100,7 @@ public class OrderGroup {
     /*  생성자 메서드   */
     public static OrderGroup initOrderGroup(User user) {
         OrderGroup orderGroup = new OrderGroup();
+        orderGroup.setStatus(OrderStatus.ORDERING);
         orderGroup.setUser(user);
         return orderGroup;
     }

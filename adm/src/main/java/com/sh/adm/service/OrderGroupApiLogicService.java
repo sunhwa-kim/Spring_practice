@@ -2,59 +2,80 @@ package com.sh.adm.service;
 
 import com.sh.adm.ifs.CrudInterface;
 import com.sh.adm.model.dto.Address;
+import com.sh.adm.model.entity.Item;
+import com.sh.adm.model.entity.OrderDetail;
 import com.sh.adm.model.entity.OrderGroup;
-import com.sh.adm.model.entity.User;
 import com.sh.adm.model.enumclass.OrderStatus;
 import com.sh.adm.model.network.Header;
+import com.sh.adm.model.network.request.OrderDetailApiRequest;
 import com.sh.adm.model.network.request.OrderGroupApiRequest;
+import com.sh.adm.model.network.response.OrderDetailApiResponse;
 import com.sh.adm.model.network.response.OrderGroupApiResponse;
-import com.sh.adm.repository.DeliveryRepository;
-import com.sh.adm.repository.OrderGroupRepository;
-import com.sh.adm.repository.UserRepository;
+import com.sh.adm.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+@Service
 @RequiredArgsConstructor
-public class OrderGroupApiLogicService implements CrudInterface<OrderGroupApiRequest, OrderGroupApiResponse> {
+public class OrderGroupApiLogicService{
 
     private final OrderGroupRepository orderGroupRepository;
+    private final OrderDetailRepository orderDetailRepository;
+    private final ItemRepository itemRepository;
     private final DeliveryRepository deliveryRepository;
     private final UserRepository userRepository;
 
-    @Override
-    public Header<OrderGroupApiResponse> create(Header<OrderGroupApiRequest> request) {
+    @Transactional
+    public Header<OrderDetailApiResponse> createOrderDetail(Header<OrderDetailApiRequest> request) {
+        OrderDetailApiRequest body = request.getData();
+
+        Optional<OrderDetail> getOrderDetail = orderDetailRepository.findByItemIdAndOrderGroupId(body.getItemId(), body.getOrderGroupId());
+        Item getItem = itemRepository.getOne(body.getItemId());
+        if( getOrderDetail.isEmpty() ) {
+            OrderDetail orderDetail = OrderDetail.createOrderDetail(getItem, body.getQuantity());
+            OrderGroup  getOrderGroup = orderGroupRepository.getOne(body.getOrderGroupId());
+            getOrderGroup.setOrderDetails(orderDetail);
+            /**
+             * 영속성 컨택스트 : orderDetailRepository 결과 orderGroupId 정보 확인, orderGroupRepository 결과 orderDetail 확인
+             */
+            return Header.OK(new OrderDetailApiResponse(orderDetail.getItem().getId()));
+        }
+        else{
+            getOrderDetail.get().updateAddOrderDetail(body.getQuantity(), getItem);
+            return Header.OK(new OrderDetailApiResponse(request.getData().getItemId()));
+        }
+    }
+
+    @Transactional
+    public Header<OrderDetailApiResponse> updateCart(Long orderDetailId, int updatedCount) {
+
+        return Header.OK(new OrderDetailApiResponse());
+    }
+
+    public Header<OrderGroupApiResponse> order(Header<OrderGroupApiRequest> request) {
         // 조회
-        OrderGroupApiRequest requestBody = request.getData();
-        Optional<User> getUser = userRepository.findById(requestBody.getUserId());
 
-        // view form 태그 통해 받겠지
-        if (getUser.get().getOrderGroupList().size() <= 0) {
-            OrderGroup newOrderGroup = orderGroupRepository.save(OrderGroup.initOrderGroup(userRepository.getOne(requestBody.getUserId())));
-            return response(newOrderGroup);
-        }
-        else {
-//            OrderStatus.ORDERING, orderGroupList.get(-1)
-            List<OrderGroup> orderGroupList = orderGroupRepository.findByUserId(requestBody.getUserId());
-            List<OrderGroup> ordering = orderGroupList.stream().filter(orderGroup -> orderGroup.getStatus().equals(OrderStatus.ORDERING)).collect(Collectors.toUnmodifiableList());
+        // 장바구니 담는 상품 등록
+        // OrderDetail 내 동일 item 없을 때
 
-            return response(null);
-        }
+
+
+        // OrderDetail 내 동일 item 있을 때
+        return response(null);
     }
 
     // 사용자 장바구니 조회
 
     // 주문시 / 주문 후 주문확인 조회
-    @Override
-    public Header<OrderGroupApiResponse> read(Long id) {
+    public Header<OrderGroupApiResponse> checkOrder(Long id) {
         return null;
     }
 
     // 상품 추가, 최종 주문 전 상태까지
-    @Override
-    public Header<OrderGroupApiResponse> update(Header<OrderGroupApiRequest> request) {
+    public Header<OrderGroupApiResponse> updateOrder(Header<OrderGroupApiRequest> request) {
         OrderGroupApiRequest requestBody = request.getData();
         Optional<OrderGroup> byId = orderGroupRepository.findById(requestBody.getId());
 
@@ -75,8 +96,7 @@ public class OrderGroupApiLogicService implements CrudInterface<OrderGroupApiReq
                 }).orElseGet(() -> Header.error("No data existed"));
     }
 
-    @Override
-    public Header delete(Long id) {
+    public Header cancelOrder(Long id) {
         return null;
     }
 

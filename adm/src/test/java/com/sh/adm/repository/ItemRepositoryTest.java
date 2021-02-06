@@ -9,6 +9,7 @@ import com.sh.adm.model.enumclass.ItemStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
@@ -19,6 +20,7 @@ import java.util.Random;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.BDDAssertions.then;
 
+@SpringBootTest
 @Transactional
 public class ItemRepositoryTest extends AdmApplicationTests {
     private Random random;
