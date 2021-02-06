@@ -9,11 +9,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class
-UserApiRequest {
+public class UserApiRequest {
     private Long id;   // + update
 
     @NotEmpty(message = "계정명은 필수 입니다.")

@@ -1,5 +1,6 @@
 package com.sh.adm.model.entity;
 
+import com.sh.adm.model.dto.Address;
 import com.sh.adm.model.enumclass.DeliveryStatus;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -57,8 +58,14 @@ public class Delivery {
         this.orderGroups = orderGroup;
     }
 
+    public void setReceiveAddress(Address receiveAddress) {
+        this.receiveAddress = receiveAddress;
+    }
+
     public Delivery(Address receiveAddress, String receiveName) {
         this.receiveAddress = receiveAddress;   // 기본 사용자 주소
         this.receiveName = receiveName;  // 기본 사용자명
     }
+
+
 }

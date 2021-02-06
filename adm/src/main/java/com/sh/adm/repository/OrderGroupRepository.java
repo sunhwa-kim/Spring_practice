@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface OrderGroupRepository extends JpaRepository<OrderGroup,Long> {
+    List<OrderGroup> findByUserId(Long UserId);
 
 }

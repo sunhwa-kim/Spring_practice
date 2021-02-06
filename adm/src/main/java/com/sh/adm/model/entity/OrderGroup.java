@@ -93,7 +93,12 @@ public class OrderGroup {
     }
 
     /*  생성자 메서드   */
-    public static OrderGroup createOrderGroup(User user,OrderDetail orderDetail) {
+    public static OrderGroup initOrderGroup(User user) {
+        OrderGroup orderGroup = new OrderGroup();
+        orderGroup.setUser(user);
+        return orderGroup;
+    }
+    public static OrderGroup createOrderGroup(User user, OrderDetail orderDetail) {
         OrderGroup orderGroup = new OrderGroup();
         orderGroup.setUser(user);
         orderGroup.setOrderDetails(orderDetail);

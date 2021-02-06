@@ -50,13 +50,13 @@ public class OrderDetail {
     private String updatedBy;
 
     //    private Long orderGroupId;
-    // OrderDetail N:1 OrderGroup
+    //      OrderDetail N:1 OrderGroup
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private OrderGroup orderGroup;
 
     //    private Long itemId;
-//   OrderDetail N:1 Item
+    //   OrderDetail N:1 Item
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;

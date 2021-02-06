@@ -1,5 +1,6 @@
 package com.sh.adm.model.entity;
 
+import com.sh.adm.model.dto.Address;
 import com.sh.adm.model.dto.Birthday;
 import com.sh.adm.model.entity.coupon.Coupon;
 import com.sh.adm.model.enumclass.UserStatus;

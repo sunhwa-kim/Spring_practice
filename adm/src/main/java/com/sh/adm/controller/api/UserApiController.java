@@ -6,6 +6,7 @@ import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.UserApiRequest;
 import com.sh.adm.model.network.response.UserApiResponse;
 import com.sh.adm.service.UserApiLogicService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/user")
 public class UserApiController implements CrudInterface<UserApiRequest, UserApiResponse> {
     // controller 마다 CRUD 반복 -> Ifs / CrudInterface
@@ -25,8 +27,7 @@ public class UserApiController implements CrudInterface<UserApiRequest, UserApiR
     // REST 연동 전 규칙 설정 : @PostMapping, @GetMapping, @PutMapping, @DeleteMapping
     //  -> 공통, 중복 부분 추상화 리팩토링
 
-    @Autowired
-    UserApiLogicService userApiLogicService;
+    private final UserApiLogicService userApiLogicService;
 
     @GetMapping("")
     public Header<List<UserApiResponse>> getPage(@PageableDefault(sort = "id", size = 15) Pageable pageable) {

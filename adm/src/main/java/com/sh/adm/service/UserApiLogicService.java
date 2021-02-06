@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import static com.sh.adm.model.network.Header.error;
 
 @Slf4j
-@Transactional
 @RequiredArgsConstructor
 @Service
 public class UserApiLogicService implements CrudInterface<UserApiRequest, UserApiResponse> {
@@ -46,6 +45,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     }
 
     @Override
+    @Transactional
     public Header<UserApiResponse> create(Header<UserApiRequest> request) {
         UserApiRequest userApiRequest = request.getData();
         vaildateDupplicatedAccount(userApiRequest.getAccount());
@@ -54,8 +54,8 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
         return Header.OK(response(user));
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public Header<UserApiResponse> read(Long id) {
         return userRepository.findById(id)
                 .map(this::response)
@@ -64,6 +64,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     }
 
     @Override
+    @Transactional
     public Header<UserApiResponse> update(Header<UserApiRequest> request) {
         // id -> data -> change data(req) -> update
         UserApiRequest userApiRequest = request.getData();
@@ -78,6 +79,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
                 .orElseGet(() -> error("The Account dose not existed"));
     }
 
+    @Transactional
     public Header<UserApiResponse> update(Long id, String password) {
         return userRepository.findById(id)
                 .map(user -> {
@@ -91,6 +93,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     }
 
     @Override
+    @Transactional
     public Header delete(Long id) {
         return userRepository.findById(id)
                 .map(entity -> {
@@ -143,4 +146,6 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
         return userApiResponse;
 //        return Header.OK(userApiResponse);
     }
+
+
 }

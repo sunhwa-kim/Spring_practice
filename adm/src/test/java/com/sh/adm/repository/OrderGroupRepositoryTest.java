@@ -3,16 +3,16 @@ package com.sh.adm.repository;
 import com.sh.adm.AdmApplicationTests;
 import com.sh.adm.model.entity.*;
 import com.sh.adm.model.enumclass.ItemStatus;
-import com.sh.adm.model.enumclass.OrderType;
 import com.sh.adm.model.enumclass.UserStatus;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import static org.assertj.core.api.BDDAssertions.then;
@@ -28,6 +28,47 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
     UserRepository userRepository;
 
     @Test
+    @Transactional
+    void createWhenInitializeOrderGroup() {
+        /*
+        사용자 가입 후 장바구니 등록 위한 첫 OrderGroup
+         */
+        // given
+        User user = userRepository.save(givenUser());
+        Category category = givenCategory();
+        Partner partner = givenPartner(category);
+        Item item = givenItem(100,partner);
+        OrderDetail orderDetail = OrderDetail.createOrderDetail(item, 1);
+        // when
+        OrderGroup orderGroup = orderGroupRepository.save(OrderGroup.initOrderGroup(user));
+        Optional<User> byUserId = userRepository.findById(user.getId());
+        List<OrderGroup> orderGroupList = byUserId.get().getOrderGroupList();
+//        orderGroupList.forEach(og->log.info("order-group >>{}",og.getId()));
+        then(orderGroupList.get(0).getId()).isNotZero();
+    }
+
+    @Test
+    @Transactional
+    void selectOrderGroupJoinColumn() {
+        /*
+        사용자 가입 후 장바구니 등록 위한 첫 OrderGroup
+         */
+        // given
+        User user = userRepository.save(givenUser());
+        Category category = givenCategory();
+        Partner partner = givenPartner(category);
+        Item item = givenItem(100,partner);
+        OrderDetail orderDetail = OrderDetail.createOrderDetail(item, 1);
+        // when
+        OrderGroup orderGroup = orderGroupRepository.save(OrderGroup.initOrderGroup(user));
+
+        List<OrderGroup> byUserId = orderGroupRepository.findByUserId(user.getId());
+        byUserId.forEach(og->log.info("order-group >>{}",og.getId()));
+
+    }
+
+    @Test
+    @Transactional
     public void create() {
         // given
         User user = userRepository.save(givenUser());
@@ -40,7 +81,7 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
         OrderGroup newOrderGroup = orderGroupRepository.save(orderGroup);
 //        log.info(" >> {}",newOrderGroup);
         //then
-        then(newOrderGroup.getUser().getId()).isEqualTo(1L);
+        then(newOrderGroup.getUser().getId()).isNotZero();
     }
 
     private User givenUser() {
