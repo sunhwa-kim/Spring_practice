@@ -19,7 +19,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Getter
@@ -92,7 +94,7 @@ public class OrderGroup {
         delivery.setOrderGroups(this);
     }
 
-    public void setOrderDetails(OrderDetail orderDetail) {
+    public void addOrderDetails(OrderDetail orderDetail) {
         this.orderDetails.add(orderDetail);
         orderDetail.setOrderGroup(this);
     }
@@ -104,10 +106,12 @@ public class OrderGroup {
         orderGroup.setUser(user);
         return orderGroup;
     }
-    public static OrderGroup createOrderGroup(User user, OrderDetail orderDetail) {
+    public static OrderGroup createOrderGroup(User user, OrderDetail... orderDetails) {
         OrderGroup orderGroup = new OrderGroup();
         orderGroup.setUser(user);
-        orderGroup.setOrderDetails(orderDetail);
+        for (OrderDetail orderDetail : orderDetails) {
+            orderGroup.addOrderDetails(orderDetail);
+        }
         orderGroup.getTotalPrice();
         orderGroup.getTotalQuantity();
         return orderGroup;

@@ -82,10 +82,10 @@ public class OrderDetail {
         return orderDetail;
     }
 
-    public void updateAddOrderDetail(int increasedQuantity, Item item) {
+    public void updateOrderDetail(Item item, int increasedQuantity) {
         int difference = 0;
-        if( this.quantity < increasedQuantity ) {
-            difference = (increasedQuantity - this.quantity);
+        if( this.quantity != increasedQuantity ) {
+            difference = Math.abs(increasedQuantity - this.quantity);
             this.quantity += difference;
             this.detailTotalPrice();
             item.outStock(difference);

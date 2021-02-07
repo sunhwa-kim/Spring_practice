@@ -13,10 +13,9 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 public class OrderDetailApiResponse {
+    private Integer orderItemQuantity;
 
-    private Long itemId;
-
-    public OrderDetailApiResponse(Long itemId) {
-        this.itemId = itemId;
+    public OrderDetailApiResponse(Integer orderItemQuantity) {
+        this.orderItemQuantity = orderItemQuantity;
     }
 }

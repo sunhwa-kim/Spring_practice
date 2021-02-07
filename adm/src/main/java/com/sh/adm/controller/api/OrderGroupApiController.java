@@ -20,11 +20,11 @@ public class OrderGroupApiController{
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public Header<OrderDetailApiResponse> createCart(@RequestBody Header<OrderDetailApiRequest> request) {
+    public Header<OrderDetailApiResponse> addToCart(@RequestBody Header<OrderDetailApiRequest> request) {
         /**
          *   장바구니 담기 버튼 -> ItemId [ OrderGroupId-> OrderDetail ]
          */
-        return orderGroupApiLogicService.createOrderDetail(request);
+        return orderGroupApiLogicService.addToOrderDetail(request);
     }
 
     @PatchMapping("{id}")
