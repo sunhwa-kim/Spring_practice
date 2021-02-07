@@ -67,6 +67,11 @@ public class OrderDetail {
         this.orderGroup = orderGroup;
     }
 
+    public void setItem(Item item) {
+        this.item = item;
+        item.setOrderDetailList(this);
+    }
+
     /**
      * 기본 주문 생성자 메서드 -> 추가 : 상태, 날짜, 할인
      * @param item
@@ -75,20 +80,20 @@ public class OrderDetail {
      */
     public static OrderDetail createOrderDetail(Item item, int count) {
         OrderDetail orderDetail = new OrderDetail();
-        orderDetail.item = item;
+        orderDetail.setItem(item);
         orderDetail.quantity = count;
         orderDetail.detailTotalPrice();
         item.outStock(count);
         return orderDetail;
     }
 
-    public void updateOrderDetail(Item item, int increasedQuantity) {
-        int difference = 0;
-        if( this.quantity != increasedQuantity ) {
-            difference = Math.abs(increasedQuantity - this.quantity);
-            this.quantity += difference;
+    public void updateOrderDetail(Item item, int quantity) {
+        if( this.quantity != quantity ) {
+            int difference = Math.abs(quantity - this.quantity);
+            this.quantity = quantity;
             this.detailTotalPrice();
-            item.outStock(difference);
+            if( difference < 0 ) item.addStock(difference);
+            else item.outStock(difference);
         }
     }
 

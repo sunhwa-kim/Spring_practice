@@ -27,9 +27,9 @@ public class OrderGroupApiController{
         return orderGroupApiLogicService.addToOrderDetail(request);
     }
 
-    @PatchMapping("{id}")
-    public Header<OrderDetailApiResponse> updateCartItem(@PathVariable("id") Long orderDetailId, int orderCount) {
-        return orderGroupApiLogicService.updateCart(orderDetailId, orderCount);
+    @PutMapping("")
+    public Header<OrderGroupApiResponse> updateCart(@RequestBody Header<OrderDetailApiRequest> request) {
+        return orderGroupApiLogicService.updateCart(orderGroupId, orderCount);
     }
 
     @PostMapping("/order")

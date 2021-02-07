@@ -75,6 +75,10 @@ public class Item {
         partner.setItem(this);
     }
 
+    public void setOrderDetailList(OrderDetail orderDetail) {
+        this.orderDetailList.add(orderDetail);
+    }
+
     @Builder
     public Item(ItemStatus status, String name, String title, String content, BigDecimal price, int stockQuantity, String brandName, LocalDateTime registeredAt, Partner partner) {
         this.status = status;

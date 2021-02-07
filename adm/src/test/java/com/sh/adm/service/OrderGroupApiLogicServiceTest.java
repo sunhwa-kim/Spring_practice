@@ -3,60 +3,99 @@ package com.sh.adm.service;
 import com.sh.adm.model.entity.*;
 import com.sh.adm.model.enumclass.ItemStatus;
 import com.sh.adm.model.enumclass.OrderStatus;
-import com.sh.adm.model.enumclass.OrderType;
 import com.sh.adm.model.enumclass.UserStatus;
 import com.sh.adm.model.network.Header;
+import com.sh.adm.model.network.request.OrderDetailApiRequest;
 import com.sh.adm.model.network.request.OrderGroupApiRequest;
-import com.sh.adm.model.network.request.UserApiRequest;
+import com.sh.adm.model.network.response.OrderDetailApiResponse;
+import com.sh.adm.repository.ItemRepository;
 import com.sh.adm.repository.OrderDetailRepository;
 import com.sh.adm.repository.OrderGroupRepository;
 import com.sh.adm.repository.UserRepository;
-import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
-@Slf4j
-@SpringBootTest
+import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
 class OrderGroupApiLogicServiceTest {
 
-    @Autowired
-    OrderGroupRepository ogRepository;
-    @Autowired
-    OrderDetailRepository odRepository;
-    @Autowired
+    @InjectMocks
+    OrderGroupApiLogicService orderGroupApiLogicService;
+
+    @Mock
+    OrderGroupRepository orderGroupRepository;
+
+    @Mock
+    OrderDetailRepository orderDetailRepository;
+
+    @Mock
+    ItemRepository itemRepository;
+
+    @Mock
     UserRepository userRepository;
 
+    @Captor
+    ArgumentCaptor<OrderGroup> argumentCaptor;
+
+
+    /*        verify(orderGroupRepository, times(1)).flush(argumentCaptor.capture());
+            assertAll(
+                    () -> then(argumentCaptor.getValue().getTotalQuantity()).isEqualTo(5),
+                    () -> then(argumentCaptor.getValue().getTotalPrice()).isEqualTo(90000*5)
+            );*/
     @Test
-    @Transactional
-    void creat() {
-        User user = userRepository.save(givenUser());
-        Item item = givenItem(100, givenPartner(givenCategory()));
-        odRepository.save(OrderDetail.createOrderDetail(item, 2));
-        OrderGroupApiRequest request = givenUserInfo(null).getData();
-//        OrderGroup orderGroup = OrderGroup.createOrderGroup(userRepository.getOne(request.getUserId()), odRepository.getOne(request.getOrderDetailId()));
-//        log.info("장바구니 담기 >> {}",orderGroup);
+    @DisplayName("order_group_id 없을 때")
+    void FirstAddCart() {
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(givenItem(100, givenPartner(givenCategory()))));
+        when(userRepository.getOne(1L)).thenReturn(givenUser());
+        orderGroupApiLogicService.addToOrderDetail(requestOrderDetail(null,null,2));  //2개 주문
+        verify(orderGroupRepository, times(1)).save(any(OrderGroup.class));
+        verify(orderDetailRepository, times(1)).save(any(OrderDetail.class));
+    }
+
+    @Test
+    @DisplayName("상품 수량 변경 테스트")
+    void changeItemQuantityInOrderDetail() {
+        // 3 -> 5
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(givenItem(97, givenPartner(givenCategory()))));
+        when(orderDetailRepository.findByItemIdAndOrderGroupId(1L, 1L)).thenReturn(Optional.of(newOrderDetail(3)));  // 원래 3래 주문
+//        when(orderGroupRepository.findById(1L)).thenReturn(Optional.of(OrderGroup.createOrderGroup(givenUser(), newOrderDetail(3))));
+
+        Header<OrderDetailApiResponse> response = orderGroupApiLogicService.addToOrderDetail(requestOrderDetail(null, 1L, 5));// 5개로 변경
+
+        then(response.getData().getOrderItemQuantity()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("새 상품 장바구니 담기")
+    void addNewItemToOrderGroup() {
+        when(orderDetailRepository.findByItemIdAndOrderGroupId(1L, 1L)).thenReturn(Optional.empty());
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(givenItem(100, givenPartner(givenCategory()))));
+
+        // order_group_id 있고, item도 있어야
+        Header<OrderDetailApiResponse> response = orderGroupApiLogicService.addToOrderDetail(requestOrderDetail(null, 1L, 5)); // 5개 주문
+
+        then(response.getData().getOrderItemQuantity()).isEqualTo(5);
 
     }
 
-
-    private Header<OrderGroupApiRequest> givenUserInfo(Long id) {
-        OrderGroupApiRequest.OrderGroupApiRequestBuilder builder = OrderGroupApiRequest.builder()
-                .status(OrderStatus.ORDERING)
-                .city("서울시")
-                .street("100")
-                .zipcode("12345")
-                .receiveName("")
-                .userId(1L);
-
-        if (id != null) {
-            builder.id(id);
-        }
-        return Header.OK(builder.build());
+    private OrderDetail newOrderDetail(int orderItemCount) {
+        Item item = givenItem(100, givenPartner(givenCategory()));
+        return OrderDetail.createOrderDetail(item, orderItemCount);
     }
 
     private User givenUser() {
@@ -94,5 +133,35 @@ class OrderGroupApiLogicServiceTest {
 
     private Category givenCategory() {
         return new Category("전자제품", "컴퓨터");
+    }
+
+    private Header<OrderDetailApiRequest> requestOrderDetail(Long id, Long orderGroupId, int orderCount) {
+        OrderDetailApiRequest.OrderDetailApiRequestBuilder builder = OrderDetailApiRequest.builder()
+                .orderStatus(OrderStatus.ORDERING)
+                .arrivalDate(LocalDateTime.now())
+                .quantity(orderCount)
+                .userId(1L)
+                .orderGroupId(orderGroupId)
+                .item(1L);
+
+        if (id != null) {
+            builder.id(id);
+        }
+        return Header.OK(builder.build());
+    }
+
+    private Header<OrderGroupApiRequest> requestOrderGroup(Long id) {
+        OrderGroupApiRequest.OrderGroupApiRequestBuilder builder = OrderGroupApiRequest.builder()
+                .status(OrderStatus.ORDERING)
+                .city("서울시")
+                .street("100")
+                .zipcode("12345")
+                .receiveName("")
+                .userId(1L);
+
+        if (id != null) {
+            builder.id(id);
+        }
+        return Header.OK(builder.build());
     }
 }

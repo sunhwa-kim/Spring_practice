@@ -3,6 +3,7 @@ package com.sh.adm.model.network.request;
 
 import com.sh.adm.model.entity.Item;
 import com.sh.adm.model.entity.OrderGroup;
+import com.sh.adm.model.enumclass.OrderStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class OrderDetailApiRequest {
 
     private Long id;
 
-    private String orderStatus;
+    private OrderStatus orderStatus;
 
     private LocalDateTime arrivalDate;
 
@@ -33,7 +34,7 @@ public class OrderDetailApiRequest {
     private Long itemId;
 
     @Builder
-    public OrderDetailApiRequest(Long id, String orderStatus, LocalDateTime arrivalDate, Integer quantity, BigDecimal totalPrice, Long userId,Long orderGroupId, Long item) {
+    public OrderDetailApiRequest(Long id, OrderStatus orderStatus, LocalDateTime arrivalDate, Integer quantity, BigDecimal totalPrice, Long userId,Long orderGroupId, Long item) {
         this.id = id;
         this.orderStatus = orderStatus;
         this.arrivalDate = arrivalDate;

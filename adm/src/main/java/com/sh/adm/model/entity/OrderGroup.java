@@ -75,7 +75,7 @@ public class OrderGroup {
     private User user;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "orderGroup")
+    @OneToMany(mappedBy = "orderGroup", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
 

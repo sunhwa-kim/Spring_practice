@@ -38,5 +38,5 @@ public class OrderGroupApiResponse {
 
     private LocalDate arrivalDate;
 
-    private Long userId;
+    private String orderDetailList;
 }
