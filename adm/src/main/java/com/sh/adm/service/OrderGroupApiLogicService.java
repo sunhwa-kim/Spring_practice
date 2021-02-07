@@ -4,22 +4,21 @@ import com.sh.adm.model.dto.Address;
 import com.sh.adm.model.entity.Item;
 import com.sh.adm.model.entity.OrderDetail;
 import com.sh.adm.model.entity.OrderGroup;
-import com.sh.adm.model.enumclass.OrderStatus;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.OrderDetailApiRequest;
 import com.sh.adm.model.network.request.OrderGroupApiRequest;
 import com.sh.adm.model.network.response.OrderDetailApiResponse;
+import com.sh.adm.model.network.response.OrderDetailsApiResponse;
 import com.sh.adm.model.network.response.OrderGroupApiResponse;
 import com.sh.adm.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -75,19 +74,41 @@ public class OrderGroupApiLogicService{
     }
 
     @Transactional
-    public Header<OrderGroupApiResponse> updateCart(Long orderGroupId, int updatedCount) {
+    public Header<List<OrderDetailsApiResponse>> updateCart(Header<List<OrderDetailApiRequest>> request) {
         /**
          * 장바구니 확인하기 - form 내 item 수량 변경시
          */
 
-        List<OrderDetail> getOrderDetails = orderDetailRepository.findByOrderGroupIdOrderByCreatedAtDesc(orderGroupId);
-        if (getOrderDetails.size()<=0) return Header.error("No data existed");
+        List<OrderDetailApiRequest> req = request.getData();
+        Long orderGroupId = req.get(0).getOrderGroupId();
+        Set<Long> setOrderGroupId = new HashSet<>();
+        Map<Long, Integer> itemMap = new HashMap<>();
+        List<Map<Long, Integer>> itemList = new ArrayList<Map<Long,Integer>>();
+        if(!req.isEmpty()){
+            for (OrderDetailApiRequest body : req) {
+                setOrderGroupId.add(body.getOrderGroupId());
+                itemMap.put(body.getItemId(), body.getQuantity());
+                itemList.add(itemMap);
+            }
+        }
 
-        orderGroupRepository.findById(orderGroupId).orElseThrow(() -> new RuntimeException("no ordergrouop data"));
-
-
-
-        return response(null);
+        if(setOrderGroupId.size()==1){
+            List<OrderDetail> getOrderDetails = orderDetailRepository.findByOrderGroupIdOrderByCreatedAtDesc(orderGroupId);
+            if (getOrderDetails.size()<=0) return Header.error("No data existed");
+            for (int i = 0; i < itemList.size(); i++) {
+                Map<Long, Integer> bodyItem = itemList.get(i);
+                OrderDetail orderDetail = getOrderDetails.get(i);
+                Long itemId = orderDetail.getItem().getId();
+                log.info("item value 확인 >>{}",bodyItem.get(itemId));
+                if (!bodyItem.get(itemId).equals(orderDetail.getQuantity())) {
+                    orderDetail.updateOrderDetail(orderDetail.getItem(), bodyItem.get(itemId).intValue());
+                    orderDetail.getOrderGroup().getTotalQuantity();   // 영속성 컨텍스트 변경 감지 확인
+                    orderDetail.getOrderGroup().getTotalPrice();
+                }
+            }
+            return orderDetailsResponse(getOrderDetails);
+        }
+        return Header.error("No data existed");
     }
 
     public Header<OrderGroupApiResponse> order(Header<OrderGroupApiRequest> request) {
@@ -122,7 +143,6 @@ public class OrderGroupApiLogicService{
                             .map(orderGroup -> {
                                 orderGroup.getDelivery().stream().filter(delivery -> !delivery.getReceiveAddress().equals(reqAddress))
                                         .map(deliveryRepository::save);
-//                                .collect(Collectors.toList())
                                 orderGroup.getTotalQuantity();
                                 orderGroup.getTotalPrice();
                                 return orderGroup;
@@ -138,6 +158,19 @@ public class OrderGroupApiLogicService{
     private OrderDetailApiResponse orderDetailResponse(OrderDetail orderDetail) {
         log.info("new OrderDetail >> {}",orderDetail);
         return new OrderDetailApiResponse(orderDetail.getQuantity());
+    }
+
+    private Header<List<OrderDetailsApiResponse>> orderDetailsResponse(List<OrderDetail> orderDetails) {
+        List<OrderDetailsApiResponse> body = orderDetails.stream().map(orderDetail -> {
+            return OrderDetailsApiResponse.builder()
+                    .orderStatus(orderDetail.getStatus())
+                    .quantity(orderDetail.getQuantity())
+                    .totalPrice(orderDetail.getTotalPrice())
+                    .item(orderDetail.getItem().getId()).build();
+        }).collect(Collectors.toUnmodifiableList());
+
+        log.info("new OrderDetail >> {}",body);
+        return Header.OK(body);
     }
 
     private Header<OrderGroupApiResponse> response(OrderGroup orderGroup) {

@@ -4,11 +4,14 @@ import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.OrderDetailApiRequest;
 import com.sh.adm.model.network.request.OrderGroupApiRequest;
 import com.sh.adm.model.network.response.OrderDetailApiResponse;
+import com.sh.adm.model.network.response.OrderDetailsApiResponse;
 import com.sh.adm.model.network.response.OrderGroupApiResponse;
 import com.sh.adm.service.OrderGroupApiLogicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -27,9 +30,9 @@ public class OrderGroupApiController{
         return orderGroupApiLogicService.addToOrderDetail(request);
     }
 
-    @PutMapping("")
-    public Header<OrderGroupApiResponse> updateCart(@RequestBody Header<OrderDetailApiRequest> request) {
-        return orderGroupApiLogicService.updateCart(orderGroupId, orderCount);
+    @PutMapping("{id}")
+    public Header<List<OrderDetailsApiResponse>> updateCart(@RequestBody Header<List<OrderDetailApiRequest>> request) {
+        return orderGroupApiLogicService.updateCart(request);
     }
 
     @PostMapping("/order")
