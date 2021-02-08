@@ -54,17 +54,20 @@ public class Delivery {
     @ManyToOne(fetch = FetchType.LAZY)
     private OrderGroup orderGroups;
 
+    public void setReceiveAddress(Address receiveAddress) {  // 주문 내역 변경 시
+        this.receiveAddress = receiveAddress;
+    }
+
     public void setOrderGroups(OrderGroup orderGroup) {
         this.orderGroups = orderGroup;
     }
 
-    public void setReceiveAddress(Address receiveAddress) {
+    public Delivery(Address receiveAddress, String receiveName, OrderGroup orderGroup) {
+        this.setOrderGroups(orderGroup);
         this.receiveAddress = receiveAddress;
-    }
-
-    public Delivery(Address receiveAddress, String receiveName) {
-        this.receiveAddress = receiveAddress;   // 기본 사용자 주소
-        this.receiveName = receiveName;  // 기본 사용자명
+        this.receiveName = receiveName;
+        this.deliveryStatus = DeliveryStatus.READY;
+        this.arriveDate = LocalDate.now().plusWeeks(1);
     }
 
 

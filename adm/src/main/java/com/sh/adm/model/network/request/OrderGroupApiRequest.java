@@ -21,16 +21,17 @@ public class OrderGroupApiRequest {
 
     private OrderStatus status;
 
+    @NotEmpty(message = "배송 방식을 지정해 주세요")
     private OrderType orderType;   // 묶음 , 개별
 
+    @NotEmpty(message = "결제 방식을 지정해 주세요")
     private PaymentType paymentType;    // 현금, 카드,.
 
     private BigDecimal totalPrice;
 
     private Integer totalQuantity;
 
-    private LocalDateTime orderAt;
-
+//    private LocalDateTime orderAt;
 
     // Delivery
     private String city;
@@ -39,26 +40,24 @@ public class OrderGroupApiRequest {
 
     private String receiveName;
 
-    private Long userId;
-
     // OrderDetail
-    @NotEmpty(message = "상품 없이 주문 할 수 없습니다.")
-    private String orderDetailsId;  // "id,id,id" // 중복없이
+//    @NotEmpty(message = "상품 없이 주문 할 수 없습니다.")
+//    private String orderDetailsId;  // 내부 조회 -> "id,id,id"  변경 예정 (사용자 확인 로직 고민)
 
     @Builder
-    public OrderGroupApiRequest(Long id, OrderStatus status, OrderType orderType, PaymentType paymentType, BigDecimal totalPrice, Integer totalQuantity, LocalDateTime orderAt, Long userId, String city, String street, String zipcode, String receiveName, @NotEmpty(message = "상품 없이 주문 할 수 없습니다.") String orderDetailId) {
+    public OrderGroupApiRequest(Long id, OrderStatus status, OrderType orderType, PaymentType paymentType, BigDecimal totalPrice, Integer totalQuantity, String city, String street, String zipcode, String receiveName) {
         this.id = id;
         this.status = status;
         this.orderType = orderType;
         this.paymentType = paymentType;
         this.totalPrice = totalPrice;
         this.totalQuantity = totalQuantity;
-        this.orderAt = orderAt;
+//        this.orderAt = orderAt;
         this.city = city;
         this.street = street;
         this.zipcode = zipcode;
         this.receiveName = receiveName;
-        this.userId = userId;
-        this.orderDetailsId = orderDetailId;
+//        this.userId = userId;
+//        this.orderDetailsId = orderDetailId;
     }
 }

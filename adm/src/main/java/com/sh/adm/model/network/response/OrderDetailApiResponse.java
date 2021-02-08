@@ -13,9 +13,13 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 public class OrderDetailApiResponse {
+
     private Integer orderItemQuantity;
 
-    public OrderDetailApiResponse(Integer orderItemQuantity) {
+    private BigDecimal totalPrice;
+
+    public OrderDetailApiResponse(Integer orderItemQuantity, BigDecimal totalPrice) {
         this.orderItemQuantity = orderItemQuantity;
+        this.totalPrice = totalPrice;
     }
 }

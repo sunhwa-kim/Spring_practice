@@ -15,18 +15,18 @@ import com.sh.adm.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -48,10 +48,8 @@ class OrderGroupApiLogicServiceTest {
     @Mock
     UserRepository userRepository;
 
-    @Captor
-    ArgumentCaptor<OrderGroup> argumentCaptor;
-
-
+/*    @Captor
+    ArgumentCaptor<OrderGroup> argumentCaptor;*/
     /*        verify(orderGroupRepository, times(1)).flush(argumentCaptor.capture());
             assertAll(
                     () -> then(argumentCaptor.getValue().getTotalQuantity()).isEqualTo(5),
@@ -62,7 +60,7 @@ class OrderGroupApiLogicServiceTest {
     void FirstAddCart() {
         when(itemRepository.findById(1L)).thenReturn(Optional.of(givenItem(100, givenPartner(givenCategory()))));
         when(userRepository.getOne(1L)).thenReturn(givenUser());
-        orderGroupApiLogicService.addToOrderDetail(requestOrderDetail(null,null,2));  //2개 주문
+        orderGroupApiLogicService.addToOrderDetail(requestOrderDetail(null, null, 2));  //2개 주문
         verify(orderGroupRepository, times(1)).save(any(OrderGroup.class));
         verify(orderDetailRepository, times(1)).save(any(OrderDetail.class));
     }
@@ -93,19 +91,41 @@ class OrderGroupApiLogicServiceTest {
 
     }
 
-    private OrderDetail newOrderDetail(int orderItemCount) {
-        Item item = givenItem(100, givenPartner(givenCategory()));
+/*
+    @Test
+    @DisplayName("장바구니 상품들 변경")
+    void changeItemsConnectedOrderGroup() {
+
+        List<OrderDetail> testNewOrderDetail = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            testNewOrderDetail.add(newOrderDetail(5));
+        }
+        when(orderDetailRepository.findByOrderGroupIdOrderByCreatedAtDesc(1L)).thenReturn(testNewOrderDetail);
+        Header<List<OrderDetailsApiResponse>> responseList = orderGroupApiLogicService.updateCart(requestUpdateOrderDetails());
+        List<OrderDetailsApiResponse> body = responseList.getData();
+
+        body.forEach(System.out::println);
+    }
+*/
+
+
+    private int item_count =100;
+        private OrderDetail newOrderDetail(int orderItemCount) {
+            int changeCount = 1;
+        Item item = givenItem(item_count,givenPartner(givenCategory()));
+            item_count -= 20;
         return OrderDetail.createOrderDetail(item, orderItemCount);
     }
 
     private User givenUser() {
-        return User.of("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222",null, LocalDateTime.now());
+        return User.of("test01", "pwd01", UserStatus.REGISTERED, "email@gmail.com", "010-1111-2222", null, LocalDateTime.now());
     }
 
+    private int changeName = 1;
     private Item givenItem(int quantity, Partner partner) {
         return Item.builder()
                 .status(ItemStatus.UNREGISTERED)
-                .name("LG 노트북")
+                .name("LG 노트북"+changeName++)
                 .title("LG 노트북 A100")
                 .content("2020년형 노트북")
                 .price(BigDecimal.valueOf(900000))
@@ -135,6 +155,21 @@ class OrderGroupApiLogicServiceTest {
         return new Category("전자제품", "컴퓨터");
     }
 
+    private Header<List<OrderDetailApiRequest>> requestUpdateOrderDetails() {
+        Random random = new Random();
+        List<OrderDetailApiRequest> ret = new ArrayList<>();
+        for (int i = 1; i < 4; i++) {
+            ret.add(OrderDetailApiRequest.builder()
+                    .orderStatus(OrderStatus.ORDERING)
+                    .quantity(random.nextInt(10) + 1)
+                    .userId(1L)
+                    .orderGroupId(1L)
+                    .itemId((long) i).build());
+        }
+        return Header.OK(ret);
+    }
+
+
     private Header<OrderDetailApiRequest> requestOrderDetail(Long id, Long orderGroupId, int orderCount) {
         OrderDetailApiRequest.OrderDetailApiRequestBuilder builder = OrderDetailApiRequest.builder()
                 .orderStatus(OrderStatus.ORDERING)
@@ -142,7 +177,7 @@ class OrderGroupApiLogicServiceTest {
                 .quantity(orderCount)
                 .userId(1L)
                 .orderGroupId(orderGroupId)
-                .item(1L);
+                .itemId(1L);
 
         if (id != null) {
             builder.id(id);

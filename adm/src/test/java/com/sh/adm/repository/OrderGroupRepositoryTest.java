@@ -3,7 +3,6 @@ package com.sh.adm.repository;
 import com.sh.adm.AdmApplicationTests;
 import com.sh.adm.model.entity.*;
 import com.sh.adm.model.enumclass.ItemStatus;
-import com.sh.adm.model.enumclass.OrderStatus;
 import com.sh.adm.model.enumclass.UserStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -13,11 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
-import static org.assertj.core.api.BDDAssertions.then;
 
 @Slf4j
 public class OrderGroupRepositoryTest extends AdmApplicationTests {
@@ -41,54 +37,9 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
         User user = userRepository.save(givenUser());
         Category category = givenCategory();
         Partner partner = givenPartner(category);
-        Item item = givenItem(100,partner);
-
-
-
-        List<OrderGroup> getUserOrderGroup = orderGroupRepository.findByStatusAndUserId(OrderStatus.ORDERING, user.getId());
-        if(getUserOrderGroup.size()==0) {
-            getUserOrderGroup.add(orderGroupRepository.save(OrderGroup.initOrderGroup(userRepository.getOne(user.getId()))));
-            OrderDetail orderDetail = OrderDetail.createOrderDetail(item, 1);
-        }
-        else{
-            // 담은 item이
-        }
-
-
-
-        // when
-        OrderGroup orderGroup = orderGroupRepository.save(OrderGroup.initOrderGroup(user));
-        Optional<User> byUserId = userRepository.findById(user.getId());
-        List<OrderGroup> orderGroupList = byUserId.get().getOrderGroupList();
-//        orderGroupList.forEach(og->log.info("order-group >>{}",og.getId()));
-        then(orderGroupList.get(0).getId()).isNotZero();
+        Item item = givenItem(100, partner);
     }
 
-    @Test
-    @Transactional
-    @DisplayName("사용자 장바구니 조회")
-    void selectOrderGroupJoinColumn() {
-        // given
-        User user = userRepository.save(givenUser());
-        Category category = givenCategory();
-        Partner partner = givenPartner(category);
-        Item item = givenItem(100,partner);
-        OrderDetail orderDetail = OrderDetail.createOrderDetail(item, 1);
-        // when
-        OrderGroup orderGroup = orderGroupRepository.save(OrderGroup.initOrderGroup(user));
-
-        // then
-        List<OrderGroup> getOrder = orderGroupRepository.findByStatusAndUserId(OrderStatus.ORDERING,user.getId());
-//        getOrder.forEach(og->log.info("order-group >>{}",og.getStatus()));
-        then(getOrder.get(0).getStatus()).isEqualTo(OrderStatus.ORDERING);
-
-        orderGroup.setStatus(OrderStatus.COMPLETE);
-        List<OrderGroup> getOrder2 = orderGroupRepository.findByStatusAndUserId(OrderStatus.COMPLETE,user.getId());
-//        getOrder2.forEach(og->log.info("order-group >> {} , {}", og.getStatus() , og.getUser().getId()));
-        then(getOrder2.get(0).getStatus()).isEqualTo(OrderStatus.COMPLETE);
-        then(getOrder2.get(0).getUser().getId()).isEqualTo(user.getId());
-
-    }
 
 
     private User givenUser() {

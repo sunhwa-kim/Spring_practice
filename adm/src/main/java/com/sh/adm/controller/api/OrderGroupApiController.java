@@ -35,9 +35,8 @@ public class OrderGroupApiController{
         return orderGroupApiLogicService.updateCart(request);
     }
 
-    @PostMapping("/order")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Header<OrderGroupApiResponse> order(Header<OrderGroupApiRequest> request) {
+    @PutMapping("/order")
+    public Header<OrderGroupApiResponse> order(@RequestBody Header<OrderGroupApiRequest> request) {
         return orderGroupApiLogicService.order(request);
     }
 
@@ -46,12 +45,12 @@ public class OrderGroupApiController{
         return orderGroupApiLogicService.checkOrder(orderGroupId);
     }
 
-    @PutMapping("")
-    public Header<OrderGroupApiResponse> updateOrder(Header<OrderGroupApiRequest> request) {
+    @PutMapping("/update_order")
+    public Header<OrderGroupApiResponse> updateOrder(@RequestBody Header<OrderGroupApiRequest> request) {
         return orderGroupApiLogicService.updateOrder(request);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/order/{id}")
     public Header cancelOrder(@PathVariable("id") Long orderGroupId) {
         return orderGroupApiLogicService.cancelOrder(orderGroupId);
     }
