@@ -31,7 +31,7 @@ public class OrderGroupApiController{
         return orderGroupApiLogicService.addToOrderDetail(request);
     }
 
-    @PutMapping("/update")
+    @PutMapping("/modify")
     public Header<OrderDetailListApiResponse> updateCart(@RequestBody Header<OrderDetailListApiRequest> request) {
         request.getData().getItems().stream().forEach(orderItem -> {
             log.info("id >> {}",orderItem.getItem_id());
@@ -46,17 +46,19 @@ public class OrderGroupApiController{
     }
 
     @GetMapping("/order/{id}")
-    public Header<OrderGroupApiResponse> checkOrder(@PathVariable("id") Long orderGroupId) {
-        return orderGroupApiLogicService.checkOrder(orderGroupId);
+    @ResponseStatus(HttpStatus.OK)
+    public Header<OrderGroupApiResponse> orderRead(@PathVariable("id") Long orderGroupId) {
+        return orderGroupApiLogicService.orderRead(orderGroupId);
     }
 
-    @PutMapping("/update_order")
-    public Header<OrderGroupApiResponse> updateOrder(@RequestBody Header<OrderGroupApiRequest> request) {
+    @PutMapping("/order/modify")
+    public Header<OrderGroupApiResponse> orderModify(@RequestBody Header<OrderGroupApiRequest> request) {
         return orderGroupApiLogicService.updateOrder(request);
     }
 
     @DeleteMapping("/order/{id}")
-    public Header cancelOrder(@PathVariable("id") Long orderGroupId) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Header orderCancel(@PathVariable("id") Long orderGroupId) {
         return orderGroupApiLogicService.cancelOrder(orderGroupId);
     }
 }

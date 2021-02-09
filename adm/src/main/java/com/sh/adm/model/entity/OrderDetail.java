@@ -97,6 +97,10 @@ public class OrderDetail {
         }
     }
 
+    public void cancelOrder() {
+        this.item.addStock(this.getQuantity());
+    }
+
     public void detailTotalPrice() {
         this.totalPrice = (BigDecimal) this.item.getPrice().multiply(BigDecimal.valueOf(getQuantity()));
     }

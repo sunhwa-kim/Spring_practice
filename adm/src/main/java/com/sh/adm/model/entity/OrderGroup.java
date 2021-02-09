@@ -4,6 +4,7 @@ import com.sh.adm.model.enumclass.OrderStatus;
 import com.sh.adm.model.enumclass.OrderType;
 import com.sh.adm.model.enumclass.PaymentType;
 import lombok.*;
+import org.apache.tomcat.jni.OS;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -115,14 +116,15 @@ public class OrderGroup {
         this.totalQuantity = this.getTotalQuantity();
     }
 
-    public BigDecimal getTotalPrice() {
-/*        BigDecimal prices = new BigDecimal(0);
-        for (OrderDetail od : this.orderDetails) {
-            prices = prices.add(od.getTotalPrice());
-        }
-        this.totalPrice = prices;*/
+    public void cancelOrderGroup() {
+//        this.setDelivery(null);
+        this.status = OrderStatus.ORDERING;
+        this.orderAt = null;
+        this.totalPrice = BigDecimal.ZERO;
+        this.totalQuantity = 0;
 
-//        BigDecimal colletResult = this.orderDetails.stream().map(OrderDetail::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+    public BigDecimal getTotalPrice() {
         return this.orderDetails.stream().map(OrderDetail::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
