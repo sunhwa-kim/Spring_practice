@@ -2,18 +2,19 @@ package com.sh.adm.controller.api;
 
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.OrderDetailApiRequest;
+import com.sh.adm.model.network.request.OrderDetailListApiRequest;
 import com.sh.adm.model.network.request.OrderGroupApiRequest;
 import com.sh.adm.model.network.response.OrderDetailApiResponse;
-import com.sh.adm.model.network.response.OrderDetailsApiResponse;
+import com.sh.adm.model.network.response.OrderDetailListApiResponse;
 import com.sh.adm.model.network.response.OrderGroupApiResponse;
 import com.sh.adm.service.OrderGroupApiLogicService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
-
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/cart")
@@ -30,8 +31,12 @@ public class OrderGroupApiController{
         return orderGroupApiLogicService.addToOrderDetail(request);
     }
 
-    @PutMapping("{id}")
-    public Header<List<OrderDetailsApiResponse>> updateCart(@RequestBody Header<List<OrderDetailApiRequest>> request) {
+    @PutMapping("/update")
+    public Header<OrderDetailListApiResponse> updateCart(@RequestBody Header<OrderDetailListApiRequest> request) {
+        request.getData().getItems().stream().forEach(orderItem -> {
+            log.info("id >> {}",orderItem.getItem_id());
+            log.info("quantity >> {}",orderItem.getQuantity());
+        });
         return orderGroupApiLogicService.updateCart(request);
     }
 

@@ -12,4 +12,6 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail,Long> {
     Optional<OrderDetail> findByItemIdAndOrderGroupId(Long itemId, Long OrderGroupId);
 
     List<OrderDetail> findByOrderGroupIdOrderByCreatedAtDesc(Long id);
+
+    List<OrderDetail> findByOrderGroupIdOrderByItemIdAsc(Long id);
 }
