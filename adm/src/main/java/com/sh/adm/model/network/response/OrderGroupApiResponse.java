@@ -5,10 +5,7 @@ import com.sh.adm.model.entity.Delivery;
 import com.sh.adm.model.enumclass.OrderStatus;
 import com.sh.adm.model.enumclass.OrderType;
 import com.sh.adm.model.enumclass.PaymentType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -46,7 +43,7 @@ public class OrderGroupApiResponse {
 
     public void setOrder(Delivery delivery) {
         Address address = delivery.getReceiveAddress();
-        this.revAddress = Arrays.asList(new String[]{address.getCity(), address.getCity(), address.getZipcode()}).stream().collect(Collectors.joining());
+        this.revAddress = Arrays.asList(new String[]{address.getCity(), address.getStreet(), address.getZipcode()}).stream().collect(Collectors.joining(", "));
         this.revName = delivery.getReceiveName();
         this.arrivalDate = delivery.getArriveDate();
     }

@@ -121,7 +121,7 @@ public class OrderGroup {
 
     public void cancelOrderGroup() {
 //        this.setDelivery(null);
-        if (this.delivery.getDeliveryStatus() != DeliveryStatus.READY) throw new NotPermittedChageOrder();
+        if (!this.delivery.getDeliveryStatus().equals(DeliveryStatus.READY)) throw new NotPermittedChageOrder();
         this.status = OrderStatus.ORDERING;
         this.orderAt = null;
         this.totalPrice = BigDecimal.ZERO;

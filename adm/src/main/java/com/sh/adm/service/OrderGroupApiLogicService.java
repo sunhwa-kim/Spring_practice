@@ -114,29 +114,40 @@ public class OrderGroupApiLogicService{
     }
 
     // 주문시 / 주문 후 주문확인 조회
-    public Header<OrderGroupApiResponse> orderRead(Long id) {
+    public Header<OrderGroupApiResponse> readOrder(Long id) {
         return orderGroupRepository.findById(id)
-                .map(orderGroup -> {
-                    Delivery delivery = deliveryRepository.findById(orderGroup.getId()).orElseThrow(() -> new RuntimeException("No delievery information"));
-                    return response(orderGroup, delivery);
-                })
+                .map(orderGroup -> response(orderGroup, orderGroup.getDelivery()))
                 .orElseGet(() -> Header.error("No data exist"));
+    }
+
+    public Header<OrderGroupApiResponse> modifyOrder(Header<OrderGroupApiRequest> request) {
+        OrderGroupApiRequest requestBody = request.getData();
+        return Optional.ofNullable(requestBody)
+                .map(body -> {
+                    OrderGroup orderGroup = orderGroupRepository.findById(body.getId()).orElseThrow(() -> new RuntimeException("No Order Information"));
+                    orderGroup.updateOrder(body);
+                    return orderGroup;
+                }).map(orderGroup -> response(orderGroup,orderGroup.getDelivery()))
+                .orElseGet(()->Header.error("No request data"));
     }
 
     public Header cancelOrder(Long id) {
         // 장바구니 삭제
         // orderGroup status CONFIRM -> ORDERING (새 주문 상품 담기 위해)
         // item 제고 원상복구
-        return (Header) orderDetailRepository.findByOrderGroupIdOrderByCreatedAtDesc(id)
-                .stream().map(orderDetail -> {
-                    orderDetail.cancelOrder();
-                    orderDetail.getOrderGroup().cancelOrderGroup();
-                    log.info("item 원복 >> {}", orderDetail.getItem().getStockQuantity());
-                    log.info("가격 >> {}", orderDetail.getOrderGroup().getTotalPrice());
-                    log.info("수량 >> {}", orderDetail.getOrderGroup().getTotalQuantity());
-                    orderDetailRepository.delete(orderDetail);
-                    return Header.OK();
-                });
+        List<OrderDetail> getOrderDetails = orderDetailRepository.findByOrderGroupIdOrderByCreatedAtDesc(id);
+        if (getOrderDetails.size() > 0) {
+            getOrderDetails.stream().forEach(orderDetail -> {
+                orderDetail.cancelOrder();
+                orderDetail.getOrderGroup().cancelOrderGroup();
+                log.info("item 원복 >> {}", orderDetail.getItem().getStockQuantity());
+                log.info("가격 >> {}", orderDetail.getOrderGroup().getTotalPrice());
+                log.info("수량 >> {}", orderDetail.getOrderGroup().getTotalQuantity());
+                orderDetailRepository.delete(orderDetail);
+            });
+            return Header.OK();
+        }
+        return Header.error("No data exist");
     }
 
     private Header<OrderDetailApiResponse> orderDetailResponse(OrderDetail orderDetail) {
@@ -164,4 +175,6 @@ public class OrderGroupApiLogicService{
         body.setOrder(delivery);
         return Header.OK(body);
     }
+
+
 }

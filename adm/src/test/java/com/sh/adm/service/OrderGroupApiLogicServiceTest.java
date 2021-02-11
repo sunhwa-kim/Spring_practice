@@ -56,6 +56,9 @@ class OrderGroupApiLogicServiceTest {
     ArgumentCaptor<Delivery> deliveryCaptor;
 
     private BigDecimal itemPrice = new BigDecimal(900000);
+    private String testCity = "서울시";
+
+
     @Test
     @DisplayName("사용자 첫 장바구니 담기")
     void createOrderGroupAndNewItemInsertOrderDetail() {
@@ -151,10 +154,10 @@ class OrderGroupApiLogicServiceTest {
             resultOfQuantity.addAndGet(orderDetail.getQuantity());
         }
 
-        when(orderGroupRepository.findById(1L)).thenReturn(Optional.of(givenOrderGroup()));
+        when(orderGroupRepository.findById(1L)).thenReturn(Optional.of(givenOrderGroupList()));
         lenient().when(orderDetailRepository.findByOrderGroupIdOrderByCreatedAtDesc(1L)).thenReturn(Lists.newArrayList(orderDetailList));
 
-        Header<OrderGroupApiResponse> order = orderGroupApiLogicService.order(requestOrderGroup(1L, OrderType.ALL, PaymentType.CARD));
+        Header<OrderGroupApiResponse> order = orderGroupApiLogicService.order(requestOrderGroup(1L,testCity,OrderType.ALL, PaymentType.CARD));
         OrderGroupApiResponse response = order.getData();
 
         verify(deliveryRepository, times(1)).save(deliveryCaptor.capture());
@@ -163,7 +166,7 @@ class OrderGroupApiLogicServiceTest {
         assertAll(
                 () -> then(response.getStatus()).as("주문 상태").isEqualTo(OrderStatus.CONFIRM),
                 () -> then(response.getOrderType()).as("주문 타입").isEqualTo(OrderType.ALL),
-                () -> then(deliveryCaptor.getValue().getReceiveAddress()).as("주문 주소").isEqualTo(Address.of("서울시","100","12345")),
+                () -> then(deliveryCaptor.getValue().getReceiveAddress()).as("주문 주소").isEqualTo(Address.of(testCity,"100","12345")),
                 () -> then(response.getRevName()).as("주문 명").isEqualTo("test"),
                 () -> then(response.getPaymentType()).as("주문 지불타입").isEqualTo(PaymentType.CARD),
                 () -> then(response.getTotalPrice()).as("주문 가격").isEqualTo(finalResultOfPrice),
@@ -171,10 +174,60 @@ class OrderGroupApiLogicServiceTest {
         );
     }
 
-    private OrderGroup givenOrderGroup() {
-        OrderGroup orderGroup = OrderGroup.createOrderGroup(givenUser(), givenOrderDetailList().get(0));
-        IntStream.rangeClosed(1,4).forEach(i->orderGroup.setOrderDetails(givenOrderDetailList().get(i)));
-        return orderGroup;
+    @Test
+    @DisplayName("주문 내역 확인")
+    void readOrderTest() {
+        when(orderGroupRepository.findById(1L)).thenReturn(Optional.of(givenOrder()));
+
+        OrderGroupApiResponse response = orderGroupApiLogicService.readOrder(1L).getData();
+
+        assertAll(
+                () -> then(response.getStatus()).as("주문 상태").isEqualTo(OrderStatus.CONFIRM),
+                () -> then(response.getRevName()).as("주문 수신명").isEqualTo("test"),
+                () -> then(response.getRevAddress()).as("주문 주소").isEqualTo("서울시, 100, 12345"),
+                () -> then(response.getOrderType()).as("주문 타입").isEqualTo(OrderType.ALL),
+                () -> then(response.getPaymentType()).as("지불 타입").isEqualTo(PaymentType.CARD),
+                () -> then(response.getTotalPrice()).as("주문 합계").isEqualTo(BigDecimal.valueOf(900000).multiply(BigDecimal.valueOf(5))),
+                () -> then(response.getTotalQuantity()).as("주문 상품 개수").isEqualTo(5)
+        );
+    }
+
+    @Test
+    @DisplayName("주문 내역 수정")
+    void modifyOrderTest() {
+        when(orderGroupRepository.findById(1L)).thenReturn(Optional.of(givenOrder()));
+
+        OrderGroupApiResponse response = orderGroupApiLogicService.modifyOrder(requestOrderGroup(1L, "대전시", OrderType.ALL, PaymentType.BANK_TRANSFER)).getData();
+
+        assertAll(
+                () -> then(response.getStatus()).as("주문 상태").isEqualTo(OrderStatus.CONFIRM),
+                () -> then(response.getRevName()).as("주문 수신명").isEqualTo("test"),
+                () -> then(response.getRevAddress()).as("주문 주소").isEqualTo("대전시, 100, 12345"),
+                () -> then(response.getOrderType()).as("주문 타입").isEqualTo(OrderType.ALL),
+                () -> then(response.getPaymentType()).as("지불 타입").isEqualTo(PaymentType.BANK_TRANSFER),
+                () -> then(response.getTotalPrice()).as("주문 합계").isEqualTo(BigDecimal.valueOf(900000).multiply(BigDecimal.valueOf(5))),
+                () -> then(response.getTotalQuantity()).as("주문 상품 개수").isEqualTo(5)
+        );
+    }
+
+    @Test
+    @DisplayName("주문 취소")
+    void cancelOrderTest() {
+        // 주문 후
+        OrderGroup orderGroup = givenOrderGroupList();
+        orderGroup.setOrder(Delivery.of(Address.of("서울시", "100", "12345"), "test", orderGroup));
+        orderGroup.updateOrder(requestOrderGroup(1L,testCity, OrderType.ALL,PaymentType.CARD).getData());
+
+        when(orderDetailRepository.findByOrderGroupIdOrderByCreatedAtDesc(1L)).thenReturn(Lists.newArrayList(orderGroup.getOrderDetails()));
+
+        orderGroupApiLogicService.cancelOrder(1L);
+        verify(orderDetailRepository,times(1)).delete(orderDetailCaptor.capture());
+        then(orderDetailCaptor.getValue().getOrderGroup().getStatus()).isEqualTo(OrderStatus.ORDERING);
+    }
+
+    private OrderDetail newOrderDetail(Item item, int orderItemCount) {
+        if(item==null) return OrderDetail.createOrderDetail(givenItem(100, givenPartner(givenCategory())), orderItemCount);
+        return OrderDetail.createOrderDetail(item, orderItemCount);
     }
 
     private List<OrderDetail> givenOrderDetailList() {
@@ -197,11 +250,20 @@ class OrderGroupApiLogicServiceTest {
         return orderDetailList;
     }
 
-    private OrderDetail newOrderDetail(Item item, int orderItemCount) {
-        if(item==null) return OrderDetail.createOrderDetail(givenItem(100, givenPartner(givenCategory())), orderItemCount);
-        return OrderDetail.createOrderDetail(item, orderItemCount);
+    private OrderGroup givenOrderGroupList() {
+        OrderGroup orderGroup = OrderGroup.createOrderGroup(givenUser(), givenOrderDetailList().get(0));
+        IntStream.rangeClosed(1,4).forEach(i->orderGroup.setOrderDetails(givenOrderDetailList().get(i)));
+        return orderGroup;
     }
 
+    private OrderGroup givenOrder() {
+        OrderGroup orderGroup = OrderGroup.createOrderGroup(givenUser(), newOrderDetail(null, 5));
+        orderGroup.setOrder(Delivery.of(Address.of("서울시", "100", "12345"), "test", orderGroup));
+        orderGroup.updateOrder(requestOrderGroup(1L,testCity, OrderType.ALL,PaymentType.CARD).getData());
+        return orderGroup;
+    }
+
+    //  etc
     private User givenUser() {
         return User.of("test01", "pwd01", UserStatus.REGISTERED, "email@gmail.com", "010-1111-2222", null, LocalDateTime.now());
     }
@@ -264,12 +326,12 @@ class OrderGroupApiLogicServiceTest {
         return Header.OK(new OrderDetailListApiRequest(orderingItems, 1L));
     }
 
-    private Header<OrderGroupApiRequest> requestOrderGroup(Long id, OrderType orderType, PaymentType paymentType) {
+    private Header<OrderGroupApiRequest> requestOrderGroup(Long id, String city ,OrderType orderType, PaymentType paymentType) {
         OrderGroupApiRequest.OrderGroupApiRequestBuilder builder = OrderGroupApiRequest.builder()
                 .status(OrderStatus.ORDERING)
                 .orderType(orderType)
                 .paymentType(paymentType)
-                .city("서울시")
+                .city(city)
                 .street("100")
                 .zipcode("12345")
                 .receiveName("test");

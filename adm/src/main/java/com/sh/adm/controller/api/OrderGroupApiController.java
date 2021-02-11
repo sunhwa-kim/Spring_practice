@@ -47,16 +47,16 @@ public class OrderGroupApiController{
 
     @GetMapping("/order/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Header<OrderGroupApiResponse> orderRead(@PathVariable("id") Long orderGroupId) {
-        return orderGroupApiLogicService.orderRead(orderGroupId);
+    public Header<OrderGroupApiResponse> readOrder(@PathVariable("id") Long orderGroupId) {
+        return orderGroupApiLogicService.readOrder(orderGroupId);
     }
 
-/*
+
     @PutMapping("/order/modify")
-    public Header<OrderGroupApiResponse> orderModify(@RequestBody Header<OrderGroupApiRequest> request) {
-        return orderGroupApiLogicService.updateOrder(request);
+    public Header<OrderGroupApiResponse> modifyOrder(@RequestBody Header<OrderGroupApiRequest> request) {
+        return orderGroupApiLogicService.modifyOrder(request);
     }
-*/
+
 
     @DeleteMapping("/order/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
