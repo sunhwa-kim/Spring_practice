@@ -51,10 +51,12 @@ public class OrderGroupApiController{
         return orderGroupApiLogicService.orderRead(orderGroupId);
     }
 
+/*
     @PutMapping("/order/modify")
     public Header<OrderGroupApiResponse> orderModify(@RequestBody Header<OrderGroupApiRequest> request) {
         return orderGroupApiLogicService.updateOrder(request);
     }
+*/
 
     @DeleteMapping("/order/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

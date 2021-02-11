@@ -80,7 +80,8 @@ public class Item {
     }
 
     @Builder
-    public Item(ItemStatus status, String name, String title, String content, BigDecimal price, int stockQuantity, String brandName, LocalDateTime registeredAt, Partner partner) {
+    public Item(Long id,ItemStatus status, String name, String title, String content, BigDecimal price, int stockQuantity, String brandName, LocalDateTime registeredAt, Partner partner) {
+        this.id = id;
         this.status = status;
         this.name = name;
         this.title = title;

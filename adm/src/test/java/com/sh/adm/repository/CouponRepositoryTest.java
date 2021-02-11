@@ -3,7 +3,6 @@ package com.sh.adm.repository;
 import com.sh.adm.model.entity.coupon.Coupon;
 import com.sh.adm.model.enumclass.DiscountRatio;
 import com.sh.adm.model.enumclass.IssueDetail;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +17,6 @@ import java.util.List;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Slf4j
 @Transactional
 @SpringBootTest
 class CouponRepositoryTest {

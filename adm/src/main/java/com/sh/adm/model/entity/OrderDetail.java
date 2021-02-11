@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 @Getter
 @ToString
 @EqualsAndHashCode
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
@@ -78,6 +77,8 @@ public class OrderDetail {
      * @param count
      * @return
      */
+
+    @Builder
     public static OrderDetail createOrderDetail(Item item, int count) {
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setItem(item);
@@ -92,7 +93,7 @@ public class OrderDetail {
             int difference = Math.abs(quantity - this.quantity);
             this.quantity = quantity;
             this.detailTotalPrice();
-            if( difference < 0 ) item.addStock(difference);
+            if( this.quantity > quantity ) item.addStock(difference);
             else item.outStock(difference);
         }
     }

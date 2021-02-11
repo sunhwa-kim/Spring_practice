@@ -31,10 +31,10 @@ public class Delivery {
     @Enumerated(EnumType.STRING)
     private DeliveryStatus deliveryStatus;
 
+    private String receiveName;
+
     @Embedded
     private Address receiveAddress;
-
-    private String receiveName;
 
     private LocalDate arriveDate;
 
@@ -51,8 +51,12 @@ public class Delivery {
     private String updatedBy;
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "delivery",fetch = FetchType.LAZY)
     private OrderGroup orderGroups;
+
+    public void setReceiveName(String receiveName) {
+        this.receiveName = receiveName;
+    }
 
     public void setReceiveAddress(Address receiveAddress) {  // 주문 내역 변경 시
         this.receiveAddress = receiveAddress;
@@ -62,12 +66,14 @@ public class Delivery {
         this.orderGroups = orderGroup;
     }
 
-    public Delivery(Address receiveAddress, String receiveName, OrderGroup orderGroup) {
-        this.setOrderGroups(orderGroup);
-        this.receiveAddress = receiveAddress;
-        this.receiveName = receiveName;
-        this.deliveryStatus = DeliveryStatus.READY;
-        this.arriveDate = LocalDate.now().plusWeeks(1);
+    public static Delivery of(Address receiveAddress, String receiveName, OrderGroup orderGroup) {
+        Delivery delivery = new Delivery();
+        delivery.setOrderGroups(orderGroup);
+        delivery.receiveAddress = receiveAddress;
+        delivery.receiveName = receiveName;
+        delivery.deliveryStatus = DeliveryStatus.READY;
+        delivery.arriveDate = LocalDate.now().plusWeeks(1);
+        return delivery;
     }
 
 

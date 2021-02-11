@@ -1,5 +1,7 @@
 package com.sh.adm.model.network.response;
 
+import com.sh.adm.model.dto.Address;
+import com.sh.adm.model.entity.Delivery;
 import com.sh.adm.model.enumclass.OrderStatus;
 import com.sh.adm.model.enumclass.OrderType;
 import com.sh.adm.model.enumclass.PaymentType;
@@ -11,11 +13,13 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
-//@Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class OrderGroupApiResponse {
     private Long id;
@@ -24,9 +28,9 @@ public class OrderGroupApiResponse {
 
     private OrderType orderType;   // 묶음 , 개별
 
-    private String revAddress;
-
     private String revName;
+
+    private String revAddress;
 
     private PaymentType paymentType;    // 현금, 카드,.
 
@@ -39,4 +43,11 @@ public class OrderGroupApiResponse {
     private LocalDate arrivalDate;
 
     private String orderDetailList;
+
+    public void setOrder(Delivery delivery) {
+        Address address = delivery.getReceiveAddress();
+        this.revAddress = Arrays.asList(new String[]{address.getCity(), address.getCity(), address.getZipcode()}).stream().collect(Collectors.joining());
+        this.revName = delivery.getReceiveName();
+        this.arrivalDate = delivery.getArriveDate();
+    }
 }

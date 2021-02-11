@@ -1,15 +1,19 @@
 package com.sh.adm.model.entity;
 
+import com.sh.adm.exception.NotPermittedChageOrder;
+import com.sh.adm.model.dto.Address;
+import com.sh.adm.model.enumclass.DeliveryStatus;
 import com.sh.adm.model.enumclass.OrderStatus;
 import com.sh.adm.model.enumclass.OrderType;
 import com.sh.adm.model.enumclass.PaymentType;
+import com.sh.adm.model.network.request.OrderGroupApiRequest;
 import lombok.*;
-import org.apache.tomcat.jni.OS;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -59,8 +63,8 @@ public class OrderGroup {
     private String updatedBy;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "orderGroups")
-    private List<Delivery> delivery = new ArrayList<>();
+    @OneToOne(mappedBy = "orderGroups", cascade = CascadeType.ALL)
+    private Delivery delivery;  // FK
 
     // private Long userId;
     @ToString.Exclude
@@ -71,15 +75,6 @@ public class OrderGroup {
     @OneToMany(mappedBy = "orderGroup", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
-
-    public void setOrderType(OrderType orderType) {
-        this.orderType = orderType;
-    }
-
-    public void setPaymentType(PaymentType paymentType) {
-        this.paymentType = paymentType;
-    }
-
     /*   양방향 관계 - 연관관계 편의 메서드   */
     public void setUser(User user) {
         this.user = user;
@@ -87,11 +82,11 @@ public class OrderGroup {
     }
 
     public void setDelivery(Delivery delivery) {
-        this.delivery.add(delivery);
+        this.delivery = delivery;
         delivery.setOrderGroups(this);
     }
 
-    public void addOrderDetails(OrderDetail orderDetail) {
+    public void setOrderDetails(OrderDetail orderDetail) {
         this.orderDetails.add(orderDetail);
         orderDetail.setOrderGroup(this);
     }
@@ -102,12 +97,12 @@ public class OrderGroup {
         orderGroup.status = OrderStatus.ORDERING;
         orderGroup.setUser(user);
         for (OrderDetail orderDetail : orderDetails) {
-            orderGroup.addOrderDetails(orderDetail);
+            orderGroup.setOrderDetails(orderDetail);
         }
         return orderGroup;
     }
 
-    public void takeAnOrder(Delivery delivery, List<OrderDetail> orderDetails) {
+    public void setOrder(Delivery delivery) {
         this.setDelivery(delivery);
 
         this.status = OrderStatus.CONFIRM;
@@ -116,8 +111,17 @@ public class OrderGroup {
         this.totalQuantity = this.getTotalQuantity();
     }
 
+    public void updateOrder(OrderGroupApiRequest request) {
+        if(!ObjectUtils.isEmpty(request.getOrderType())) this.orderType = request.getOrderType();
+        if(!ObjectUtils.isEmpty(request.getPaymentType())) this.paymentType = request.getPaymentType();
+        if(!ObjectUtils.isEmpty(request.getReceiveName())) this.delivery.setReceiveName(request.getReceiveName());
+        if(!(ObjectUtils.isEmpty(request.getCity())||ObjectUtils.isEmpty(request.getStreet())||ObjectUtils.isEmpty(request.getZipcode())))
+            this.delivery.setReceiveAddress(Address.of(request.getCity(),request.getStreet(),request.getZipcode()));
+    }
+
     public void cancelOrderGroup() {
 //        this.setDelivery(null);
+        if (this.delivery.getDeliveryStatus() != DeliveryStatus.READY) throw new NotPermittedChageOrder();
         this.status = OrderStatus.ORDERING;
         this.orderAt = null;
         this.totalPrice = BigDecimal.ZERO;

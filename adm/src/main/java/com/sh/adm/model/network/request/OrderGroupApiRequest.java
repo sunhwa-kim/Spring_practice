@@ -17,7 +17,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class OrderGroupApiRequest {
-    private Long id;   // update
+    private Long id;   // order_group_id
 
     private OrderStatus status;
 
@@ -31,7 +31,7 @@ public class OrderGroupApiRequest {
 
     private Integer totalQuantity;
 
-//    private LocalDateTime orderAt;
+//    private LocalDateTime orderAt;   // OrderGroup method : takeAnOrder()
 
     // Delivery
     private String city;
@@ -50,14 +50,12 @@ public class OrderGroupApiRequest {
         this.status = status;
         this.orderType = orderType;
         this.paymentType = paymentType;
-        this.totalPrice = totalPrice;
-        this.totalQuantity = totalQuantity;
-//        this.orderAt = orderAt;
+        this.totalPrice = totalPrice;   // view 계산로직과 DB비교 체크용
+        this.totalQuantity = totalQuantity;  // view 계산로직과 DB비교 체크용
         this.city = city;
         this.street = street;
         this.zipcode = zipcode;
         this.receiveName = receiveName;
-//        this.userId = userId;
 //        this.orderDetailsId = orderDetailId;
     }
 }

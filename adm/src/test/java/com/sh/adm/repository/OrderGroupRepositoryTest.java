@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Random;
 
 
@@ -23,12 +24,24 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
     OrderGroupRepository orderGroupRepository;
 
     @Autowired
+    OrderDetailRepository orderDetailRepository;
+
+    @Autowired
+    ItemRepository itemRepository;
+
+    @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    PartnerRepository partnerRepository;
+
+    @Autowired
+    CategoryRepository categoryRepository;
 
     @Test
     @Transactional
-    @DisplayName("사장자 장바구니 생성")
-    void createWhenInitializeOrderGroup() {
+    @DisplayName("사용자 장바구니 상품 조회")
+    void getOrderDetailByOrderGroupAndItem() {
         /*
         사용자 가입 후 장바구니 등록 위한 첫 OrderGroup
          OrderDetail에 order_group_id
@@ -38,6 +51,20 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
         Category category = givenCategory();
         Partner partner = givenPartner(category);
         Item item = givenItem(100, partner);
+        OrderDetail orderDetail = OrderDetail.createOrderDetail(item, 3);
+
+        categoryRepository.save(category);
+        partnerRepository.save(partner);
+        Item getItem = itemRepository.save(item);
+        OrderGroup getOrderGroup = orderGroupRepository.save(OrderGroup.createOrderGroup(user, orderDetail));
+        orderDetailRepository.save(orderDetail);
+
+        Optional<OrderDetail> byOrderGroupIdAndItemId = orderDetailRepository.findByOrderGroupIdAndItemId(getOrderGroup.getId(), getItem.getId());
+
+        log.info("find check >> {}",byOrderGroupIdAndItemId);
+        log.info("OD's item >> {}",byOrderGroupIdAndItemId.get().getItem());
+        log.info("OD's orderGroup >> {}",byOrderGroupIdAndItemId.get().getOrderGroup());
+
     }
 
 
