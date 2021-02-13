@@ -1,6 +1,8 @@
 package me.sunhwa.demorestapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jdk.jfr.Description;
+import me.sunhwa.demorestapi.common.TestDescription;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ public class EventControllerTest {
     ObjectMapper objectMapper;
 
     @Test
+    @Description("정상 이벤트 생성 테스트")
     void createEvent() throws Exception {
         // 요청
         EventDto event = EventDto.builder()
@@ -59,6 +62,7 @@ public class EventControllerTest {
     }
 
     @Test
+    @TestDescription("입력 받을수 없는 값 입력시 에러 발생 테스트")
     void createEvent_Bad_Request() throws Exception {
         // 요청
         Event event = Event.builder()
@@ -88,6 +92,7 @@ public class EventControllerTest {
     }
 
     @Test
+    @TestDescription("입력값이 빈 경우 에러 발생 테스트")
     void createEvent_Bad_Request_Empty_Input() throws Exception {
         EventDto eventDto = EventDto.builder().build();
 
@@ -98,6 +103,7 @@ public class EventControllerTest {
     }
 
     @Test
+    @TestDescription("잘못된 입력값 입력시 에러 발생 테스트")
     void createEvent_Bad_Request_Wrong_Input() throws Exception {
         // 날짜 역순, 가격 범위 에러
         EventDto eventDto = EventDto.builder()
