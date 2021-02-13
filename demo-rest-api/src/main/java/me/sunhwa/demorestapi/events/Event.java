@@ -1,12 +1,8 @@
 package me.sunhwa.demorestapi.events;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter

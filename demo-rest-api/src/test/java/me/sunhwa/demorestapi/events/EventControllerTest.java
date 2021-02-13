@@ -30,6 +30,37 @@ public class EventControllerTest {
     @Test
     void createEvent() throws Exception {
         // 요청
+        EventDto event = EventDto.builder()
+                .name("Spring")
+                .description("REST API")
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 12, 1, 9, 00, 00))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 12, 2, 23, 00, 00))
+                .beginEventDateTime(LocalDateTime.of(2020, 12, 3, 20, 30, 00))
+                .endEventDateTime(LocalDateTime.of(2020, 12, 4, 23, 00, 00))
+                .basePrice(1000)
+                .maxPrice(5000)
+                .limitOfEnrollment(200)
+                .location("study space")
+                .build();
+
+        mockMvc.perform(post("/api/events")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON)
+                .content(objectMapper.writeValueAsString(event)))  // json 변경 -> Controller @RequestBody
+                .andDo(print())
+                .andExpect(status().isCreated())  // 201 상태안정
+                .andExpect(jsonPath("id").exists())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+                .andExpect(jsonPath("id").value(Matchers.not(100)))
+                .andExpect(jsonPath("free").value(Matchers.not(true)))
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
+                ;
+    }
+
+    @Test
+    void createEvent_Bad_Request() throws Exception {
+        // 요청
         Event event = Event.builder()
                 .id(100)
                 .name("Spring")
@@ -52,13 +83,8 @@ public class EventControllerTest {
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(event)))  // json 변경 -> Controller @RequestBody
                 .andDo(print())
-                .andExpect(status().isCreated())  // 201 상태안정
-                .andExpect(jsonPath("id").exists())
-                .andExpect(header().exists(HttpHeaders.LOCATION))
-                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
-                .andExpect(jsonPath("id").value(Matchers.not(100)))
-                .andExpect(jsonPath("free").value(Matchers.not(true)))
-                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
-                ;
+                .andExpect(status().isBadRequest())  // 201 상태안정
+        ;
+
     }
 }
