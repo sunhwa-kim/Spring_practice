@@ -5,12 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -23,9 +25,11 @@ public class EventControllerTest {
     @Autowired
     MockMvc mockMvc;   // mocking된 dispatcher servlet으로 가짜 요청/응답 확인 테스트
                        // web server 띄우지 않아서 그 경우보단 빠르지만, dispatcher servlet 까지 만들어야 하기 때문에 단위테스트보다는 느리다.
-
     @Autowired
     ObjectMapper objectMapper;
+
+    @MockBean
+    EventRepository eventRepository;
 
     @Test
     void createEvent() throws Exception {
@@ -43,6 +47,8 @@ public class EventControllerTest {
                 .location("study")
                 .build();
 
+        event.setId(10);
+        when(eventRepository.save(event)).thenReturn(event);
 
         mockMvc.perform(post("/api/events")
                 .contentType(MediaType.APPLICATION_JSON)
