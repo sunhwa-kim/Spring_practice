@@ -26,7 +26,7 @@ public class EventDto {
     private LocalDateTime closeEnrollmentDateTime;
     @NotNull
     private LocalDateTime beginEventDateTime;
-    @NotEmpty
+    @NotNull
     private LocalDateTime endEventDateTime;
     private String location; // (optional)이게 없으면 온라인 모임
     @Min(0)

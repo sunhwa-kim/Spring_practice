@@ -96,4 +96,26 @@ public class EventControllerTest {
                 .content(this.objectMapper.writeValueAsString(eventDto)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void createEvent_Bad_Request_Wrong_Input() throws Exception {
+        // 날짜 역순, 가격 범위 에러
+        EventDto eventDto = EventDto.builder()
+                .name("Spring")
+                .description("REST API")
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 12, 4, 9, 00, 00))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 12, 3, 23, 00, 00))
+                .beginEventDateTime(LocalDateTime.of(2020, 12, 2, 20, 30, 00))
+                .endEventDateTime(LocalDateTime.of(2020, 12, 1, 23, 00, 00))
+                .basePrice(10000)
+                .maxPrice(5000)
+                .limitOfEnrollment(200)
+                .location("study space")
+                .build();
+
+        this.mockMvc.perform(post("/api/events")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(eventDto)))
+                .andExpect(status().isBadRequest());
+    }
 }
