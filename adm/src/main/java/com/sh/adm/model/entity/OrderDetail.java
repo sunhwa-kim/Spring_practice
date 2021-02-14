@@ -98,8 +98,9 @@ public class OrderDetail {
         }
     }
 
-    public void cancelOrder() {
+    public void cancel() {
         this.item.addStock(this.getQuantity());
+        this.item.setOrderDetailList(null);
     }
 
     public void detailTotalPrice() {

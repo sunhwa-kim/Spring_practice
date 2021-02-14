@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -49,6 +50,8 @@ class OrderGroupApiLogicServiceTest {
     DeliveryRepository deliveryRepository;
     @Mock
     UserRepository userRepository;
+    @Mock
+    TestEntityManager testEntityManager;
 
     @Captor
     ArgumentCaptor<OrderDetail> orderDetailCaptor;
@@ -217,14 +220,12 @@ class OrderGroupApiLogicServiceTest {
         OrderGroup orderGroup = givenOrderGroupList();
         orderGroup.setOrder(Delivery.of(Address.of("서울시", "100", "12345"), "test", orderGroup));
         orderGroup.updateOrder(requestOrderGroup(1L,testCity, OrderType.ALL,PaymentType.CARD).getData());
+        when(orderGroupRepository.findById(1L)).thenReturn(Optional.of(orderGroup));
+/*        Long getId = testEntityManager.persistAndGetId(orderGroup, Long.class);
+        orderGroupRepository.deleteById(getId);*/
 
-        when(orderDetailRepository.findByOrderGroupIdOrderByCreatedAtDesc(1L)).thenReturn(Lists.newArrayList(orderGroup.getOrderDetails()));
-
-        orderGroupApiLogicService.cancelOrder(1L);
-        verify(orderDetailRepository,times(5)).delete(orderDetailCaptor.capture());
-        then(orderDetailCaptor.getValue().getOrderGroup()).isNull();
-        then(orderGroup.getStatus()).isEqualTo(OrderStatus.ORDERING);
-        then(orderGroup.getTotalPrice()).isEqualTo(BigDecimal.ZERO);
+        Header header = orderGroupApiLogicService.cancelOrder(1L);
+        then(header.getResultCode()).isEqualTo("OK");
     }
 
     private OrderDetail newOrderDetail(Item item, int orderItemCount) {

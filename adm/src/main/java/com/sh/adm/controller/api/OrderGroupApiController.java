@@ -31,7 +31,7 @@ public class OrderGroupApiController{
         return orderGroupApiLogicService.addToOrderDetail(request);
     }
 
-    @PutMapping("/modify")
+    @PutMapping("")
     public Header<OrderDetailListApiResponse> updateCart(@RequestBody Header<OrderDetailListApiRequest> request) {
         request.getData().getItems().stream().forEach(orderItem -> {
             log.info("id >> {}",orderItem.getItem_id());

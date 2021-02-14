@@ -52,7 +52,7 @@ public class Delivery {
 
     @ToString.Exclude
     @OneToOne(mappedBy = "delivery",fetch = FetchType.LAZY)
-    private OrderGroup orderGroups;
+    private OrderGroup orderGroup;
 
     public void setReceiveName(String receiveName) {
         this.receiveName = receiveName;
@@ -63,7 +63,7 @@ public class Delivery {
     }
 
     public void setOrderGroups(OrderGroup orderGroup) {
-        this.orderGroups = orderGroup;
+        this.orderGroup = orderGroup;
     }
 
     public static Delivery of(Address receiveAddress, String receiveName, OrderGroup orderGroup) {

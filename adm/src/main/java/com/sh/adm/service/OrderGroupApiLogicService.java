@@ -115,12 +115,14 @@ public class OrderGroupApiLogicService{
     }
 
     // 주문시 / 주문 후 주문확인 조회
+    @Transactional(readOnly = true)
     public Header<OrderGroupApiResponse> readOrder(Long id) {
         return orderGroupRepository.findById(id)
                 .map(orderGroup -> response(orderGroup, orderGroup.getDelivery()))
                 .orElseGet(() -> Header.error("No data exist"));
     }
 
+    @Transactional
     public Header<OrderGroupApiResponse> modifyOrder(Header<OrderGroupApiRequest> request) {
         OrderGroupApiRequest requestBody = request.getData();
         return Optional.ofNullable(requestBody)
@@ -132,21 +134,19 @@ public class OrderGroupApiLogicService{
                 .orElseGet(()->Header.error("No request data"));
     }
 
+    @Transactional
     public Header cancelOrder(Long id) {
         // 장바구니 삭제
-        // orderGroup status CONFIRM -> ORDERING (새 주문 상품 담기 위해)
         // item 제고 원상복구
-        List<OrderDetail> getOrderDetails = orderDetailRepository.findByOrderGroupIdOrderByCreatedAtDesc(id);
-        if (getOrderDetails.size() > 0) {
-            getOrderDetails.stream().forEach(orderDetail -> {
-                orderDetail.cancelOrder();
-                orderDetail.getOrderGroup().cancelOrderGroup();
-                orderDetail.setOrderGroup(null);
-                orderDetailRepository.delete(orderDetail);
-            });
-            return Header.OK();
-        }
-        return Header.error("No data exist");
+        return orderGroupRepository.findById(id)
+                .map(orderGroup -> {
+                    orderGroup.cancel();
+                    int totalQuantity = orderGroup.getTotalQuantity();
+                    orderGroupRepository.deleteById(id);
+                    return 0;
+                })
+                .map(Header::OK)
+                .orElseGet(() -> Header.error("No Data exist"));
     }
 
     private Header<OrderDetailApiResponse> orderDetailResponse(OrderDetail orderDetail) {
@@ -174,6 +174,4 @@ public class OrderGroupApiLogicService{
         body.setOrder(delivery);
         return Header.OK(body);
     }
-
-
 }

@@ -63,7 +63,7 @@ public class OrderGroup {
     private String updatedBy;
 
     @ToString.Exclude
-    @OneToOne(mappedBy = "orderGroups", cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Delivery delivery;  // FK
 
     // private Long userId;
@@ -119,15 +119,14 @@ public class OrderGroup {
             this.delivery.setReceiveAddress(Address.of(request.getCity(),request.getStreet(),request.getZipcode()));
     }
 
-    public void cancelOrderGroup() {
+    public void cancel() {
 //        this.setDelivery(null);
         if (!this.delivery.getDeliveryStatus().equals(DeliveryStatus.READY)) throw new NotPermittedChageOrder();
-        this.status = OrderStatus.ORDERING;
-        this.orderAt = null;
-        this.totalPrice = BigDecimal.ZERO;
-        this.totalQuantity = 0;
-
+        this.orderDetails.forEach(orderDetail -> {
+            orderDetail.cancel();
+        });
     }
+
     public BigDecimal getTotalPrice() {
         return this.orderDetails.stream().map(OrderDetail::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
