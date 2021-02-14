@@ -221,8 +221,10 @@ class OrderGroupApiLogicServiceTest {
         when(orderDetailRepository.findByOrderGroupIdOrderByCreatedAtDesc(1L)).thenReturn(Lists.newArrayList(orderGroup.getOrderDetails()));
 
         orderGroupApiLogicService.cancelOrder(1L);
-        verify(orderDetailRepository,times(1)).delete(orderDetailCaptor.capture());
-        then(orderDetailCaptor.getValue().getOrderGroup().getStatus()).isEqualTo(OrderStatus.ORDERING);
+        verify(orderDetailRepository,times(5)).delete(orderDetailCaptor.capture());
+        then(orderDetailCaptor.getValue().getOrderGroup()).isNull();
+        then(orderGroup.getStatus()).isEqualTo(OrderStatus.ORDERING);
+        then(orderGroup.getTotalPrice()).isEqualTo(BigDecimal.ZERO);
     }
 
     private OrderDetail newOrderDetail(Item item, int orderItemCount) {

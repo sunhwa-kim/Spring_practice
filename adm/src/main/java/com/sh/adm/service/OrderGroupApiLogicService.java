@@ -74,6 +74,7 @@ public class OrderGroupApiLogicService{
 
     @Transactional
     public Header<OrderDetailListApiResponse> updateCart(Header<OrderDetailListApiRequest> request) {
+        // TODO 추가 상품 & 삭제 상품
         OrderDetailListApiRequest body = request.getData();
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderGroupIdOrderByItemIdAsc(body.getOrder_group_id());
         int length = orderDetails.size();
@@ -140,9 +141,7 @@ public class OrderGroupApiLogicService{
             getOrderDetails.stream().forEach(orderDetail -> {
                 orderDetail.cancelOrder();
                 orderDetail.getOrderGroup().cancelOrderGroup();
-                log.info("item 원복 >> {}", orderDetail.getItem().getStockQuantity());
-                log.info("가격 >> {}", orderDetail.getOrderGroup().getTotalPrice());
-                log.info("수량 >> {}", orderDetail.getOrderGroup().getTotalQuantity());
+                orderDetail.setOrderGroup(null);
                 orderDetailRepository.delete(orderDetail);
             });
             return Header.OK();
