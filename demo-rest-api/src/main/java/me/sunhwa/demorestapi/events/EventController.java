@@ -34,11 +34,11 @@ public class EventController {
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
         // json binding error and error logic
         if (errors.hasErrors())
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors);
 
         eventValidator.validate(eventDto, errors);
         if (errors.hasErrors())
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors);
 
         Event event = modelMapper.map(eventDto, Event.class);
         Event newEvent = this.eventRepository.save(event);
