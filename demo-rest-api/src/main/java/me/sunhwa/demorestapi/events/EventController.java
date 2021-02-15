@@ -41,6 +41,7 @@ public class EventController {
             return ResponseEntity.badRequest().body(errors);
 
         Event event = modelMapper.map(eventDto, Event.class);
+        event.update();  // service
         Event newEvent = this.eventRepository.save(event);
         //HATEOS
 //        URI createUri = linkTo(methodOn(EventController.class)).slash("{id}").toUri();  // jUnit4
