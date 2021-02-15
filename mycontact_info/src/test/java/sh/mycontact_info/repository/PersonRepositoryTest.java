@@ -1,9 +1,11 @@
 package sh.mycontact_info.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import sh.mycontact_info.controller.dto.PersonDto;
 import sh.mycontact_info.domain.Address;
 import sh.mycontact_info.domain.Birthday;
 import sh.mycontact_info.domain.entity.Person;
@@ -14,6 +16,7 @@ import java.util.List;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+@Slf4j
 @Transactional
 @SpringBootTest
 class PersonRepositoryTest {
@@ -25,7 +28,7 @@ class PersonRepositoryTest {
     void create() {
         Person person = givenPerson("testName", "010-1111-1111",Address.of("city","street","zip") ,LocalDate.of(2000, 1, 1));
         personRepository.save(person);
-        Person getPerson = personRepository.findById(1L).get();
+        Person getPerson = personRepository.findById(1L).orElseThrow(() -> new RuntimeException("maybe test error"));
         assertAll(
                 () ->  then(getPerson.getName()).isEqualTo("testName"),
                 () ->  then(getPerson.getPhoneNumber()).isEqualTo("010-1111-1111"),
@@ -36,6 +39,15 @@ class PersonRepositoryTest {
     }
 
     @Test
+    void findByNameCount() {
+        Person person = givenPerson("testName", "010-1111-1111",Address.of("city","street","zip") ,LocalDate.of(2000, 1, 1));
+        personRepository.save(person);
+        Long nameCount = personRepository.countByName("testName");
+//        log.info("count >> {}", nameCount);
+//        then(nameCount).isEqualTo(1L);
+        then(nameCount).isNotZero();
+    }
+    @Test
     void findPhoneNumberTest() {
         String testPhoneNumber = "010-1111-1111";
         Person person = givenPerson("testName1",testPhoneNumber ,Address.of("city","street","zip") ,LocalDate.of(2000, 1, 1));
@@ -43,12 +55,10 @@ class PersonRepositoryTest {
         personRepository.save(person);
         personRepository.save(person1);
 
-        List<Person> getList = personRepository.findByPhoneNumber("010-1111-1111");
+        Long count = personRepository.countByPhoneNumber("010-1111-1111");
 //        List<Member> getList = memberRepository.findByNameAndPhoneNumberContaining("testName2", "010-1111-1111");
 
-        then(getList.size()).isEqualTo(2);
-        then(getList.get(0).getPhoneNumber()).isEqualTo(testPhoneNumber);
-        then(getList.get(1).getPhoneNumber()).isEqualTo(testPhoneNumber);
+        then(count).isEqualTo(2);
     }
 
     @Test
@@ -103,6 +113,14 @@ class PersonRepositoryTest {
     }
 
     private Person givenPerson(String name, String phone, Address address, LocalDate birthday) {
-        return new Person(name, phone,address, Birthday.of(birthday));
+        PersonDto dto = PersonDto.builder()
+                .name(name)
+                .phoneNumber(phone)
+                .city(address.getCity())
+                .street(address.getStreet())
+                .zipcode(address.getZipcode())
+                .birthday(birthday)
+                .build();
+        return Person.of(dto);
     }
 }

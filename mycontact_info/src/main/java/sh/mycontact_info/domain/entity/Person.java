@@ -16,8 +16,8 @@ import java.time.LocalDate;
 @Getter
 @ToString
 @EqualsAndHashCode
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "deleted = false")
 @Entity
 public class Person {
@@ -41,23 +41,22 @@ public class Person {
     @ColumnDefault("0")
     private boolean deleted;
 
+
+    public static Person of(PersonDto personDto) {
+        Person person = new Person();
+        person.name = personDto.getName();
+        person.phoneNumber = personDto.getPhoneNumber();
+        person.address = Address.of(personDto.getCity(), personDto.getStreet(), personDto.getZipcode());
+        person.birthday = Birthday.of(personDto.getBirthday());
+        return person;
+    }
+
     public void set(PersonDto personDto) {  // 처음 등록 + 수정시 체크제외
+        if( !ObjectUtils.isEmpty(personDto.getName())) this.name = personDto.getName();
         if (!ObjectUtils.isEmpty(personDto.getCity()) || !ObjectUtils.isEmpty(personDto.getStreet()) || !ObjectUtils.isEmpty(personDto.getZipcode())) {
             this.address = Address.of(personDto.getCity(), personDto.getStreet(), personDto.getZipcode());
         }
         if(!ObjectUtils.isEmpty(personDto.getBirthday())) this.birthday = Birthday.of(personDto.getBirthday());
-
-    }
-
-    public Person(String name, String phoneNumber, Address address, Birthday birthday) {
-        this.name = name;
-        this.phoneNumber = phoneNumber;
-        this.address = address;
-        this.birthday = birthday;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public void setPhoneNumber(String phoneNumber) {

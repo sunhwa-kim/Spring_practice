@@ -7,10 +7,13 @@ import sh.mycontact_info.domain.entity.Person;
 
 import java.util.List;
 
-
 public interface PersonRepository extends JpaRepository<Person,Long> {
 
-    List<Person> findByPhoneNumber(String phoneNumber);
+    Long countByName(String name);
+
+    Long countByPhoneNumber(String phoneNumber);
+
+//    List<Person> findByPhoneNumber(String phoneNumber);
 
     @Query("select person from Person person where person.birthday.monthOfBirthday = :monthOfBirthday")
     List<Person> findMonthOfBirthday(@Param("monthOfBirthday") int monthOfBirthday);
