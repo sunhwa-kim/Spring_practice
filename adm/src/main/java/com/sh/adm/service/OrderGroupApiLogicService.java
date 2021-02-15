@@ -43,23 +43,25 @@ public class OrderGroupApiLogicService{
          *  장바구니에 다른 새 상품 추가 ->  order_group_id 연결, order_detail_id 생성
          *  장바구니에 기존 상품 동일 추가 ->  orderDetail.updateOrderDetail() [수량 추가]
          */
+        
+        // TODO 상품 제고 없을 시
         OrderDetailApiRequest body = request.getData();
         Item  item = itemRepository.findById(body.getItemId()).orElseThrow(() -> new RuntimeException("No item data"));
 
         if (ObjectUtils.isEmpty(body.getOrderGroupId())){
             OrderDetail orderDetail1 = OrderDetail.createOrderDetail(item, body.getQuantity());
-            User user = userRepository.findById(body.getUserId()).orElseThrow(() -> new RuntimeException("No User Info"));
+            User user = userRepository.findById(body.getUserId()).orElseThrow(() -> new RuntimeException("No User Info"));  // TODO Controller
 
             orderGroupRepository.save(OrderGroup.createOrderGroup(user, orderDetail1));
             orderDetailRepository.save(orderDetail1);
             return orderDetailResponse(orderDetail1);
         }
         
-        // if order_group_id 존재 ->  item_id 조회
+        // if request order_group_id 존재 ->  item_id 조회
         return orderDetailRepository.findByOrderGroupIdAndItemId(body.getItemId(), item.getId())
-                .map(orderDetail -> {    // order_detail_id 에 item 수량 변경
+                .map(orderDetail -> {    // order_detail_id 에 item 수량 변경 <- TODO view : 30개 이하 제고 수량시 제고 정보 제공
                     orderDetail.updateOrderDetail(item, body.getQuantity());
-                    log.info("check, item changed >> {}",item);
+//                    log.info("check, item changed >> {}",item);
                     return orderDetail;
                 }).map(this::orderDetailResponse)
                 .orElseGet(() ->
@@ -74,11 +76,13 @@ public class OrderGroupApiLogicService{
 
     @Transactional
     public Header<OrderDetailListApiResponse> updateCart(Header<OrderDetailListApiRequest> request) {
-        // TODO 추가 상품 & 삭제 상품
+        // TODO - 상품  추가 & 삭제 상품
+        //  List -> Set 변경
         OrderDetailListApiRequest body = request.getData();
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderGroupIdOrderByItemIdAsc(body.getOrder_group_id());
         int length = orderDetails.size();
-        if (length> 1) {
+//        if (length > 1) {
+        if (length > 1) { // !orderDetails.isEmpty()
             List<OrderItem> bodyItems = body.getItems();
             bodyItems.sort(Comparator.comparing(OrderItem::getItem_id));
             if (length >= bodyItems.size()) {
@@ -95,13 +99,12 @@ public class OrderGroupApiLogicService{
         return Header.error("No data exist");
     }
 
-    // 사용자 장바구니 조회
     @Transactional
     public Header<OrderGroupApiResponse> order(Header<OrderGroupApiRequest> request) {
         // 조회
         OrderGroupApiRequest body = request.getData();
 
-        OrderGroup orderGroup = orderGroupRepository.findById(body.getId()).orElseThrow(() -> new RuntimeException("No Order data"));
+        OrderGroup orderGroup = orderGroupRepository.findById(body.getId()).orElseThrow(() -> new RuntimeException("No Cart data"));
         if( orderGroup.getStatus().equals(OrderStatus.ORDERING) ){
             List<OrderDetail> orderDetailList = orderDetailRepository.findByOrderGroupIdOrderByCreatedAtDesc(orderGroup.getId());
             Delivery delivery = Delivery.of(Address.of(body.getCity(), body.getStreet(), body.getZipcode()), body.getReceiveName(),orderGroup);
@@ -125,13 +128,13 @@ public class OrderGroupApiLogicService{
     @Transactional
     public Header<OrderGroupApiResponse> modifyOrder(Header<OrderGroupApiRequest> request) {
         OrderGroupApiRequest requestBody = request.getData();
-        return Optional.ofNullable(requestBody)
+        return Optional.ofNullable(requestBody)   // TODO  요청 데이터 null check -> Controller
                 .map(body -> {
-                    OrderGroup orderGroup = orderGroupRepository.findById(body.getId()).orElseThrow(() -> new RuntimeException("No Order Information"));
+                    OrderGroup orderGroup = orderGroupRepository.findById(body.getId()).orElseThrow(() -> new RuntimeException("No Cart data"));
                     orderGroup.updateOrder(body);
                     return orderGroup;
                 }).map(orderGroup -> response(orderGroup,orderGroup.getDelivery()))
-                .orElseGet(()->Header.error("No request data"));
+                .orElseGet(()->Header.error("No data exist"));
     }
 
     @Transactional
@@ -149,10 +152,12 @@ public class OrderGroupApiLogicService{
                 .orElseGet(() -> Header.error("No Data exist"));
     }
 
+    // 카드 담기 요청시 응답
     private Header<OrderDetailApiResponse> orderDetailResponse(OrderDetail orderDetail) {
         return Header.OK(new OrderDetailApiResponse(orderDetail.getQuantity(),orderDetail.getTotalPrice()));
     }
 
+    // 장바구니 확인시 응답
     private Header<OrderDetailListApiResponse> orderDetailListApiResponseHeader(List<OrderDetail> orderDetails, Long orderGroupId) {
         List<OrderItem> orderItems = new ArrayList<>();
         for (OrderDetail orderDetail : orderDetails) {
@@ -162,6 +167,7 @@ public class OrderGroupApiLogicService{
         return Header.OK(body);
     }
 
+    // 주문 요청시 응답
     private Header<OrderGroupApiResponse> response(OrderGroup orderGroup, Delivery delivery) {
         OrderGroupApiResponse body = OrderGroupApiResponse.builder()
                 .status(orderGroup.getStatus())

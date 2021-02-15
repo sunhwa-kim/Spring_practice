@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,6 +51,7 @@ class OrderGroupApiLogicServiceTest {
     DeliveryRepository deliveryRepository;
     @Mock
     UserRepository userRepository;
+
     @Mock
     TestEntityManager testEntityManager;
 
@@ -60,6 +62,17 @@ class OrderGroupApiLogicServiceTest {
 
     private BigDecimal itemPrice = new BigDecimal(900000);
     private String testCity = "서울시";
+
+
+    @Test
+    @DisplayName("첫 장바구니 담기 상품 없음 예외 발생")
+    void createOrderGroupAndNotFoundItemException() {
+        when(itemRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() ->
+                        orderGroupApiLogicService.addToOrderDetail(requestOrderDetail(null, null, 2))
+                ).withMessage("No item data");
+    }
 
 
     @Test
@@ -75,6 +88,44 @@ class OrderGroupApiLogicServiceTest {
                 () -> then(orderDetailCaptor.getValue().getQuantity()).isEqualTo(2),
                 () -> then(orderDetailCaptor.getValue().getTotalPrice()).isEqualTo(itemPrice.multiply(BigDecimal.valueOf(2)))
                 );
+    }
+
+    @Test
+    @DisplayName("기존 상품 장바구니 추가")
+    void getOrderGroupIdAndUpdateOrderDetail() {
+        int originalOrdercount = 5;
+        int chageOrderCount = 10;
+        Item item = givenItem(100-originalOrdercount, givenPartner(givenCategory()));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of( item ));
+        when(orderDetailRepository.findByOrderGroupIdAndItemId(1L, 1L)).thenReturn(Optional.of(newOrderDetail(item,originalOrdercount)));
+//        doReturn(Optional.of(newOrderDetail(item, originalOrdercount))).when(orderDetailRepository).findByOrderGroupIdAndItemId(1L, 1L);
+
+        Header<OrderDetailApiResponse> headerResponse = orderGroupApiLogicService.addToOrderDetail(requestOrderDetail(1L, 1L, chageOrderCount));
+        OrderDetailApiResponse response = headerResponse.getData();
+
+        assertAll(
+                () -> then(response.getTotalPrice()).isEqualTo(itemPrice.multiply(BigDecimal.valueOf(chageOrderCount))),
+                () -> then(response.getOrderItemQuantity()).isEqualTo(chageOrderCount)
+        );
+    }
+
+    @Test
+    @DisplayName("장바구니 정보 없음 예외 발생")
+    void getOrderGroupIdNullPointException() {
+        int orderCount = 3;
+        Item item = givenItem(100, givenPartner(givenCategory()));
+        Item item2 = givenItem(20, givenPartner(givenCategory()));
+        // 사용자 요청 상품 조회
+        when(itemRepository.findById(1L)).thenReturn(Optional.of( item ));
+        // 장바구니 상품 조회
+        when(orderDetailRepository.findByOrderGroupIdAndItemId(1L, 1L)).thenReturn(Optional.empty());   // entity 순서대로 작성
+        // 장바구니 새 상품 담기
+        when(orderGroupRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() ->
+                        orderGroupApiLogicService.addToOrderDetail(requestOrderDetail(null, 1L, orderCount))
+                ).withMessage("No Cart data");
     }
 
     @Test
@@ -95,25 +146,6 @@ class OrderGroupApiLogicServiceTest {
         assertAll(
                 () -> then(response.getOrderItemQuantity()).isEqualTo(orderCount),
                 () -> then(response.getTotalPrice()).isEqualTo(item.getPrice().multiply(BigDecimal.valueOf(orderCount)))
-        );
-    }
-
-    @Test
-    @DisplayName("기존 상품 장바구니 추가")
-    void getOrderGroupIdAndUpdateOrderDetail() {
-        int originalOrdercount = 5;
-        int chageOrderCount = 10;
-        Item item = givenItem(100-originalOrdercount, givenPartner(givenCategory()));
-        when(itemRepository.findById(1L)).thenReturn(Optional.of( item ));
-        when(orderDetailRepository.findByOrderGroupIdAndItemId(1L, 1L)).thenReturn(Optional.of(newOrderDetail(item,originalOrdercount)));
-//        doReturn(Optional.of(newOrderDetail(item, originalOrdercount))).when(orderDetailRepository).findByOrderGroupIdAndItemId(1L, 1L);
-
-        Header<OrderDetailApiResponse> headerResponse = orderGroupApiLogicService.addToOrderDetail(requestOrderDetail(1L, 1L, chageOrderCount));
-        OrderDetailApiResponse response = headerResponse.getData();
-
-        assertAll(
-                () -> then(response.getTotalPrice()).isEqualTo(itemPrice.multiply(BigDecimal.valueOf(chageOrderCount))),
-                () -> then(response.getOrderItemQuantity()).isEqualTo(chageOrderCount)
         );
     }
 
@@ -146,8 +178,32 @@ class OrderGroupApiLogicServiceTest {
     }
 
     @Test
+    @DisplayName("장바구니 수정시 장바구니 정보 없음 예외 발생")
+    void updateOrderDetailListbyOrderGroupAndOrderGroupNotFoundException() {
+        when(orderDetailRepository.findByOrderGroupIdOrderByItemIdAsc(1L)).thenReturn(Lists.emptyList());
+
+        Header<OrderDetailListApiResponse> headerResponse = orderGroupApiLogicService.updateCart(requestOrderDetails());
+
+        assertAll(
+                () -> then(headerResponse.getDescription()).isEqualTo("No data exist"),
+                () -> then(headerResponse.getResultCode()).isEqualTo("ERROR")
+        );
+    }
+
+    @Test
+    @DisplayName("주문시 장바구니 정보 없음 예외 발생")
+    void requestOrderWhenOrderGroupNotFoundException() {
+        when(orderGroupRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() ->
+                        orderGroupApiLogicService.order(requestOrderGroup(1L,testCity,OrderType.ALL, PaymentType.CARD))
+                ).withMessage("No Cart data");
+    }
+
+    @Test
     @DisplayName("주문")
-    void orderTest() {
+    void requestOrderTest() {
         List<OrderDetail> orderDetailList = givenOrderDetailList();
         BigDecimal resultOfPrice = BigDecimal.ZERO;
 
@@ -178,6 +234,18 @@ class OrderGroupApiLogicServiceTest {
     }
 
     @Test
+    @DisplayName("장바구니 주문 상태가 아닌 경우 해드 에러 메세지")
+    void requestOrderInvalidOrderStatusNotORDERING() {
+        when(orderGroupRepository.findById(1L)).thenReturn(Optional.of(givenOrder()));
+
+        Header<OrderGroupApiResponse> responseHeader = orderGroupApiLogicService.order(requestOrderGroup(1L, testCity, OrderType.ALL, PaymentType.CARD));
+        assertAll(
+                () -> then(responseHeader.getResultCode()).isEqualTo("ERROR"),
+                () -> then(responseHeader.getDescription()).isEqualTo("No data exist")
+        );
+    }
+
+    @Test
     @DisplayName("주문 내역 확인")
     void readOrderTest() {
         when(orderGroupRepository.findById(1L)).thenReturn(Optional.of(givenOrder()));
@@ -193,6 +261,30 @@ class OrderGroupApiLogicServiceTest {
                 () -> then(response.getTotalPrice()).as("주문 합계").isEqualTo(BigDecimal.valueOf(900000).multiply(BigDecimal.valueOf(5))),
                 () -> then(response.getTotalQuantity()).as("주문 상품 개수").isEqualTo(5)
         );
+    }
+
+    @Test
+    @DisplayName("주문 내역 확인시 장바구니 정보 없음 헤드 에러 메시지")
+    void readOrderOrderGroupNotFound() {
+        when(orderGroupRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Header<OrderGroupApiResponse> responseHeader = orderGroupApiLogicService.readOrder(1L);
+
+        assertAll(
+                () -> then(responseHeader.getResultCode()).as("해더 에러 코드").isEqualTo("ERROR"),
+                () -> then(responseHeader.getDescription()).as("헤드 에러 설명").isEqualTo("No data exist")
+        );
+    }
+
+    @Test
+    @DisplayName("주문 내역 수정시 장바구니 정보 없음 예외 발생")
+    void modifyOrderWhenOrderGroupNotFoundException() {
+        when(orderGroupRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() ->
+                        orderGroupApiLogicService.modifyOrder(requestOrderGroup(1L, "대전시", OrderType.ALL, PaymentType.BANK_TRANSFER))
+                ).withMessage("No Cart data");
     }
 
     @Test
@@ -213,6 +305,11 @@ class OrderGroupApiLogicServiceTest {
         );
     }
 
+    @DisplayName("주문 내역 수정시 요청정보 없음 헤드 에러 메시지")
+    void modifyOrderWhenOrderGroupNotFound() {
+        // TODO Controller 분리
+    }
+
     @Test
     @DisplayName("주문 취소")
     void cancelOrderTest() {
@@ -228,6 +325,10 @@ class OrderGroupApiLogicServiceTest {
         then(header.getResultCode()).isEqualTo("OK");
     }
 
+
+    /**
+     *  stubbing data for Mock test
+     */
     private OrderDetail newOrderDetail(Item item, int orderItemCount) {
         if(item==null) return OrderDetail.createOrderDetail(givenItem(100, givenPartner(givenCategory())), orderItemCount);
         return OrderDetail.createOrderDetail(item, orderItemCount);
@@ -306,6 +407,10 @@ class OrderGroupApiLogicServiceTest {
         return new Category("전자제품", "컴퓨터");
     }
 
+
+    /**
+     *  requestApiData for test
+     */
     private Header<OrderDetailApiRequest> requestOrderDetail(Long id, Long orderGroupId, int orderCount) {
         OrderDetailApiRequest.OrderDetailApiRequestBuilder builder = OrderDetailApiRequest.builder()
                 .orderStatus(OrderStatus.ORDERING)
