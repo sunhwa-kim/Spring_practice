@@ -1,7 +1,9 @@
 package me.sunhwa.demorestapi.events;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,10 +27,13 @@ public class EventController {
 
     private final EventValidator eventValidator;
 
-    public EventController(EventRepository eventRepository, ModelMapper modelMapper, EventValidator eventValidator) {  // sping 4.3 등록된 bean @Autowired 생량
+    private final EntityLinks entityLinks;
+
+    public EventController(EventRepository eventRepository, ModelMapper modelMapper, EventValidator eventValidator, EntityLinks entityLinks) {  // sping 4.3 등록된 bean @Autowired 생량
         this.eventRepository = eventRepository;
         this.modelMapper = modelMapper;
         this.eventValidator = eventValidator;
+        this.entityLinks = entityLinks;
     }
 
     @PostMapping
@@ -48,9 +53,9 @@ public class EventController {
 //        URI createUri = linkTo(methodOn(EventController.class)).slash("{id}").toUri();  // jUnit4
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(newEvent.getId());
         URI createUri = selfLinkBuilder.toUri();
+
         EventResource eventResource = new EventResource(event);
         eventResource.add(linkTo(EventController.class).withRel("query-events"));
-        eventResource.add(selfLinkBuilder.withSelfRel());
         eventResource.add(selfLinkBuilder.withRel("update-events"));
         return ResponseEntity.created(createUri).body(eventResource);
     }
