@@ -11,7 +11,7 @@ public interface CrudInterface<Request, Response> {
     //  요청 데이터가 Header를 통해서 -> create, update : <T> data ( instance )
     //  -> /network/request, /network/response (각각 데이타 다르니까)
 
-    Header<Response> create(Header<Request> request);  // todo request object 추가
+    Header<Response> create(Header<Request> request);
 
     Header<Response> read(Long id);
 

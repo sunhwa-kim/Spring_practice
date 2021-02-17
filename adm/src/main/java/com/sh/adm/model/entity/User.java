@@ -34,7 +34,6 @@ import java.util.List;
 @Where(clause = "deleted = false")
 @Entity
 public class User {
-
     @Id  // 식별자
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")  // 동일시 자동 맵핑
@@ -119,16 +118,6 @@ public class User {
         user.registeredAt = registeredAt;
         return user;
     }
-
-/*    public User(String account, String password, UserStatus status, String email, String phoneNumber, LocalDate birthday , LocalDateTime registeredAt) {
-        this.account = account;
-        this.password = password;
-        this.status = status;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.birthday = Birthday.of(birthday);
-        this.registeredAt = registeredAt;
-    }*/
 
     public void deledtedAccount(LocalDateTime unregisteredAt, UserStatus status, boolean deleted) {
         this.unregisteredAt = unregisteredAt;

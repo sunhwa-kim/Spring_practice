@@ -56,8 +56,6 @@ public class OrderDetail {
     @ManyToOne(fetch = FetchType.LAZY)
     private OrderGroup orderGroup;
 
-    //    private Long itemId;
-    //   OrderDetail N:1 Item
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
@@ -78,7 +76,7 @@ public class OrderDetail {
      * @return
      */
 
-    @Builder
+//    @Builder  // 2021.02.16
     public static OrderDetail createOrderDetail(Item item, int count) {
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setItem(item);

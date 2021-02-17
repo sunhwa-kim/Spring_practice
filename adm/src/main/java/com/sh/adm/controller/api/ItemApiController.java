@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/item")
 @RequiredArgsConstructor
 public class ItemApiController implements CrudInterface<ItemApiRequest, ItemApiResponse> {
-    private final ItemApiLogicService itemApiLogicService;
 
+    private final ItemApiLogicService itemApiLogicService;
 
     @Override
     @PostMapping("")

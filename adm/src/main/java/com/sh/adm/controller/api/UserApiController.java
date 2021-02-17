@@ -35,7 +35,6 @@ public class UserApiController implements CrudInterface<UserApiRequest, UserApiR
         return userApiLogicService.getPages(pageable);
     }
 
-
     @Override
     @PostMapping("")   // "/api/user"
     @ResponseStatus(HttpStatus.CREATED)  // 201
@@ -53,7 +52,6 @@ public class UserApiController implements CrudInterface<UserApiRequest, UserApiR
     @Override
     @PutMapping("")
     public Header<UserApiResponse> update(@RequestBody Header<UserApiRequest> request) {
-        // @RequestBody 없으면 null exception
         return userApiLogicService.update(request);
     }
 

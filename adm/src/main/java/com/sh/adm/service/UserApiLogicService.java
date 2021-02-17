@@ -83,7 +83,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     public Header<UserApiResponse> update(Long id, String password) {
         return userRepository.findById(id)
                 .map(user -> {
-                    if(user.getPassword().equals(password)) throw new RuntimeException("Enter a different number");
+                    if(user.getPassword().equals(password)) throw new RuntimeException("Cannot change to the same password");
                     user.setPassword(password);
                     return user;
                 })

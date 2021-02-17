@@ -120,7 +120,6 @@ public class OrderGroup {
     }
 
     public void cancel() {
-//        this.setDelivery(null);
         if (!this.delivery.getDeliveryStatus().equals(DeliveryStatus.READY)) throw new NotPermittedChageOrder();
         this.orderDetails.forEach(orderDetail -> {
             orderDetail.cancel();
