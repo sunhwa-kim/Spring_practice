@@ -8,10 +8,20 @@ import com.sh.adm.model.network.response.OrderDetailApiResponse;
 import com.sh.adm.model.network.response.OrderDetailListApiResponse;
 import com.sh.adm.model.network.response.OrderGroupApiResponse;
 import com.sh.adm.service.OrderGroupApiLogicService;
+import com.sh.adm.service.ordergroup.OrderGroupViewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
+import java.net.URI;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 
 @Slf4j
@@ -20,11 +30,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/cart")
 public class OrderGroupApiController{
 
+    private final OrderGroupViewService orderGroupViewService;
     private final OrderGroupApiLogicService orderGroupApiLogicService;
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public Header<OrderDetailApiResponse> addToCart(@RequestBody Header<OrderDetailApiRequest> request) {
+    public Header<OrderDetailApiResponse> cart(@RequestBody @Valid Header<OrderDetailApiRequest> request) {
         /**
          *   장바구니 담기 버튼 -> ItemId [ OrderGroupId-> OrderDetail ]
          */
@@ -45,10 +56,17 @@ public class OrderGroupApiController{
         return orderGroupApiLogicService.order(request);
     }
 
-    @GetMapping("/order/{id}")
+    @GetMapping(value = "/order/{id}",produces = MediaTypes.HAL_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public Header<OrderGroupApiResponse> readOrder(@PathVariable("id") Long orderGroupId) {
-        return orderGroupApiLogicService.readOrder(orderGroupId);
+    public ResponseEntity readOrder(@PathVariable("id") Long orderGroupId) {
+        URI uri = linkTo(OrderGroupApiController.class).slash(orderGroupId).withSelfRel().toUri();
+        return orderGroupViewService.readOrder(orderGroupId)
+                .map(orderGroupApiResponse ->
+                    ResponseEntity.ok().body(
+                            EntityModel.of(orderGroupApiResponse)
+                            .add(linkTo(OrderGroupApiController.class).slash(orderGroupId).withSelfRel())
+                    )
+                ).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 

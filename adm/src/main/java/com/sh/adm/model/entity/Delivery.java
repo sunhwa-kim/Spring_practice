@@ -1,5 +1,6 @@
 package com.sh.adm.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sh.adm.model.dto.Address;
 import com.sh.adm.model.enumclass.DeliveryStatus;
 import lombok.EqualsAndHashCode;
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @Entity
@@ -51,7 +52,7 @@ public class Delivery {
     private String updatedBy;
 
     @ToString.Exclude
-    @OneToOne(mappedBy = "delivery",fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     private OrderGroup orderGroup;
 
     public void setReceiveName(String receiveName) {

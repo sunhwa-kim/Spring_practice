@@ -1,5 +1,6 @@
 package com.sh.adm.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sh.adm.exception.NotPermittedChageOrder;
 import com.sh.adm.model.dto.Address;
 import com.sh.adm.model.enumclass.DeliveryStatus;
@@ -23,7 +24,7 @@ import java.util.List;
 
 @Getter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
@@ -63,7 +64,7 @@ public class OrderGroup {
     private String updatedBy;
 
     @ToString.Exclude
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "orderGroup",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Delivery delivery;  // FK
 
     // private Long userId;
