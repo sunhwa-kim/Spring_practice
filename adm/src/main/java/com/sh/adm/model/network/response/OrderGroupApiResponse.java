@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,15 +20,15 @@ import java.util.stream.Collectors;
 public class OrderGroupApiResponse {
     private Long id;
 
-    private OrderStatus status;
+    private String status;
 
-    private OrderType orderType;   // 묶음 , 개별
+    private String orderType;   // 묶음 , 개별
 
-    private String revName;
+    private String receiveName;
 
     private String revAddress;
 
-    private PaymentType paymentType;    // 현금, 카드,.
+    private String paymentType;    // 현금, 카드,.
 
     private BigDecimal totalPrice;
 
@@ -44,7 +43,7 @@ public class OrderGroupApiResponse {
     public void setOrder(Delivery delivery) {
         Address address = delivery.getReceiveAddress();
         this.revAddress = Arrays.asList(new String[]{address.getCity(), address.getStreet(), address.getZipcode()}).stream().collect(Collectors.joining(", "));
-        this.revName = delivery.getReceiveName();
+        this.receiveName = delivery.getReceiveName();
         this.arrivalDate = delivery.getArriveDate();
     }
 }

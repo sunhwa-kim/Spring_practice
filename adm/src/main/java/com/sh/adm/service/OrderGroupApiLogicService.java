@@ -2,7 +2,6 @@ package com.sh.adm.service;
 
 import com.sh.adm.model.dto.Address;
 import com.sh.adm.model.entity.*;
-import com.sh.adm.model.enumclass.DeliveryStatus;
 import com.sh.adm.model.enumclass.OrderStatus;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.OrderDetailApiRequest;
@@ -19,10 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
-import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -35,8 +31,6 @@ public class OrderGroupApiLogicService{
     private final DeliveryRepository deliveryRepository;
     private final UserRepository userRepository;
 
-    @Transactional
-    public Header<OrderDetailApiResponse> addToOrderDetail(Header<OrderDetailApiRequest> request) {
         /**
          * 상품 목록 보며 사용자가 하나의 상품 장바구니 담기
          *  가입한 사용자의 첫 구입 ->  order_group_id 생성
@@ -44,35 +38,7 @@ public class OrderGroupApiLogicService{
          *  장바구니에 기존 상품 동일 추가 ->  orderDetail.updateOrderDetail() [수량 추가]
          */
         
-        // TODO 상품 제고 없을 시
-        OrderDetailApiRequest body = request.getData();
-        Item  item = itemRepository.findById(body.getItemId()).orElseThrow(() -> new RuntimeException("No item data"));
 
-        if (ObjectUtils.isEmpty(body.getOrderGroupId())){
-            OrderDetail orderDetail1 = OrderDetail.createOrderDetail(item, body.getQuantity());
-            User user = userRepository.findById(body.getUserId()).orElseThrow(() -> new RuntimeException("No User Info"));  // TODO Controller
-
-            orderGroupRepository.save(OrderGroup.createOrderGroup(user, orderDetail1));
-            orderDetailRepository.save(orderDetail1);
-            return orderDetailResponse(orderDetail1);
-        }
-        
-        // if request order_group_id 존재 ->  item_id 조회
-        return orderDetailRepository.findByOrderGroupIdAndItemId(body.getItemId(), item.getId())
-                .map(orderDetail -> {    // order_detail_id 에 item 수량 변경 <- TODO view : 30개 이하 제고 수량시 제고 정보 제공
-                    orderDetail.updateOrderDetail(item, body.getQuantity());
-//                    log.info("check, item changed >> {}",item);
-                    return orderDetail;
-                }).map(this::orderDetailResponse)
-                .orElseGet(() ->
-                        { // order_detail 생성
-                            OrderGroup orderGroup = orderGroupRepository.findById(body.getOrderGroupId()).orElseThrow(() -> new RuntimeException("No Cart data"));
-                            OrderDetail newOrderDetail = OrderDetail.createOrderDetail(item, body.getQuantity());
-                            newOrderDetail.setOrderGroup(orderGroup);
-//                            log.info("check, item changed >> {}",item);
-                            return orderDetailResponse(newOrderDetail);
-                        });
-    }
 
     @Transactional
     public Header<OrderDetailListApiResponse> updateCart(Header<OrderDetailListApiRequest> request) {
@@ -170,9 +136,9 @@ public class OrderGroupApiLogicService{
     // 주문 요청시 응답
     private Header<OrderGroupApiResponse> response(OrderGroup orderGroup, Delivery delivery) {
         OrderGroupApiResponse body = OrderGroupApiResponse.builder()
-                .status(orderGroup.getStatus())
-                .orderType(orderGroup.getOrderType())
-                .paymentType(orderGroup.getPaymentType())
+                .status(orderGroup.getStatus().getTitle())
+                .orderType(orderGroup.getOrderType().getTitle())
+                .paymentType(orderGroup.getPaymentType().getTitle())
                 .totalPrice(orderGroup.getTotalPrice())
                 .totalQuantity(orderGroup.getTotalQuantity())
                 .orderAt(orderGroup.getOrderAt())

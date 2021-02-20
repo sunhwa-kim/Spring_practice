@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,11 +25,12 @@ public class OrderDetailApiRequest {
 
     private BigDecimal totalPrice;
 
+    @NotBlank
     private Long userId;
-
+    @NotBlank
     private Long orderGroupId;
 
-    @NotEmpty(message="상품을 선택해 주세요")
+    @NotBlank(message="상품을 선택해 주세요")
     private Long itemId;
 
     @Builder

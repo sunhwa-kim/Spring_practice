@@ -1,6 +1,10 @@
 package com.sh.adm.controller.api;
 
+import com.sh.adm.exception.ItemNotFoundException;
+import com.sh.adm.exception.OrderGroupNotFoundException;
+import com.sh.adm.exception.UserNotFoundException;
 import com.sh.adm.model.network.Header;
+import com.sh.adm.model.network.SimpleResponse;
 import com.sh.adm.model.network.request.OrderDetailApiRequest;
 import com.sh.adm.model.network.request.OrderDetailListApiRequest;
 import com.sh.adm.model.network.request.OrderGroupApiRequest;
@@ -8,6 +12,7 @@ import com.sh.adm.model.network.response.OrderDetailApiResponse;
 import com.sh.adm.model.network.response.OrderDetailListApiResponse;
 import com.sh.adm.model.network.response.OrderGroupApiResponse;
 import com.sh.adm.service.OrderGroupApiLogicService;
+import com.sh.adm.service.ordergroup.OrderGroupSaveService;
 import com.sh.adm.service.ordergroup.OrderGroupViewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -32,14 +38,18 @@ public class OrderGroupApiController{
 
     private final OrderGroupViewService orderGroupViewService;
     private final OrderGroupApiLogicService orderGroupApiLogicService;
+    private final OrderGroupSaveService orderGroupSaveService;
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public Header<OrderDetailApiResponse> cart(@RequestBody @Valid Header<OrderDetailApiRequest> request) {
-        /**
-         *   장바구니 담기 버튼 -> ItemId [ OrderGroupId-> OrderDetail ]
-         */
-        return orderGroupApiLogicService.addToOrderDetail(request);
+    public ResponseEntity cart(@RequestBody @Valid Header<OrderDetailApiRequest> request) {
+        // 장바구니 담기
+        try {
+            orderGroupSaveService.addToOrderDetail(request);
+        } catch (Exception e) {
+            ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(new SimpleResponse(true,"saved"));
     }
 
     @PutMapping("")
@@ -78,7 +88,12 @@ public class OrderGroupApiController{
 
     @DeleteMapping("/order/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Header orderCancel(@PathVariable("id") Long orderGroupId) {
-        return orderGroupApiLogicService.cancelOrder(orderGroupId);
+    public ResponseEntity orderCancel(@PathVariable("id") Long orderGroupId) {
+        try {
+            orderGroupSaveService.cancelOrder(orderGroupId);
+        } catch (OrderGroupNotFoundException e) {
+            ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(new SimpleResponse(true,"delested"));
     }
 }

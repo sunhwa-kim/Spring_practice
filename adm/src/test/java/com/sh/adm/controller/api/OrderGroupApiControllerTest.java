@@ -8,8 +8,12 @@ import com.sh.adm.model.enumclass.*;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.OrderGroupApiRequest;
 import com.sh.adm.repository.*;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,24 +22,28 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Slf4j
 @SpringBootTest
-@AutoConfigureMockMvc
+//@AutoConfigureMockMvc
 class OrderGroupApiControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    OrderGroupApiController orderGroupApiController;
 
     @Autowired
     OrderGroupRepository orderGroupRepository;
@@ -50,22 +58,42 @@ class OrderGroupApiControllerTest {
     @Autowired
     CategoryRepository categoryRepository;
 
+    private MockMvc mockMvc;
     private BigDecimal itemPrice = new BigDecimal(900000);
     private String testCity = "서울시";
 
-    @Test
-    @DisplayName("주문 확인 조회")
-    void readOrderTest() throws Exception {
+    @BeforeEach
+    private void setup() {
+//        mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(orderGroupApiController)
+                .addFilter(new CharacterEncodingFilter(StandardCharsets.UTF_8.name(), true))
+                .alwaysDo(print())
+                .build();
+    }
 
-        OrderGroup orderGroup = givenOrder();
+    @DisplayName("주문 확인 조회")
+    @ParameterizedTest(name="{index} {displayName}")
+    @CsvSource(
+            ",5,서울시,100,12345,test"
+    )
+    void readOrderTest(Item item, int orderCount, String city, String street, String zipcode, String receiveName) throws Exception {
+
+        log.info("BigDecimal >> {} ",BigDecimal.valueOf(900000).multiply(BigDecimal.valueOf(5)));
+        OrderGroup orderGroup = givenOrder(item,orderCount,city,street,zipcode,receiveName);
         mockMvc.perform(get("/api/cart/order/{id}", orderGroup.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8"))
-                .andDo(print())
                 .andExpect(status().isOk())  // 200
-                .andExpect(jsonPath("id").exists())
-                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, String.valueOf(MediaTypes.HAL_JSON_VALUE)))
-//                .andExpect(jsonPath().value())
+//                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, String.valueOf(MediaTypes.HAL_JSON_VALUE)))
+                .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))  // 200
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.status").value(OrderStatus.CONFIRM.getTitle()))
+                .andExpect(jsonPath("$.orderType").value(OrderType.ALL.getTitle()))
+                .andExpect(jsonPath("$.receiveName").value(receiveName))
+                .andExpect(jsonPath("$.revAddress").value(city+", "+street+", "+zipcode))
+                .andExpect(jsonPath("$.paymentType").value(PaymentType.CARD.getTitle()))
+                .andExpect(jsonPath("$.totalPrice").value(itemPrice.multiply(BigDecimal.valueOf(5)).setScale(1)))
+                .andExpect(jsonPath("$.totalQuantity").value(orderCount))
         ;
     }
 
@@ -115,9 +143,9 @@ class OrderGroupApiControllerTest {
         return orderDetailRepository.save(OrderDetail.createOrderDetail(item, orderItemCount));
     }
 
-    private OrderGroup givenOrder() {
-        OrderGroup orderGroup = OrderGroup.createOrderGroup(givenUser(), newOrderDetail(null, 5));
-        orderGroup.setOrder(Delivery.of(Address.of("서울시", "100", "12345"), "test", orderGroup));
+    private OrderGroup givenOrder(Item item, int itemOrderCount, String city, String street, String zipcode, String receiveName) {
+        OrderGroup orderGroup = OrderGroup.createOrderGroup(givenUser(), newOrderDetail(item, itemOrderCount));
+        orderGroup.setOrder(Delivery.of(Address.of(city,street,zipcode), receiveName, orderGroup));
         orderGroup.updateOrder(requestOrderGroup(1L,testCity, OrderType.ALL, PaymentType.CARD).getData());
         return orderGroupRepository.save(orderGroup);
     }

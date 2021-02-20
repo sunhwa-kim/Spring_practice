@@ -26,13 +26,12 @@ public class OrderGroupViewServiceImpl implements OrderGroupViewService{
                 .map(this::response);
     }
 
-
     private OrderGroupApiResponse response(OrderGroup orderGroup) {
         OrderGroupApiResponse body = OrderGroupApiResponse.builder()
                 .id(orderGroup.getId())
-                .status(orderGroup.getStatus())
-                .orderType(orderGroup.getOrderType())
-                .paymentType(orderGroup.getPaymentType())
+                .status(orderGroup.getStatus().getTitle())
+                .orderType(orderGroup.getOrderType().getTitle())
+                .paymentType(orderGroup.getPaymentType().getTitle())
                 .totalPrice(orderGroup.getTotalPrice())
                 .totalQuantity(orderGroup.getTotalQuantity())
                 .orderAt(orderGroup.getOrderAt())

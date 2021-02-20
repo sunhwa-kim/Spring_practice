@@ -10,6 +10,6 @@ public enum PaymentType {
     BANK_TRANSFER(1,"현금","은행 계좌 현금 결제");
 
     private Integer id;
-    private String methodOfPayment;
+    private String title;
     private String description;
 }
