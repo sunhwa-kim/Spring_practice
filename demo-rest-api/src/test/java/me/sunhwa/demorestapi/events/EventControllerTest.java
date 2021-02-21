@@ -17,7 +17,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -66,7 +70,54 @@ public class EventControllerTest {
                 .andExpect(jsonPath("_links.self").exists())  // HATEOAS link
                 .andExpect(jsonPath("_links.query-events").exists())
                 .andExpect(jsonPath("_links.update-events").exists())
-                .andDo(document("create-event"))
+                .andDo(document("create-event",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("query-events").description("link to query events"),
+                                linkWithRel("update-events").description("link to update an existing")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("accept header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
+                        ),
+                        requestFields(
+                                fieldWithPath("name").description("Name of new event"),
+                                fieldWithPath("description").description("description of new evnet"),
+                                fieldWithPath("beginEnrollmentDateTime").description("date time of begin of new evnet"),
+                                fieldWithPath("closeEnrollmentDateTime").description("date time of end of new evnet"),
+                                fieldWithPath("beginEventDateTime").description("date time of begin of new evnet"),
+                                fieldWithPath("endEventDateTime").description("date time of end of new evnet"),
+                                fieldWithPath("location").description("locaiton of new evnet"),
+                                fieldWithPath("basePrice").description("base price of new evnet"),
+                                fieldWithPath("maxPrice").description("max price of new evnet"),
+                                fieldWithPath("limitOfEnrollment").description("limit of enrollments")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.LOCATION).description("Location header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
+                        ),
+//                        relaxedResponseFields(  // 문서의 일부분만 -  HAL 포맷과 links 추가 중복
+                        responseFields(  // 문서의 일부분만 -  HAL 포맷과 links 추가 중복
+                                fieldWithPath("id").description("identifier of new event"),
+                                fieldWithPath("name").description("Name of new event"),
+                                fieldWithPath("description").description("description of new evnet"),
+                                fieldWithPath("beginEnrollmentDateTime").description("date time of begin of new evnet"),
+                                fieldWithPath("closeEnrollmentDateTime").description("date time of end of new evnet"),
+                                fieldWithPath("beginEventDateTime").description("date time of begin of new evnet"),
+                                fieldWithPath("endEventDateTime").description("date time of end of new evnet"),
+                                fieldWithPath("location").description("locaiton of new evnet"),
+                                fieldWithPath("basePrice").description("base price of new evnet"),
+                                fieldWithPath("maxPrice").description("max price of new evnet"),
+                                fieldWithPath("limitOfEnrollment").description("limit of enrollments"),
+                                fieldWithPath("free").description("It tells if this event is free or not"),
+                                fieldWithPath("offline").description("It tells if this event is offline or not"),
+                                fieldWithPath("eventStatus").description("event status"),
+                                fieldWithPath("_links.self.href").description("link to self"),
+                                fieldWithPath("_links.query-events.href").description("link to query event list"),
+                                fieldWithPath("_links.update-events.href").description("link to update existing list")
+
+                        )
+                ))
         ;
     }
 
