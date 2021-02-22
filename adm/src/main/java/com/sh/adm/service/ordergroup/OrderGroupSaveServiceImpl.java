@@ -64,26 +64,22 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
     }
 
     @Override
-    public Optional<OrderDetailListApiResponse> updateCart(Header<OrderDetailListApiRequest> request) {
-        OrderDetailListApiRequest body = request.getData();
-        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderGroupIdOrderByItemIdAsc(body.getOrder_group_id());
+    public OrderDetailListApiResponse updateCart(OrderDetailListApiRequest request) {
+        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderGroupIdOrderByItemIdAsc(request.getOrder_group_id());
         int length = orderDetails.size();
-//        if (length > 1) {
-        if (length > 1) { // !orderDetails.isEmpty()
-            List<OrderItem> bodyItems = body.getItems();
+        if (length > 1) {
+            List<OrderItem> bodyItems = request.getItems();
             bodyItems.sort(Comparator.comparing(OrderItem::getItem_id));
             if (length >= bodyItems.size()) {
                 for (int i = 0; i < bodyItems.size(); i++) {
                     OrderDetail orderDetail = orderDetails.get(i);
                     OrderItem bodyItem = bodyItems.get(i);
-                    if(orderDetail.getItem().getId().equals(bodyItem.getItem_id())
-                            && (orderDetail.getQuantity() != bodyItem.getQuantity()) )
-                        orderDetail.updateOrderDetail( orderDetail.getItem() ,bodyItem.getQuantity());
+                    orderDetail.updateOrderDetail(orderDetail.getItem(), bodyItem.getQuantity());
                 }
-                return orderDetailListApiResponseHeader(orderDetails, body.getOrder_group_id());
             }
         }
-        return Optional.empty();
+        Optional<OrderDetailListApiResponse> response = orderDetailListApiResponse(orderDetails, request.getOrder_group_id());
+        return response.orElseThrow(OrderGroupNotFoundException::new);
     }
 
     @Override
@@ -97,7 +93,7 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
     }
 
     @Override
-    public void cancelOrder(Long id) throws OrderGroupNotFoundException{
+    public void cancelOrder(Long id){
         OrderGroup orderGroup = orderGroupRepository.findById(id).orElseThrow(OrderGroupNotFoundException::new);
         orderGroup.cancel();
         orderGroupRepository.deleteById(id);
@@ -108,12 +104,11 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
         return Optional.of(new OrderDetailApiResponse(orderDetail.getQuantity(),orderDetail.getTotalPrice()));
     }
 
-    private Optional<OrderDetailListApiResponse> orderDetailListApiResponseHeader(List<OrderDetail> orderDetails, Long orderGroupId) {
+    private Optional<OrderDetailListApiResponse> orderDetailListApiResponse(List<OrderDetail> orderDetails, Long orderGroupId) {
         List<OrderItem> orderItems = new ArrayList<>();
         for (OrderDetail orderDetail : orderDetails) {
             orderItems.add(OrderItem.of(orderDetail.getItem().getId(), orderDetail.getQuantity(), orderDetail.getTotalPrice()));
         }
-        OrderDetailListApiResponse body = new OrderDetailListApiResponse(orderItems, orderGroupId);
-        return Optional.of(body);
+        return Optional.of(new OrderDetailListApiResponse(orderItems, orderGroupId));
     }
 }

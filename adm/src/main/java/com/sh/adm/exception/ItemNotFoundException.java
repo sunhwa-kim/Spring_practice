@@ -1,6 +1,6 @@
 package com.sh.adm.exception;
 
-public class ItemNotFoundException extends Exception{
+public class ItemNotFoundException extends RuntimeException{
     public ItemNotFoundException() {
         super();
     }

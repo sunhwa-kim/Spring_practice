@@ -3,6 +3,7 @@ package com.sh.adm.controller.api;
 import com.sh.adm.exception.ItemNotFoundException;
 import com.sh.adm.exception.OrderGroupNotFoundException;
 import com.sh.adm.exception.UserNotFoundException;
+import com.sh.adm.exception.dto.ErrorResponse;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.SimpleResponse;
 import com.sh.adm.model.network.request.OrderDetailApiRequest;
@@ -20,6 +21,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -53,12 +55,12 @@ public class OrderGroupApiController{
     }
 
     @PutMapping("")
-    public Header<OrderDetailListApiResponse> updateCart(@RequestBody Header<OrderDetailListApiRequest> request) {
-        request.getData().getItems().stream().forEach(orderItem -> {
-            log.info("id >> {}",orderItem.getItem_id());
-            log.info("quantity >> {}",orderItem.getQuantity());
-        });
-        return orderGroupApiLogicService.updateCart(request);
+    public ResponseEntity updateCart(@RequestBody Header<OrderDetailListApiRequest> headerRequest) {
+        OrderDetailListApiRequest request = headerRequest.getData();
+        OrderDetailListApiResponse response = orderGroupSaveService.updateCart(request);
+        return ResponseEntity.ok().body(
+                        EntityModel.of(response)
+                                .add(linkTo(OrderGroupApiController.class).slash(response.getOrder_group_id()).withSelfRel()));
     }
 
     @PutMapping("/order")
@@ -79,21 +81,26 @@ public class OrderGroupApiController{
                 ).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-
     @PutMapping("/order/modify")
     public Header<OrderGroupApiResponse> modifyOrder(@RequestBody Header<OrderGroupApiRequest> request) {
         return orderGroupApiLogicService.modifyOrder(request);
     }
 
-
     @DeleteMapping("/order/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity orderCancel(@PathVariable("id") Long orderGroupId) {
-        try {
-            orderGroupSaveService.cancelOrder(orderGroupId);
-        } catch (OrderGroupNotFoundException e) {
-            ResponseEntity.notFound().build();
-        }
+        orderGroupSaveService.cancelOrder(orderGroupId);
         return ResponseEntity.ok(new SimpleResponse(true,"delested"));
+    }
+
+    @ExceptionHandler(OrderGroupNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleOrderGroupNotFoundException(OrderGroupNotFoundException exception) {
+        return new ResponseEntity<>(ErrorResponse.of(HttpStatus.BAD_REQUEST, exception.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
+        log.error("서버오류 : {}", ex.getMessage(), ex);
+        return new ResponseEntity<>(ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 서버 오류가 발생하였습니다"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
