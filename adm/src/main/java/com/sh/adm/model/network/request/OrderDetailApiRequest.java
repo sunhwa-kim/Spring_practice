@@ -9,17 +9,18 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
 public class OrderDetailApiRequest {
 
-    private Long id;
+    private Integer id;  // 장바구니 index
 
     private OrderStatus orderStatus;
 
-    private LocalDateTime arrivalDate;
+    private LocalDate arrivalDate;
 
     private Integer quantity;
 
@@ -34,7 +35,7 @@ public class OrderDetailApiRequest {
     private Long itemId;
 
     @Builder
-    public OrderDetailApiRequest(Long id, OrderStatus orderStatus, LocalDateTime arrivalDate, Integer quantity, BigDecimal totalPrice, Long userId,Long orderGroupId, Long itemId) {
+    public OrderDetailApiRequest(int id, OrderStatus orderStatus, LocalDate arrivalDate, Integer quantity, BigDecimal totalPrice, Long userId,Long orderGroupId, Long itemId) {
         this.id = id;
         this.orderStatus = orderStatus;
         this.arrivalDate = arrivalDate;

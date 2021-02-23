@@ -49,7 +49,7 @@ public class OrderGroupApiLogicService{
         int length = orderDetails.size();
 //        if (length > 1) {
         if (length > 1) { // !orderDetails.isEmpty()
-            List<OrderItem> bodyItems = body.getItems();
+            List<OrderItem> bodyItems = body.getItemList();
             bodyItems.sort(Comparator.comparing(OrderItem::getItem_id));
             if (length >= bodyItems.size()) {
                 for (int i = 0; i < bodyItems.size(); i++) {
@@ -119,8 +119,14 @@ public class OrderGroupApiLogicService{
     }
 
     // 카드 담기 요청시 응답
-    private Header<OrderDetailApiResponse> orderDetailResponse(OrderDetail orderDetail) {
-        return Header.OK(new OrderDetailApiResponse(orderDetail.getQuantity(),orderDetail.getTotalPrice()));
+    private OrderDetailApiResponse orderDetailResponse(int id,OrderDetail orderDetail) {
+        return OrderDetailApiResponse.builder()
+                .id(id)
+                .quantity(orderDetail.getQuantity())
+                .totalPrice(orderDetail.getTotalPrice())
+                .itemId(orderDetail.getItem().getId())
+                .orderGroupId(orderDetail.getOrderGroup().getId())
+                .build();
     }
 
     // 장바구니 확인시 응답

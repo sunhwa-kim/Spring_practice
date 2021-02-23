@@ -24,10 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.IntStream;
 
 @Service
@@ -65,12 +62,27 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
     }
 
     @Override
-    public OrderDetailListApiResponse updateCart(OrderDetailListApiRequest request) {
+    public OrderDetailApiResponse modifyCart(OrderDetailApiRequest request) {
+        OrderDetail orderDetail = orderDetailRepository.findByOrderGroupIdAndItemId(request.getOrderGroupId(), request.getItemId());
+        if(ObjectUtils.isEmpty(orderDetail)) throw new OrderGroupNotFoundException();
+        Item item = itemRepository.findById(request.getItemId()).orElseThrow(ItemNotFoundException::new);
+        orderDetail.updateOrderDetail(item, request.getQuantity());
+        return orderDetailResponse(request, orderDetail);
+    }
+
+    @Override
+    public void deleteCart(OrderDetailApiRequest request) {
+
+    }
+
+
+    // 장바구니 전체 내역 변경 -> 장바구니 내 상품 당 삭제/변경
+    public OrderDetailListApiResponse updateCartList(OrderDetailListApiRequest request) {
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderGroupIdOrderByItemIdAsc(request.getOrder_group_id());
         int length = orderDetails.size();
         if (length > 0) {
-            List<OrderItem> bodyItems = request.getItems();
-            if (length >= bodyItems.size()) {  // 추가 내역이 없는 경우...
+            List<OrderItem> bodyItems = request.getItemList();
+            if (length >= bodyItems.size()) {  // 추가 내역이 없는 경우
                 IntStream.range(0,bodyItems.size())
                         .forEach(i -> {
                                     OrderDetail orderDetail = orderDetails.get(i);
@@ -81,13 +93,7 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
         Optional<OrderDetailListApiResponse> response = orderDetailListApiResponse(orderDetails, request.getOrder_group_id());
         return response.orElseThrow(OrderGroupNotFoundException::new);
     }
-
-    // will be chage updateCart
-    public OrderDetailListApiResponse update(OrderDetailListApiRequest request) {
-
-        return new OrderDetailListApiResponse();
-    }
-
+    
     @Override
     public Optional<OrderGroupApiResponse> order(Header<OrderGroupApiRequest> request) {
         return Optional.empty();
@@ -106,8 +112,16 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
     }
 
 
-    private Optional<OrderDetailApiResponse> orderDetailResponse(OrderDetail orderDetail) {
-        return Optional.of(new OrderDetailApiResponse(orderDetail.getQuantity(),orderDetail.getTotalPrice()));
+    private OrderDetailApiResponse orderDetailResponse(OrderDetailApiRequest request,OrderDetail orderDetail) {
+        return OrderDetailApiResponse.builder()
+                .id(request.getId())
+                .orderStatus(orderDetail.getStatus())
+                .arrivalDate(orderDetail.getArrivalDate())
+                .quantity(orderDetail.getQuantity())
+                .totalPrice(orderDetail.getTotalPrice())
+                .orderGroupId(request.getOrderGroupId())
+                .itemId(orderDetail.getItem().getId())
+                .build();
     }
 
     private Optional<OrderDetailListApiResponse> orderDetailListApiResponse(List<OrderDetail> orderDetails, Long orderGroupId) {

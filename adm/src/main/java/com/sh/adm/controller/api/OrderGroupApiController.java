@@ -55,13 +55,29 @@ public class OrderGroupApiController{
     }
 
     @PutMapping("")
+    public ResponseEntity modifyCart(@RequestBody Header<OrderDetailApiRequest> headerRequest) {
+        OrderDetailApiRequest request = headerRequest.getData();
+        OrderDetailApiResponse response = orderGroupSaveService.modifyCart(request);
+        return ResponseEntity.ok().body(
+                EntityModel.of(response)
+                        .add(linkTo(OrderGroupApiController.class).slash(response.getId()).withSelfRel()));
+    }
+
+    @DeleteMapping("")
+    public ResponseEntity deleteCart(@RequestBody Header<OrderDetailApiRequest> headerRequest) {
+        OrderDetailApiRequest request = headerRequest.getData();
+        orderGroupSaveService.deleteCart(request);
+        return ResponseEntity.ok(new SimpleResponse(true,"delested"));
+    }
+
+/*    @PutMapping("")
     public ResponseEntity updateCart(@RequestBody Header<OrderDetailListApiRequest> headerRequest) {
         OrderDetailListApiRequest request = headerRequest.getData();
         OrderDetailListApiResponse response = orderGroupSaveService.updateCart(request);
         return ResponseEntity.ok().body(
                         EntityModel.of(response)
                                 .add(linkTo(OrderGroupApiController.class).slash(response.getOrder_group_id()).withSelfRel()));
-    }
+    }*/
 
     @PutMapping("/order")
     public Header<OrderGroupApiResponse> order(@RequestBody Header<OrderGroupApiRequest> request) {
@@ -95,6 +111,11 @@ public class OrderGroupApiController{
 
     @ExceptionHandler(OrderGroupNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleOrderGroupNotFoundException(OrderGroupNotFoundException exception) {
+        return new ResponseEntity<>(ErrorResponse.of(HttpStatus.BAD_REQUEST, exception.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ItemNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleItemNotFoundException(ItemNotFoundException exception) {
         return new ResponseEntity<>(ErrorResponse.of(HttpStatus.BAD_REQUEST, exception.getMessage()), HttpStatus.BAD_REQUEST);
     }
 

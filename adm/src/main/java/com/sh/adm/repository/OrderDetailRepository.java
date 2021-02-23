@@ -5,7 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface OrderDetailRepository extends JpaRepository<OrderDetail,Long> {
 
@@ -14,4 +16,5 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail,Long> {
     List<OrderDetail> findByOrderGroupIdOrderByCreatedAtDesc(Long id);  // 주문 연관 상품 목록 조회
 
     List<OrderDetail> findByOrderGroupIdOrderByItemIdAsc(Long id);   // 주문목록 상품 변경시
+
 }

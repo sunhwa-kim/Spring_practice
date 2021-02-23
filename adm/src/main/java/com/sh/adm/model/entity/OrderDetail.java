@@ -3,6 +3,7 @@ package com.sh.adm.model.entity;
 import com.sh.adm.model.enumclass.OrderStatus;
 import com.sh.adm.model.network.request.OrderDetailApiRequest;
 import lombok.*;
+import org.apache.tomcat.jni.OS;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.criterion.Order;
 import org.springframework.data.annotation.CreatedBy;
@@ -14,6 +15,7 @@ import org.springframework.util.ObjectUtils;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -32,7 +34,7 @@ public class OrderDetail {
 
     private OrderStatus status;
 
-    private LocalDateTime arrivalDate;  // 창고 등 != 사용자
+    private LocalDate arrivalDate;  // 창고 등 != 사용자
 
     private Integer quantity;
 
@@ -79,6 +81,7 @@ public class OrderDetail {
 //    @Builder  // 2021.02.16
     public static OrderDetail createOrderDetail(Item item, int count) {
         OrderDetail orderDetail = new OrderDetail();
+        orderDetail.status = OrderStatus.ORDERING;
         orderDetail.setItem(item);
         orderDetail.quantity = count;
         orderDetail.detailTotalPrice();

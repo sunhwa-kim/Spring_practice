@@ -7,6 +7,7 @@ import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.OrderDetailApiRequest;
 import com.sh.adm.model.network.request.OrderDetailListApiRequest;
 import com.sh.adm.model.network.request.OrderGroupApiRequest;
+import com.sh.adm.model.network.response.OrderDetailApiResponse;
 import com.sh.adm.model.network.response.OrderDetailListApiResponse;
 import com.sh.adm.model.network.response.OrderGroupApiResponse;
 
@@ -15,7 +16,9 @@ import java.util.Optional;
 public interface OrderGroupSaveService {
     void addToOrderDetail(Header<OrderDetailApiRequest> request) throws ItemNotFoundException, UserNotFoundException, OrderGroupNotFoundException;
 
-    OrderDetailListApiResponse updateCart(OrderDetailListApiRequest request);
+    OrderDetailApiResponse modifyCart(OrderDetailApiRequest request);
+
+    void deleteCart(OrderDetailApiRequest request);
 
     Optional<OrderGroupApiResponse> order(Header<OrderGroupApiRequest> request);
 
