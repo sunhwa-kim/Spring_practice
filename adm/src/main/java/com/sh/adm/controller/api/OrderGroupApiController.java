@@ -44,7 +44,7 @@ public class OrderGroupApiController{
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity cart(@RequestBody @Valid Header<OrderDetailApiRequest> request) {
+    public ResponseEntity cart(@RequestBody @Valid OrderDetailApiRequest request) {
         // 장바구니 담기
         try {
             orderGroupSaveService.addToOrderDetail(request);
@@ -55,8 +55,7 @@ public class OrderGroupApiController{
     }
 
     @PutMapping("")
-    public ResponseEntity modifyCart(@RequestBody Header<OrderDetailApiRequest> headerRequest) {
-        OrderDetailApiRequest request = headerRequest.getData();
+    public ResponseEntity modifyCart(@RequestBody OrderDetailApiRequest request) {
         OrderDetailApiResponse response = orderGroupSaveService.modifyCart(request);
         return ResponseEntity.ok().body(
                 EntityModel.of(response)
@@ -64,8 +63,7 @@ public class OrderGroupApiController{
     }
 
     @DeleteMapping("")
-    public ResponseEntity deleteCart(@RequestBody Header<OrderDetailApiRequest> headerRequest) {
-        OrderDetailApiRequest request = headerRequest.getData();
+    public ResponseEntity deleteCart(@RequestBody OrderDetailApiRequest request) {
         orderGroupSaveService.deleteCart(request);
         return ResponseEntity.ok(new SimpleResponse(true,"delested"));
     }
@@ -98,7 +96,7 @@ public class OrderGroupApiController{
     }
 
     @PutMapping("/order/modify")
-    public Header<OrderGroupApiResponse> modifyOrder(@RequestBody Header<OrderGroupApiRequest> request) {
+    public Header<OrderGroupApiResponse> modifyOrder(@RequestBody OrderGroupApiRequest request) {
         return orderGroupApiLogicService.modifyOrder(request);
     }
 

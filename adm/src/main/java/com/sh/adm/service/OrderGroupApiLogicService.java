@@ -92,9 +92,8 @@ public class OrderGroupApiLogicService{
     }
 
     @Transactional
-    public Header<OrderGroupApiResponse> modifyOrder(Header<OrderGroupApiRequest> request) {
-        OrderGroupApiRequest requestBody = request.getData();
-        return Optional.ofNullable(requestBody)   // TODO  요청 데이터 null check -> Controller
+    public Header<OrderGroupApiResponse> modifyOrder(OrderGroupApiRequest request) {
+        return Optional.ofNullable(request)   // TODO  요청 데이터 null check -> Controller
                 .map(body -> {
                     OrderGroup orderGroup = orderGroupRepository.findById(body.getId()).orElseThrow(() -> new RuntimeException("No Cart data"));
                     orderGroup.updateOrder(body);

@@ -20,6 +20,7 @@ import com.sh.adm.repository.OrderDetailRepository;
 import com.sh.adm.repository.OrderGroupRepository;
 import com.sh.adm.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -27,6 +28,7 @@ import org.springframework.util.ObjectUtils;
 import java.util.*;
 import java.util.stream.IntStream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -38,25 +40,24 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
     private final OrderGroupRepository orderGroupRepository;
 
     @Override
-    public void addToOrderDetail(Header<OrderDetailApiRequest> request) throws ItemNotFoundException, UserNotFoundException, OrderGroupNotFoundException {
-        OrderDetailApiRequest body = request.getData();
-        Item item = itemRepository.findById(body.getItemId()).orElseThrow(ItemNotFoundException::new);
+    public void addToOrderDetail(OrderDetailApiRequest request) {
+        Item item = itemRepository.findById(request.getItemId()).orElseThrow(ItemNotFoundException::new);
 
-        // 사용자 가입 후 첫 장바구니
-        if (ObjectUtils.isEmpty(body.getOrderGroupId())){
-            OrderDetail orderDetail1 = OrderDetail.createOrderDetail(item, body.getQuantity());
-            User user = userRepository.findById(body.getUserId()).orElseThrow(UserNotFoundException::new);  // TODO Controller
+        // 장바구니 생성
+        if (ObjectUtils.isEmpty(request.getOrderGroupId())){
+            OrderDetail orderDetail1 = OrderDetail.createOrderDetail(item, request.getQuantity());
+            User user = userRepository.findById(request.getUserId()).orElseThrow(UserNotFoundException::new);  // TODO Controller
             orderGroupRepository.save(OrderGroup.createOrderGroup(user, orderDetail1));
             OrderDetail getOrderDetail = orderDetailRepository.save(orderDetail1);
         }
-        else{ // 장바구니 있으나 상품 유무 별
-            OrderDetail orderDetail = orderDetailRepository.findByOrderGroupIdAndItemId(body.getItemId(), item.getId());
+        else{ // 장바구니 내 상품 유/무
+            OrderDetail orderDetail = orderDetailRepository.findByOrderGroupIdAndItemId(request.getItemId(), item.getId());
             if(ObjectUtils.isEmpty(orderDetail)){
-                OrderGroup orderGroup = orderGroupRepository.findById(body.getOrderGroupId()).orElseThrow(OrderGroupNotFoundException::new);
-                OrderDetail newOrderDetail = OrderDetail.createOrderDetail(item, body.getQuantity());
+                OrderGroup orderGroup = orderGroupRepository.findById(request.getOrderGroupId()).orElseThrow(OrderGroupNotFoundException::new);
+                OrderDetail newOrderDetail = OrderDetail.createOrderDetail(item, request.getQuantity());
                 newOrderDetail.setOrderGroup(orderGroup);
             }else{
-                orderDetail.updateOrderDetail(item, body.getQuantity());
+                orderDetail.updateOrderDetail(item, request.getQuantity());
             }
         }
     }
@@ -72,7 +73,11 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
 
     @Override
     public void deleteCart(OrderDetailApiRequest request) {
-
+        OrderDetail orderDetail = orderDetailRepository.findByOrderGroupIdAndItemId(request.getOrderGroupId(), request.getItemId());
+        if(ObjectUtils.isEmpty(orderDetail)) throw new OrderGroupNotFoundException();
+        orderDetail.cancel();
+        orderDetail.setOrderGroup(null);
+        orderDetailRepository.delete(orderDetail);
     }
 
 
