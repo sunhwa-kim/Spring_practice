@@ -144,13 +144,14 @@ class OrderGroupApiControllerTest {
     }
 
     private OrderGroup givenOrder(Item item, int itemOrderCount, String city, String street, String zipcode, String receiveName) {
+        OrderGroupApiRequest request = requestOrderGroup(null, city, OrderType.ALL, PaymentType.CARD);
         OrderGroup orderGroup = OrderGroup.createOrderGroup(givenUser(), newOrderDetail(item, itemOrderCount));
-        orderGroup.setOrder(Delivery.of(Address.of(city,street,zipcode), receiveName, orderGroup));
-        orderGroup.updateOrder(requestOrderGroup(1L,testCity, OrderType.ALL, PaymentType.CARD).getData());
+        orderGroup.createOrder(Delivery.of(request), request.getOrderType(), request.getPaymentType());
+        orderGroup.updateOrder(requestOrderGroup(1L,testCity, OrderType.ALL, PaymentType.CARD));
         return orderGroupRepository.save(orderGroup);
     }
 
-    private Header<OrderGroupApiRequest> requestOrderGroup(Long id, String city , OrderType orderType, PaymentType paymentType) {
+    private OrderGroupApiRequest requestOrderGroup(Long id, String city , OrderType orderType, PaymentType paymentType) {
         OrderGroupApiRequest.OrderGroupApiRequestBuilder builder = OrderGroupApiRequest.builder()
                 .status(OrderStatus.ORDERING)
                 .orderType(orderType)
@@ -162,6 +163,6 @@ class OrderGroupApiControllerTest {
         if (id != null) {
             builder.id(id);
         }
-        return Header.OK(builder.build());
+        return builder.build();
     }
 }

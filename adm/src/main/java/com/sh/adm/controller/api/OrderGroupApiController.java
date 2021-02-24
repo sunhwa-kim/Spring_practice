@@ -2,17 +2,13 @@ package com.sh.adm.controller.api;
 
 import com.sh.adm.exception.ItemNotFoundException;
 import com.sh.adm.exception.OrderGroupNotFoundException;
-import com.sh.adm.exception.UserNotFoundException;
 import com.sh.adm.exception.dto.ErrorResponse;
-import com.sh.adm.model.network.Header;
+import com.sh.adm.exception.dto.OrderDetailNotFoundException;
 import com.sh.adm.model.network.SimpleResponse;
 import com.sh.adm.model.network.request.OrderDetailApiRequest;
-import com.sh.adm.model.network.request.OrderDetailListApiRequest;
 import com.sh.adm.model.network.request.OrderGroupApiRequest;
 import com.sh.adm.model.network.response.OrderDetailApiResponse;
-import com.sh.adm.model.network.response.OrderDetailListApiResponse;
 import com.sh.adm.model.network.response.OrderGroupApiResponse;
-import com.sh.adm.service.OrderGroupApiLogicService;
 import com.sh.adm.service.ordergroup.OrderGroupSaveService;
 import com.sh.adm.service.ordergroup.OrderGroupViewService;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +17,11 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
 import java.net.URI;
-import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -39,7 +33,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 public class OrderGroupApiController{
 
     private final OrderGroupViewService orderGroupViewService;
-    private final OrderGroupApiLogicService orderGroupApiLogicService;
     private final OrderGroupSaveService orderGroupSaveService;
 
     @PostMapping("")
@@ -55,7 +48,7 @@ public class OrderGroupApiController{
     }
 
     @PutMapping("")
-    public ResponseEntity modifyCart(@RequestBody OrderDetailApiRequest request) {
+    public ResponseEntity modifyCart(@RequestBody @Valid OrderDetailApiRequest request) {
         OrderDetailApiResponse response = orderGroupSaveService.modifyCart(request);
         return ResponseEntity.ok().body(
                 EntityModel.of(response)
@@ -78,8 +71,9 @@ public class OrderGroupApiController{
     }*/
 
     @PutMapping("/order")
-    public Header<OrderGroupApiResponse> order(@RequestBody Header<OrderGroupApiRequest> request) {
-        return orderGroupApiLogicService.order(request);
+    public ResponseEntity<OrderGroupApiResponse> order(@RequestBody @Valid OrderGroupApiRequest request) {
+        OrderGroupApiResponse responseBody = orderGroupSaveService.order(request);
+        return ResponseEntity.ok(responseBody);
     }
 
     @GetMapping(value = "/order/{id}",produces = MediaTypes.HAL_JSON_VALUE)
@@ -96,8 +90,14 @@ public class OrderGroupApiController{
     }
 
     @PutMapping("/order/modify")
-    public Header<OrderGroupApiResponse> modifyOrder(@RequestBody OrderGroupApiRequest request) {
-        return orderGroupApiLogicService.modifyOrder(request);
+    public ResponseEntity modifyOrder(@RequestBody OrderGroupApiRequest request) {
+        return orderGroupSaveService.modifyOrder(request)
+                .map(orderGroupApiResponse ->
+                        ResponseEntity.ok().body(
+                                EntityModel.of(orderGroupApiResponse)
+                                        .add(linkTo(OrderGroupApiController.class).slash(request.getId()).withSelfRel())
+                        )
+                ).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/order/{id}")
@@ -116,6 +116,12 @@ public class OrderGroupApiController{
     public ResponseEntity<ErrorResponse> handleItemNotFoundException(ItemNotFoundException exception) {
         return new ResponseEntity<>(ErrorResponse.of(HttpStatus.BAD_REQUEST, exception.getMessage()), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(OrderDetailNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleOrderDetailNotFoundException(OrderDetailNotFoundException exception) {
+        return new ResponseEntity<>(ErrorResponse.of(HttpStatus.BAD_REQUEST, exception.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
 
     @ExceptionHandler(value = RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {

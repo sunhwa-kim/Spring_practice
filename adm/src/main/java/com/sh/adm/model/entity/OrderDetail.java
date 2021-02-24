@@ -104,6 +104,10 @@ public class OrderDetail {
         this.item.setOrderDetailList(null);
     }
 
+    public void order() {
+        this.status = OrderStatus.CONFIRM;
+        // TODO 상품 창고 준비 상태 일 때 배송 주소지 별 도착날짜는 Delivery
+    }
     public void detailTotalPrice() {
         this.totalPrice = (BigDecimal) this.item.getPrice().multiply(BigDecimal.valueOf(getQuantity()));
     }

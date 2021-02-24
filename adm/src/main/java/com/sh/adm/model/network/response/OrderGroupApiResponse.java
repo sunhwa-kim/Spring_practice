@@ -2,23 +2,20 @@ package com.sh.adm.model.network.response;
 
 import com.sh.adm.model.dto.Address;
 import com.sh.adm.model.entity.Delivery;
-import com.sh.adm.model.enumclass.OrderStatus;
-import com.sh.adm.model.enumclass.OrderType;
-import com.sh.adm.model.enumclass.PaymentType;
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class OrderGroupApiResponse {
-    private Long id;
+    private Long id;  // OrderGroupId
 
     private String status;
 
@@ -26,24 +23,29 @@ public class OrderGroupApiResponse {
 
     private String receiveName;
 
+    @NotBlank
     private String revAddress;
 
     private String paymentType;    // 현금, 카드,.
-
+    @NotBlank
     private BigDecimal totalPrice;
-
+    @NotBlank
     private Integer totalQuantity;
 
     private LocalDateTime orderAt;
 
     private LocalDate arrivalDate;
 
-    private String orderDetailList;
+    private String orderDetailListName;  // 주문 목록 title 명
 
     public void setOrder(Delivery delivery) {
         Address address = delivery.getReceiveAddress();
         this.revAddress = Arrays.asList(new String[]{address.getCity(), address.getStreet(), address.getZipcode()}).stream().collect(Collectors.joining(", "));
         this.receiveName = delivery.getReceiveName();
         this.arrivalDate = delivery.getArriveDate();
+    }
+
+    public void setOrderDetailList(String orderDetailName) {
+        this.orderDetailListName = orderDetailName +"외 "+ this.totalQuantity + "개 주문";
     }
 }

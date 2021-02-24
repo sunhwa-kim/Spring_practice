@@ -1,27 +1,22 @@
 package com.sh.adm.model.network.request;
 
-import com.sh.adm.model.enumclass.DeliveryStatus;
 import com.sh.adm.model.enumclass.OrderStatus;
 import com.sh.adm.model.enumclass.OrderType;
 import com.sh.adm.model.enumclass.PaymentType;
 import lombok.*;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
 public class OrderGroupApiRequest {
-    private Long id;   // order_group_id
+    private Long id;   // order_group_id for update
 
     private OrderStatus status;
 
-    @NotEmpty(message = "배송 방식을 지정해 주세요")
+    @NotEmpty(message = "배송 방식을 지정해 주세요")  // select
     private OrderType orderType;   // 묶음 , 개별
 
     @NotEmpty(message = "결제 방식을 지정해 주세요")
@@ -31,18 +26,15 @@ public class OrderGroupApiRequest {
 
     private Integer totalQuantity;
 
-//    private LocalDateTime orderAt;   // OrderGroup method : takeAnOrder()
-
     // Delivery
+    @NotBlank(message = "배송지 도시명 입력해 주세요")
     private String city;
+    @NotBlank(message = "배송지 도로명 입력해 주세요")
     private String street;
+    @NotBlank(message = "배송지 우편주소 입력해 주세요")
     private String zipcode;
 
     private String receiveName;
-
-    // OrderDetail
-//    @NotEmpty(message = "상품 없이 주문 할 수 없습니다.")
-//    private String orderDetailsId;  // 내부 조회 -> "id,id,id"  변경 예정 (사용자 확인 로직 고민)
 
     @Builder
     public OrderGroupApiRequest(Long id, OrderStatus status, OrderType orderType, PaymentType paymentType, BigDecimal totalPrice, Integer totalQuantity, String city, String street, String zipcode, String receiveName) {
@@ -50,12 +42,11 @@ public class OrderGroupApiRequest {
         this.status = status;
         this.orderType = orderType;
         this.paymentType = paymentType;
-        this.totalPrice = totalPrice;   // view 계산로직과 DB비교 체크용
-        this.totalQuantity = totalQuantity;  // view 계산로직과 DB비교 체크용
+        this.totalPrice = totalPrice;
+        this.totalQuantity = totalQuantity;
         this.city = city;
         this.street = street;
         this.zipcode = zipcode;
         this.receiveName = receiveName;
-//        this.orderDetailsId = orderDetailId;
     }
 }

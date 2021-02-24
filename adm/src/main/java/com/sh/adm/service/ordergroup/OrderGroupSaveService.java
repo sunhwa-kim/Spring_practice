@@ -3,12 +3,9 @@ package com.sh.adm.service.ordergroup;
 import com.sh.adm.exception.ItemNotFoundException;
 import com.sh.adm.exception.OrderGroupNotFoundException;
 import com.sh.adm.exception.UserNotFoundException;
-import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.OrderDetailApiRequest;
-import com.sh.adm.model.network.request.OrderDetailListApiRequest;
 import com.sh.adm.model.network.request.OrderGroupApiRequest;
 import com.sh.adm.model.network.response.OrderDetailApiResponse;
-import com.sh.adm.model.network.response.OrderDetailListApiResponse;
 import com.sh.adm.model.network.response.OrderGroupApiResponse;
 
 import java.util.Optional;
@@ -20,9 +17,9 @@ public interface OrderGroupSaveService {
 
     void deleteCart(OrderDetailApiRequest request);
 
-    Optional<OrderGroupApiResponse> order(Header<OrderGroupApiRequest> request);
+    OrderGroupApiResponse order(OrderGroupApiRequest request);
 
-    Optional<OrderGroupApiResponse> modifyOrder(Header<OrderGroupApiRequest> request);
+    Optional<OrderGroupApiResponse> modifyOrder(OrderGroupApiRequest request);
 
     void cancelOrder(Long id);
 }

@@ -1,6 +1,5 @@
 package com.sh.adm.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sh.adm.exception.NotPermittedChageOrder;
 import com.sh.adm.model.dto.Address;
 import com.sh.adm.model.enumclass.DeliveryStatus;
@@ -64,7 +63,7 @@ public class OrderGroup {
     private String updatedBy;
 
     @ToString.Exclude
-    @OneToOne(mappedBy = "orderGroup",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Delivery delivery;  // FK
 
     // private Long userId;
@@ -103,18 +102,18 @@ public class OrderGroup {
         return orderGroup;
     }
 
-    public void setOrder(Delivery delivery) {
+    public void createOrder(Delivery delivery, OrderType orderType, PaymentType paymentType) {
         this.setDelivery(delivery);
 
         this.status = OrderStatus.CONFIRM;
+        this.orderType = orderType;
+        this.paymentType = paymentType;
         this.orderAt = LocalDateTime.now();
         this.totalPrice = this.getTotalPrice();
         this.totalQuantity = this.getTotalQuantity();
     }
 
     public void updateOrder(OrderGroupApiRequest request) {
-        if(!ObjectUtils.isEmpty(request.getOrderType())) this.orderType = request.getOrderType();
-        if(!ObjectUtils.isEmpty(request.getPaymentType())) this.paymentType = request.getPaymentType();
         if(!ObjectUtils.isEmpty(request.getReceiveName())) this.delivery.setReceiveName(request.getReceiveName());
         if(!(ObjectUtils.isEmpty(request.getCity())||ObjectUtils.isEmpty(request.getStreet())||ObjectUtils.isEmpty(request.getZipcode())))
             this.delivery.setReceiveAddress(Address.of(request.getCity(),request.getStreet(),request.getZipcode()));

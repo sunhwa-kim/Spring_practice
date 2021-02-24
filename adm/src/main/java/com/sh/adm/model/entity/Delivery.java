@@ -1,8 +1,8 @@
 package com.sh.adm.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sh.adm.model.dto.Address;
 import com.sh.adm.model.enumclass.DeliveryStatus;
+import com.sh.adm.model.network.request.OrderGroupApiRequest;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,7 +52,7 @@ public class Delivery {
     private String updatedBy;
 
     @ToString.Exclude
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "delivery",fetch = FetchType.LAZY)
     private OrderGroup orderGroup;
 
     public void setReceiveName(String receiveName) {
@@ -67,13 +67,16 @@ public class Delivery {
         this.orderGroup = orderGroup;
     }
 
-    public static Delivery of(Address receiveAddress, String receiveName, OrderGroup orderGroup) {
+    public static Delivery of(OrderGroupApiRequest body) {
         Delivery delivery = new Delivery();
-        delivery.setOrderGroups(orderGroup);
-        delivery.receiveAddress = receiveAddress;
-        delivery.receiveName = receiveName;
+        Address address = Address.of(body.getCity(), body.getStreet(), body.getZipcode());
+        // 주문 내역 정리
+            // orderGroup이 delievery 가져서, delivery가 ordergorup을 알 필요 없다?
+        // 배달 정보
+        delivery.receiveAddress = address;
+        delivery.receiveName = body.getReceiveName();
         delivery.deliveryStatus = DeliveryStatus.READY;
-        delivery.arriveDate = LocalDate.now().plusWeeks(1);
+        delivery.arriveDate = LocalDate.now().plusWeeks(1);  // default 배달 1주 쇼요
         return delivery;
     }
 
