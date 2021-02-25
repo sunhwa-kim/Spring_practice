@@ -70,7 +70,7 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
     @Override
     public void deleteCart(OrderDetailApiRequest request) {
         OrderDetail orderDetail = orderDetailRepository.findByOrderGroupIdAndItemId(request.getOrderGroupId(), request.getItemId());
-        if(ObjectUtils.isEmpty(orderDetail)) throw new OrderGroupNotFoundException();
+        if(ObjectUtils.isEmpty(orderDetail)) throw new OrderDetailNotFoundException();
         orderDetail.cancel();
         orderDetail.setOrderGroup(null);
         orderDetailRepository.delete(orderDetail);
