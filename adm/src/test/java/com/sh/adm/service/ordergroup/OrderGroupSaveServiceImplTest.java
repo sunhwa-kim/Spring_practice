@@ -1,5 +1,6 @@
 package com.sh.adm.service.ordergroup;
 
+import com.sh.adm.FindSlowTestExtension;
 import com.sh.adm.exception.ItemNotFoundException;
 import com.sh.adm.exception.OrderGroupNotFoundException;
 import com.sh.adm.model.dto.Address;
@@ -15,6 +16,7 @@ import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -31,11 +33,10 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @Slf4j
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class})
 class OrderGroupSaveServiceImplTest {
 
     @InjectMocks
@@ -58,6 +59,9 @@ class OrderGroupSaveServiceImplTest {
     @Captor
     ArgumentCaptor<Delivery> deliveryArgumentCaptor;
 
+    @RegisterExtension
+    static FindSlowTestExtension findSlowTestExtension = new FindSlowTestExtension(1000L);
+
     private BigDecimal itemPrice = BigDecimal.valueOf(10000);
 
 
@@ -77,7 +81,9 @@ class OrderGroupSaveServiceImplTest {
     @ParameterizedTest
     @DisplayName("장바구니 생성")
     @ValueSource(ints = 5)
-    void addToOrderDetailCreateOrderGroupTest(int orderCount) {
+    void addToOrderDetailCreateOrderGroupTest(int orderCount) throws InterruptedException {
+//        Thread.sleep(1005L);
+
         OrderDetailApiRequest request = OrderDetailApiRequest.builder()
                 .id(1)
                 .quantity(orderCount)
