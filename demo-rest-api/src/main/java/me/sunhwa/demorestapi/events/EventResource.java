@@ -19,7 +19,6 @@ public class EventResource extends RepresentationModel<EventResource> {
 //        add(new Link("http//localhost:8080/api/events/"+event.getId()));  // Not type safe
         add(linkTo(EventController.class).slash(event.getId()).withSelfRel());
     }
-
     public Event getEvent() {
         return event;
     }
