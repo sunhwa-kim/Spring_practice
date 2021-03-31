@@ -18,9 +18,6 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-
 import java.net.URI;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -37,19 +34,15 @@ public class OrderGroupApiController{
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity cart(@RequestBody @Valid OrderDetailApiRequest request) {
+    public ResponseEntity cart(@RequestBody OrderDetailApiRequest request) {
         // 장바구니 담기
-        try {
-            orderGroupSaveService.addToOrderDetail(request);
-        } catch (Exception e) {
-            ResponseEntity.notFound().build();
-        }
+        orderGroupSaveService.addToOrderDetail(request);
         return ResponseEntity.ok(new SimpleResponse(true,"saved"));
     }
 
-    @PutMapping("")
-    public ResponseEntity modifyCart(@RequestBody @Valid OrderDetailApiRequest request) {
-        OrderDetailApiResponse response = orderGroupSaveService.modifyCart(request);
+    @PatchMapping("{id}")
+    public ResponseEntity modifyCart(@PathVariable("id") Long orderGorupId, @RequestBody OrderDetailApiRequest request) {
+        OrderDetailApiResponse response = orderGroupSaveService.modifyOrderDetail(orderGorupId, request);
         return ResponseEntity.ok().body(
                 EntityModel.of(response)
                         .add(linkTo(OrderGroupApiController.class).slash(response.getId()).withSelfRel()));
@@ -71,7 +64,7 @@ public class OrderGroupApiController{
     }*/
 
     @PutMapping("/order")
-    public ResponseEntity<OrderGroupApiResponse> order(@RequestBody @Valid OrderGroupApiRequest request) {
+    public ResponseEntity<OrderGroupApiResponse> order(@RequestBody OrderGroupApiRequest request) {
         OrderGroupApiResponse responseBody = orderGroupSaveService.order(request);
         return ResponseEntity.ok(responseBody);
     }

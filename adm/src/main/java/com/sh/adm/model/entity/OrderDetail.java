@@ -32,6 +32,7 @@ public class OrderDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     private LocalDate arrivalDate;  // 창고 등 != 사용자

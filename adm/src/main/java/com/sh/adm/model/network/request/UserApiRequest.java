@@ -8,22 +8,20 @@ import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserApiRequest {
     private Long id;   // + update
 
-    @NotEmpty(message = "계정명은 필수 입니다.")
     private String account;
     
     private String password;
 
-    private UserStatus status;
+    private UserStatus status;   // UserStatus
 
     private String email;
 
-    @NotEmpty(message = "폰번호는 필수 입니다.")
     private String phoneNumber;
 
     private LocalDate birthday;

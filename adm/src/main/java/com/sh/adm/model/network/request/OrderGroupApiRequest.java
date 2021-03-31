@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.math.BigDecimal;
 
-@Getter
+@Data
 @NoArgsConstructor
 public class OrderGroupApiRequest {
     private Long id;   // order_group_id for update

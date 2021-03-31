@@ -34,7 +34,6 @@ public class Coupon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     private String couponName;
 
     private LocalDate startDate;

@@ -11,7 +11,7 @@ import java.util.Set;
 
 public interface OrderDetailRepository extends JpaRepository<OrderDetail,Long> {
 
-   OrderDetail findByOrderGroupIdAndItemId(Long OrderGroupId, Long itemId);  // 카트 내 상품 조회
+   Optional<OrderDetail> findByOrderGroupIdAndItemId(Long OrderGroupId, Long itemId);  // 카트 내 상품 조회
 
     List<OrderDetail> findByOrderGroupId(Long id);  // 주문 연관 상품 목록 조회
 

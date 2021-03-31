@@ -59,11 +59,7 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
         OrderGroup getOrderGroup = orderGroupRepository.save(OrderGroup.createOrderGroup(user, orderDetail));
         orderDetailRepository.save(orderDetail);
 
-        OrderDetail byOrderGroupIdAndItemId = orderDetailRepository.findByOrderGroupIdAndItemId(getOrderGroup.getId(), getItem.getId());
-
-        log.info("find check >> {}",byOrderGroupIdAndItemId);
-        log.info("OD's item >> {}",byOrderGroupIdAndItemId.getItem());
-        log.info("OD's orderGroup >> {}",byOrderGroupIdAndItemId.getOrderGroup());
+        Optional<OrderDetail> byOrderGroupIdAndItemId = orderDetailRepository.findByOrderGroupIdAndItemId(getOrderGroup.getId(), getItem.getId());
 
     }
 

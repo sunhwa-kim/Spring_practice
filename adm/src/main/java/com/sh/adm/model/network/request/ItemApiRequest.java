@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class ItemApiRequest {
     private Long id;
 
-    private ItemStatus status;
+    private ItemStatus status;  // ItemStatus
 
     private String name;
 

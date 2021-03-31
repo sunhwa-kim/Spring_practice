@@ -13,7 +13,11 @@ import java.util.Optional;
 public interface OrderGroupSaveService {
     void addToOrderDetail(OrderDetailApiRequest request) throws ItemNotFoundException, UserNotFoundException, OrderGroupNotFoundException;
 
-    OrderDetailApiResponse modifyCart(OrderDetailApiRequest request);
+    void newOrderGroup(OrderDetailApiRequest request);
+    void newOrderDetail(OrderDetailApiRequest request);
+    OrderDetailApiResponse modifyOrderDetail(Long orderGroupId, OrderDetailApiRequest request);
+
+//    OrderDetailApiResponse modifyCart(OrderDetailApiRequest request);
 
     void deleteCart(OrderDetailApiRequest request);
 

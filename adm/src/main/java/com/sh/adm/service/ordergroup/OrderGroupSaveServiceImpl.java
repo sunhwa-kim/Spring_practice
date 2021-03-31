@@ -38,7 +38,6 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
     @Override
     public void addToOrderDetail(OrderDetailApiRequest request) {
         Item item = itemRepository.findById(request.getItemId()).orElseThrow(ItemNotFoundException::new);
-
         // 장바구니 생성
         if (ObjectUtils.isEmpty(request.getOrderGroupId())){
             OrderDetail orderDetail1 = OrderDetail.createOrderDetail(item, request.getQuantity());
@@ -47,33 +46,67 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
             OrderDetail getOrderDetail = orderDetailRepository.save(orderDetail1);
         }
         else{ // 장바구니 내 상품 유/무
-            OrderDetail orderDetail = orderDetailRepository.findByOrderGroupIdAndItemId(request.getItemId(), item.getId());
-            if(ObjectUtils.isEmpty(orderDetail)){
+            Optional<OrderDetail> orderDetail = orderDetailRepository.findByOrderGroupIdAndItemId(request.getOrderGroupId(), item.getId());
+            if(orderDetail.isEmpty()){
                 OrderGroup orderGroup = orderGroupRepository.findById(request.getOrderGroupId()).orElseThrow(OrderGroupNotFoundException::new);
                 OrderDetail newOrderDetail = OrderDetail.createOrderDetail(item, request.getQuantity());
                 newOrderDetail.setOrderGroup(orderGroup);
             }else{
-                orderDetail.updateOrderDetail(item, request.getQuantity());
+                orderDetail.get().updateOrderDetail(item, request.getQuantity());
             }
         }
     }
 
+    /**
+     *  code refacotoring addToOrderDetail()
+     *  2021.03.25
+     * @param request
+     * @return
+     */
+
     @Override
-    public OrderDetailApiResponse modifyCart(OrderDetailApiRequest request) {
-        OrderDetail orderDetail = orderDetailRepository.findByOrderGroupIdAndItemId(request.getOrderGroupId(), request.getItemId());
-        if(ObjectUtils.isEmpty(orderDetail)) throw new OrderGroupNotFoundException();
+    public void newOrderGroup(OrderDetailApiRequest request) {
         Item item = itemRepository.findById(request.getItemId()).orElseThrow(ItemNotFoundException::new);
+        User user = userRepository.findById(request.getUserId()).orElseThrow(UserNotFoundException::new);  // TODO Controller
+        OrderDetail orderDetail1 = OrderDetail.createOrderDetail(item, request.getQuantity());
+        orderGroupRepository.save(OrderGroup.createOrderGroup(user, orderDetail1));
+        orderDetailRepository.save(orderDetail1);
+    }
+
+    @Override
+    public void newOrderDetail(OrderDetailApiRequest request) {
+        Item item = itemRepository.findById(request.getItemId()).orElseThrow(ItemNotFoundException::new);
+        OrderGroup orderGroup = orderGroupRepository.findById(request.getOrderGroupId()).orElseThrow(OrderGroupNotFoundException::new);
+        OrderDetail newOrderDetail = OrderDetail.createOrderDetail(item, request.getQuantity());
+        newOrderDetail.setOrderGroup(orderGroup);
+        orderDetailRepository.save(newOrderDetail);
+    }
+
+    @Override
+    public OrderDetailApiResponse modifyOrderDetail(Long orderGroupId, OrderDetailApiRequest request) {
+        Item item = itemRepository.findById(request.getItemId()).orElseThrow(ItemNotFoundException::new);
+        OrderDetail orderDetail = orderDetailRepository.findByOrderGroupIdAndItemId(orderGroupId, item.getId()).orElseThrow(OrderDetailNotFoundException::new);
         orderDetail.updateOrderDetail(item, request.getQuantity());
         return orderDetailResponse(request, orderDetail);
     }
 
+
+/*    @Override
+    public OrderDetailApiResponse modifyCart(OrderDetailApiRequest request) {
+        Optional<OrderDetail> orderDetail = orderDetailRepository.findByOrderGroupIdAndItemId(request.getOrderGroupId(), request.getItemId());
+        if(!orderDetail.isEmpty()) throw new OrderGroupNotFoundException();
+        Item item = itemRepository.findById(request.getItemId()).orElseThrow(ItemNotFoundException::new);
+        orderDetail.get().updateOrderDetail(item, request.getQuantity());
+        return orderDetailResponse(request, orderDetail.get());
+    }*/
+
     @Override
     public void deleteCart(OrderDetailApiRequest request) {
-        OrderDetail orderDetail = orderDetailRepository.findByOrderGroupIdAndItemId(request.getOrderGroupId(), request.getItemId());
-        if(ObjectUtils.isEmpty(orderDetail)) throw new OrderDetailNotFoundException();
-        orderDetail.cancel();
-        orderDetail.setOrderGroup(null);
-        orderDetailRepository.delete(orderDetail);
+        Optional<OrderDetail> orderDetail = orderDetailRepository.findByOrderGroupIdAndItemId(request.getOrderGroupId(), request.getItemId());
+        if(!orderDetail.isEmpty()) throw new OrderDetailNotFoundException();
+        orderDetail.get().cancel();
+        orderDetail.get().setOrderGroup(null);
+        orderDetailRepository.delete(orderDetail.get());
     }
 
 
@@ -133,7 +166,7 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
     private OrderDetailApiResponse orderDetailResponse(OrderDetailApiRequest request,OrderDetail orderDetail) {
         return OrderDetailApiResponse.builder()
                 .id(request.getId())
-                .orderStatus(orderDetail.getStatus())
+                .orderStatus(orderDetail.getStatus().getTitle())
                 .arrivalDate(orderDetail.getArrivalDate())
                 .quantity(orderDetail.getQuantity())
                 .totalPrice(orderDetail.getTotalPrice())

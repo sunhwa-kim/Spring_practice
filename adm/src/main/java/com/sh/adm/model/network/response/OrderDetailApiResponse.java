@@ -18,7 +18,7 @@ public class OrderDetailApiResponse {
     @NotBlank
     private Integer id;  // 장바구니 index
 
-    private OrderStatus orderStatus;
+    private String orderStatus;
 
     private LocalDate arrivalDate;
     @NotBlank
@@ -33,7 +33,7 @@ public class OrderDetailApiResponse {
     private Long itemId;
 
     @Builder
-    public OrderDetailApiResponse(int id, OrderStatus orderStatus, LocalDate arrivalDate, Integer quantity, BigDecimal totalPrice, Long orderGroupId, Long itemId) {
+    public OrderDetailApiResponse(int id, String orderStatus, LocalDate arrivalDate, Integer quantity, BigDecimal totalPrice, Long orderGroupId, Long itemId) {
         this.id = id;
         this.orderStatus = orderStatus;
         this.arrivalDate = arrivalDate;

@@ -113,7 +113,7 @@ class OrderGroupSaveServiceImplTest {
         );
         assertThrows(ItemNotFoundException.class,() ->
             itemRepository.findById(anyLong()),
-                "itemRepository 조회 결과 empty 반환"
+                "첫 장바구니 담기시 요청 상품에 대한 정보 없어 예외 발생, itemRepository.find >> empty"
         );
     }
 
@@ -167,7 +167,7 @@ class OrderGroupSaveServiceImplTest {
         OrderDetail mockOrderDetail = mock(OrderDetail.class);
 
         when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
-        when(orderDetailRepository.findByOrderGroupIdAndItemId(1L, 1L)).thenReturn(mockOrderDetail);
+        when(orderDetailRepository.findByOrderGroupIdAndItemId(anyLong(), anyLong())).thenReturn(Optional.ofNullable(mockOrderDetail));
         orderGroupSaveService.addToOrderDetail(request);
 
         verify(mockOrderDetail, times(1)).updateOrderDetail(item,request.getQuantity());
@@ -182,16 +182,15 @@ class OrderGroupSaveServiceImplTest {
         // when
         OrderDetailApiRequest request = givenOrderDetailRequest(changeItemCount); // 변경 후
         when(orderDetailRepository.findByOrderGroupIdAndItemId(anyLong(), anyLong()))
-                .thenReturn(orderDetail)
+                .thenReturn(Optional.of(orderDetail))
                 .thenThrow(new OrderDetailNotFoundException());
         when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.of(orderDetail.getItem()))
                 .thenThrow(new ItemNotFoundException());
         
-        OrderDetailApiResponse response = orderGroupSaveService.modifyCart(request);
+        OrderDetailApiResponse response = orderGroupSaveService.modifyOrderDetail(anyLong(),request);
         // then
         assertAll(
-                () -> assertEquals(request.getId(), response.getId(),"id 확인"),
                 () -> assertEquals(request.getOrderStatus(), response.getOrderStatus(),"주문 상태 주문중 확인"),
                 () -> assertEquals(request.getQuantity(), response.getQuantity(),"카트내 상품 수량 확인"),
                 () -> assertEquals(request.getTotalPrice(), response.getTotalPrice(),"카트내 상품 총가격 확인"),
@@ -218,7 +217,7 @@ class OrderGroupSaveServiceImplTest {
         when(orderDetailRepository.findByOrderGroupIdAndItemId(1L,1L)).thenReturn(null);
 
         assertThatExceptionOfType(OrderGroupNotFoundException.class)
-                .isThrownBy(() -> orderGroupSaveService.modifyCart(request))
+                .isThrownBy(() -> orderGroupSaveService.modifyOrderDetail(anyLong(),request))
                 .withMessage("장바구니에 상품이 없습니다.");
     }
 
@@ -229,11 +228,11 @@ class OrderGroupSaveServiceImplTest {
         OrderDetail orderDetail = givenOrderDetail(3);  // 변경 전
         // when
         OrderDetailApiRequest request = givenOrderDetailRequest(5); // 변경 후
-        when(orderDetailRepository.findByOrderGroupIdAndItemId(1L,1L)).thenReturn(orderDetail);
+        when(orderDetailRepository.findByOrderGroupIdAndItemId(anyLong(),anyLong())).thenReturn(Optional.of(orderDetail));
         when(itemRepository.findById(1L)).thenReturn(Optional.empty());
         // then
         assertThatExceptionOfType(ItemNotFoundException.class)
-                .isThrownBy(() -> orderGroupSaveService.modifyCart(request))
+                .isThrownBy(() -> orderGroupSaveService.modifyOrderDetail(anyLong(),request))
                 .withMessage("해당 상품이 없습니다.");
     }
 
@@ -245,7 +244,7 @@ class OrderGroupSaveServiceImplTest {
         // when
         OrderDetailApiRequest request = givenOrderDetailRequest(0);
         when(orderDetailRepository.findByOrderGroupIdAndItemId(anyLong(),anyLong()))
-                .thenReturn(orderDetail)
+                .thenReturn(Optional.of(orderDetail))
                 .thenThrow(new OrderDetailNotFoundException());
         orderGroupSaveService.deleteCart(request);
         // then

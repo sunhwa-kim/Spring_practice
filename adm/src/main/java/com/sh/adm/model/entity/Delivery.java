@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @ToString
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @Entity
