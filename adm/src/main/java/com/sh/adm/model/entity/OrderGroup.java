@@ -1,6 +1,7 @@
 package com.sh.adm.model.entity;
 
 import com.sh.adm.exception.NotPermittedChageOrder;
+import com.sh.adm.ifs.discount.DiscountPolicy;
 import com.sh.adm.model.dto.Address;
 import com.sh.adm.model.enumclass.DeliveryStatus;
 import com.sh.adm.model.enumclass.OrderStatus;
@@ -102,14 +103,14 @@ public class OrderGroup {
         return orderGroup;
     }
 
-    public void createOrder(Delivery delivery, OrderType orderType, PaymentType paymentType) {
+    public void createOrder(Delivery delivery, OrderType orderType, PaymentType paymentType, DiscountPolicy discountPolicy) {
         this.setDelivery(delivery);
 
         this.status = OrderStatus.CONFIRM;
         this.orderType = orderType;
         this.paymentType = paymentType;
         this.orderAt = LocalDateTime.now();
-        this.totalPrice = this.getTotalPrice();
+        this.totalPrice = this.getTotalPrice(discountPolicy);
         this.totalQuantity = this.getTotalQuantity();
     }
 
@@ -126,8 +127,10 @@ public class OrderGroup {
         });
     }
 
-    public BigDecimal getTotalPrice() {
-        return this.orderDetails.stream().map(OrderDetail::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+    public BigDecimal getTotalPrice(DiscountPolicy discountPolicy) {
+        BigDecimal price = this.orderDetails.stream().map(OrderDetail::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal discount = discountPolicy.discount(this.user, price);
+        return price.subtract(discount);
     }
 
     public int getTotalQuantity() {

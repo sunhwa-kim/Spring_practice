@@ -8,15 +8,16 @@ import java.math.BigDecimal;
 @Getter
 @AllArgsConstructor
 public enum DiscountRatio {
-    FORTY(0,BigDecimal.valueOf(40.0)),
-    THIRTY(1,BigDecimal.valueOf(30.0)),
-    TWENTY(2,BigDecimal.valueOf(20.0)),
-    FIFTY(3,BigDecimal.valueOf(15.0)),
-    TEN(4,BigDecimal.valueOf(10.0)),
-    FIVE(5,BigDecimal.valueOf(5.0)),
-    THREE(6,BigDecimal.valueOf(3.0)),
-    ONE(7,BigDecimal.valueOf(1.0));
+    FORTY(0,40.0f),
+    THIRTY(1,30.0f),
+    TWENTY(2,20.0f),
+    FIFTY(3,15.0f),
+    TEN(4,10.0f),
+    FIVE(5,5.0f),
+    THREE(6,3.0f),
+    ONE(7,1.0f),
+    HALF(8,0.5F);
 
     private Integer id;
-    private BigDecimal discount;
+    private float discount;
 }

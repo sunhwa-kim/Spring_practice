@@ -3,6 +3,7 @@ package com.sh.adm.model.entity;
 import com.sh.adm.model.dto.Address;
 import com.sh.adm.model.dto.Birthday;
 import com.sh.adm.model.entity.coupon.Coupon;
+import com.sh.adm.model.enumclass.UserGrade;
 import com.sh.adm.model.enumclass.UserStatus;
 import com.sh.adm.model.network.request.UserApiRequest;
 import lombok.*;
@@ -50,6 +51,9 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private UserGrade grade;
 
     private String email;
 

@@ -4,6 +4,7 @@ import com.sh.adm.exception.ItemNotFoundException;
 import com.sh.adm.exception.OrderGroupNotFoundException;
 import com.sh.adm.exception.UserNotFoundException;
 import com.sh.adm.exception.dto.OrderDetailNotFoundException;
+import com.sh.adm.ifs.discount.DiscountPolicy;
 import com.sh.adm.model.entity.*;
 import com.sh.adm.model.enumclass.OrderStatus;
 import com.sh.adm.model.network.request.OrderDetailApiRequest;
@@ -34,6 +35,7 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
     private final OrderDetailRepository orderDetailRepository;
     private final OrderGroupRepository orderGroupRepository;
     private final DeliveryRepository deliveryRepository;
+    private final DiscountPolicy discountPolicy;
 
     @Override
     public void addToOrderDetail(OrderDetailApiRequest request) {
@@ -139,7 +141,7 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
             if (orderDetailList.size()==0) throw new OrderDetailNotFoundException();
             orderDetailList.forEach(OrderDetail::order);
             delivery = Delivery.of(body);
-            orderGroup.createOrder(delivery, body.getOrderType(), body.getPaymentType());
+            orderGroup.createOrder(delivery, body.getOrderType(), body.getPaymentType(), discountPolicy);
             deliveryRepository.save(delivery);
         }
         // 주문 처리 후 응답
