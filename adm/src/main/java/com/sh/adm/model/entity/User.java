@@ -111,15 +111,16 @@ public class User {
         coupon.setUser(this);
     }
 
-    public static User of(@NotBlank String account, @NotBlank String password, UserStatus status, String email, @NotBlank String phoneNumber, LocalDate birthday, LocalDateTime registeredAt) {
+    public static User of(@NotBlank String account, @NotBlank String password, UserStatus status, String email, @NotBlank String phoneNumber, LocalDate birthday) {
         User user = new User();
         user.account = account;
         user.password = password;
         if( !ObjectUtils.isEmpty(status) ) user.status = status;
+        user.grade = UserGrade.BRONZE;
         if( !ObjectUtils.isEmpty(email) ) user.email = email;
         user.phoneNumber = phoneNumber;
         if( !ObjectUtils.isEmpty(birthday) ) user.birthday = Birthday.of(birthday);
-        user.registeredAt = registeredAt;
+        user.registeredAt = LocalDateTime.now();
         return user;
     }
 

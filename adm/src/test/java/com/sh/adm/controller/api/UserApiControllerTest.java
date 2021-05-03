@@ -7,6 +7,7 @@ import com.sh.adm.model.enumclass.UserStatus;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.UserApiRequest;
 import com.sh.adm.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.util.NestedServletException;
 
 import javax.transaction.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -40,6 +43,14 @@ class UserApiControllerTest {
     ObjectMapper objectMapper;
 
     private MockMvc mockMvc;
+
+    @BeforeEach
+    private void setup() {
+        mockMvc = MockMvcBuilders.standaloneSetup(userApiController)
+                .addFilter(new CharacterEncodingFilter(StandardCharsets.UTF_8.name(), true))
+                .alwaysDo(print())
+                .build();
+    }
 
     @Test
     @DisplayName("회원 정보 변경")
@@ -81,7 +92,7 @@ class UserApiControllerTest {
     void modify() throws Exception {
         // given
         String test = "010-modified";
-        User user = User.of("test", "pwd", UserStatus.REGISTERED, "email", "phoneNumber", LocalDate.of(2000, 1, 1), LocalDateTime.now());
+        User user = User.of("test", "pwd", UserStatus.REGISTERED, "email", "phoneNumber", LocalDate.of(2000, 1, 1));
         userRepository.save(user);
         // when
         mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();

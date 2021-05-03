@@ -1,6 +1,7 @@
 package com.sh.adm.controller.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sh.adm.ifs.discount.DiscountPolicy;
 import com.sh.adm.model.entity.*;
 import com.sh.adm.model.enumclass.*;
 import com.sh.adm.model.network.request.OrderGroupApiRequest;
@@ -31,7 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 //@AutoConfigureMockMvc
 class OrderGroupApiControllerTest {
 
-
     @Autowired
     ObjectMapper objectMapper;
 
@@ -50,6 +50,9 @@ class OrderGroupApiControllerTest {
     PartnerRepository partnerRepository;
     @Autowired
     CategoryRepository categoryRepository;
+
+    @Autowired
+    DiscountPolicy discountPolicy;
 
     private MockMvc mockMvc;
     private BigDecimal itemPrice = new BigDecimal(900000);
@@ -91,7 +94,7 @@ class OrderGroupApiControllerTest {
     }
 
     private User givenUser() {
-        return userRepository.save(User.of("test01", "pwd01", UserStatus.REGISTERED, "email@gmail.com", "010-1111-2222", null, LocalDateTime.now()));
+        return userRepository.save(User.of("test01", "pwd01", UserStatus.REGISTERED, "email@gmail.com", "010-1111-2222", null));
     }
 
     private int changeName = 1;
@@ -139,7 +142,7 @@ class OrderGroupApiControllerTest {
     private OrderGroup givenOrder(Item item, int itemOrderCount, String city, String street, String zipcode, String receiveName) {
         OrderGroupApiRequest request = requestOrderGroup(null, city, OrderType.ALL, PaymentType.CARD);
         OrderGroup orderGroup = OrderGroup.createOrderGroup(givenUser(), newOrderDetail(item, itemOrderCount));
-        orderGroup.createOrder(Delivery.of(request), request.getOrderType(), request.getPaymentType());
+        orderGroup.createOrder(Delivery.of(request), request.getOrderType(), request.getPaymentType(),discountPolicy);
         orderGroup.updateOrder(requestOrderGroup(1L,testCity, OrderType.ALL, PaymentType.CARD));
         return orderGroupRepository.save(orderGroup);
     }

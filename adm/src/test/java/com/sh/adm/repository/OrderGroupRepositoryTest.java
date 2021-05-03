@@ -66,7 +66,7 @@ public class OrderGroupRepositoryTest extends AdmApplicationTests {
 
 
     private User givenUser() {
-        return User.of("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222",null,LocalDateTime.now());
+        return User.of("test01", "pwd01", UserStatus.REGISTERED,"email@gmail.com" ,"010-1111-2222",null);
     }
 
     private Item givenItem(int quantity, Partner partner) {
