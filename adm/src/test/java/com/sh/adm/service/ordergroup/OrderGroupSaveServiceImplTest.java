@@ -77,7 +77,7 @@ class OrderGroupSaveServiceImplTest {
     @DisplayName("장바구니 담기 상품 예외 발생")
     void addToOrderDetailItemNotFoundExceptionTest() {
         OrderDetailApiRequest request = givenOrderDetailRequest(5);
-        when(itemRepository.findById(1L)).thenReturn(Optional.empty());
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.empty());
         assertThatExceptionOfType(ItemNotFoundException.class).isThrownBy(
                 () -> {
                     orderGroupSaveService.addToOrderDetail(request);
@@ -91,11 +91,12 @@ class OrderGroupSaveServiceImplTest {
     @ValueSource(ints = 5)
     void addToOrderDetailCreateOrderGroupTest(int orderCount) throws InterruptedException {
 //        Thread.sleep(1005L);
-        BigDecimal totalItemPriceInCartTest = itemPrice.multiply(BigDecimal.valueOf(orderCount));
+        BigDecimal totalItemPriceInCart = itemPrice.multiply(BigDecimal.valueOf(orderCount));
         Item item = givenItem(100, mock(Partner.class));
-        int totalItemQuantityInCartTest = item.getStockQuantity() - orderCount;
+        int totalItemQuantityInCart = item.getStockQuantity() - orderCount;
         OrderDetailApiRequest request = OrderDetailApiRequest.builder()
                 .id(1)
+                .orderStatus(OrderStatus.ORDERING)
                 .quantity(orderCount)
                 .totalPrice(itemPrice)
                 .userId(1L)
@@ -114,8 +115,8 @@ class OrderGroupSaveServiceImplTest {
         assertAll(
                 () -> assertEquals(orderGroupArgumentCaptor.getValue().getStatus(),OrderStatus.ORDERING,"OrderGroup 생성 확인"),
                 () -> assertEquals(orderDetailArgumentCaptor.getValue().getQuantity(),orderCount,"장바구니 상품 수량 확인"),
-                () -> assertEquals(orderDetailArgumentCaptor.getValue().getTotalPrice(),totalItemPriceInCartTest,"장바구니 상품 가격 확인"),
-                () -> assertEquals(orderDetailArgumentCaptor.getValue().getItem().getStockQuantity(),(totalItemQuantityInCartTest),"변경된 상품 제고 확인")
+                () -> assertEquals(orderDetailArgumentCaptor.getValue().getTotalPrice(),totalItemPriceInCart,"장바구니 상품 가격 확인"),
+                () -> assertEquals(orderDetailArgumentCaptor.getValue().getItem().getStockQuantity(),(totalItemQuantityInCart),"변경된 상품 제고 확인")
         );
         assertThrows(ItemNotFoundException.class,() ->
             itemRepository.findById(anyLong()),
@@ -132,7 +133,7 @@ class OrderGroupSaveServiceImplTest {
         OrderDetailApiRequest request = givenOrderDetailRequest(5);
 
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
-        when(orderDetailRepository.findByOrderGroupIdAndItemId(anyLong(), anyLong())).thenReturn(null);
+        when(orderDetailRepository.findByOrderGroupIdAndItemId(anyLong(), anyLong())).thenReturn(Optional.empty());
         when(orderGroupRepository.findById(anyLong()))
                 .thenReturn(Optional.of(mock(OrderGroup.class)))
                 .thenThrow( new OrderGroupNotFoundException());
@@ -154,7 +155,7 @@ class OrderGroupSaveServiceImplTest {
         OrderDetailApiRequest request = givenOrderDetailRequest(5);
 
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
-        when(orderDetailRepository.findByOrderGroupIdAndItemId(anyLong(), anyLong())).thenReturn(null);
+        when(orderDetailRepository.findByOrderGroupIdAndItemId(anyLong(), anyLong())).thenReturn(Optional.empty());
         when(orderGroupRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(OrderGroupNotFoundException.class).isThrownBy(
@@ -220,21 +221,21 @@ class OrderGroupSaveServiceImplTest {
         OrderDetail orderDetail = givenOrderDetail(3);  // 변경 전
         // when
         OrderDetailApiRequest request = givenOrderDetailRequest(5); // 변경 후
-        when(orderDetailRepository.findByOrderGroupIdAndItemId(1L,1L)).thenReturn(null);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(mock(Item.class)));
+        when(orderDetailRepository.findByOrderGroupIdAndItemId(anyLong(),anyLong())).thenReturn(Optional.empty());
 
-        assertThatExceptionOfType(OrderGroupNotFoundException.class)
+        assertThatExceptionOfType(OrderDetailNotFoundException.class)
                 .isThrownBy(() -> orderGroupSaveService.modifyOrderDetail(anyLong(),request))
-                .withMessage("장바구니에 상품이 없습니다.");
+                .withMessage("주문 할 상품 정보가 없습니다.");
     }
 
     @Test
-    @DisplayName("장바구니 내 상품 없을 때 예외 발생")
+    @DisplayName("장바구니 담기시 상품 없을 때 예외 발생")
     void updateCartItemNotFoundExceptionTest() {
         // given
         OrderDetail orderDetail = givenOrderDetail(3);  // 변경 전
         // when
         OrderDetailApiRequest request = givenOrderDetailRequest(5); // 변경 후
-        when(orderDetailRepository.findByOrderGroupIdAndItemId(anyLong(),anyLong())).thenReturn(Optional.of(orderDetail));
         when(itemRepository.findById(1L)).thenReturn(Optional.empty());
         // then
         assertThatExceptionOfType(ItemNotFoundException.class)
@@ -269,12 +270,13 @@ class OrderGroupSaveServiceImplTest {
     @DisplayName("장바구니 상품 삭제시 해당 상품 데이터 없는 예외 발생")
     void deleteCartOrderGroupNotFoundExceptionTest() {
         OrderDetailApiRequest request = givenOrderDetailRequest(5);
-        when(orderDetailRepository.findByOrderGroupIdAndItemId(1L,1L)).thenReturn(null);
+        when(orderDetailRepository.findByOrderGroupIdAndItemId(1L,1L)).thenReturn(Optional.empty());
         assertThatExceptionOfType(OrderDetailNotFoundException.class)
                 .isThrownBy(() -> {
                     orderGroupSaveService.deleteCart(request);
                 })
                 .withMessage("주문 할 상품 정보가 없습니다.");
+        verify(orderDetailRepository, never()).delete(any());
     }
 
     @Test
@@ -289,7 +291,7 @@ class OrderGroupSaveServiceImplTest {
         when(orderGroupRepository.findById(any()))
                 .thenReturn(Optional.of(orderGroup))
                 .thenThrow(new OrderGroupNotFoundException());
-        when(orderDetailRepository.findByOrderGroupId(1L)).thenReturn(Lists.newArrayList(orderDetail));
+        when(orderDetailRepository.findByOrderGroupId(anyLong())).thenReturn(Lists.newArrayList(orderDetail));
         when(discountPolicy.discount(orderGroup.getUser(), orderDetail.getTotalPrice()))
                 .thenReturn(orderDetail.getTotalPrice().divide(BigDecimal.TEN));
 
