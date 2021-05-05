@@ -3,6 +3,7 @@ package com.sh.adm.service.ordergroup;
 import com.sh.adm.FindSlowTestExtension;
 import com.sh.adm.exception.ItemNotFoundException;
 import com.sh.adm.exception.OrderGroupNotFoundException;
+import com.sh.adm.exception.UserNotFoundException;
 import com.sh.adm.exception.dto.OrderDetailNotFoundException;
 import com.sh.adm.ifs.discount.DiscountPolicy;
 import com.sh.adm.model.dto.Address;
@@ -83,7 +84,22 @@ class OrderGroupSaveServiceImplTest {
                     orderGroupSaveService.addToOrderDetail(request);
                 }
         ).withMessage("해당 상품이 없습니다.");
+        verify(itemRepository, times(1)).findById(anyLong());
+    }
 
+    @Test
+    @DisplayName("장바구니 담기시 사용자 에러 발생")
+    void addToOrderDetailUserNotFoundExceptionTest() {
+        OrderDetailApiRequest request = givenOrderDetailRequest(5);
+
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(mock(Item.class)));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () ->
+                        orderGroupSaveService.addToOrderDetail(request),
+                "OrderGroup내 주문중인 상태의 OrderGroupId 확인 전 사용자 확인 조회에서 에러 발생"
+        );
+        verify(userRepository, times(1)).findById(anyLong());
     }
 
     @ParameterizedTest
@@ -103,78 +119,62 @@ class OrderGroupSaveServiceImplTest {
                 .itemId(1L)
                 .build();
 
-        when(itemRepository.findById(anyLong()))
-                .thenReturn(Optional.of(item))
-                .thenThrow(new ItemNotFoundException());
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(mock(User.class)));
+        when(orderGroupRepository.findByStatusAndUserId(eq(OrderStatus.ORDERING), anyLong())).thenReturn(null);
 
         orderGroupSaveService.addToOrderDetail(request);
 
         verify(orderGroupRepository, times(1)).save(orderGroupArgumentCaptor.capture());
         verify(orderDetailRepository, times(1)).save(orderDetailArgumentCaptor.capture());
+        OrderDetail orderDetail = orderDetailArgumentCaptor.getValue();
+
         assertAll(
                 () -> assertEquals(orderGroupArgumentCaptor.getValue().getStatus(),OrderStatus.ORDERING,"OrderGroup 생성 확인"),
-                () -> assertEquals(orderDetailArgumentCaptor.getValue().getQuantity(),orderCount,"장바구니 상품 수량 확인"),
-                () -> assertEquals(orderDetailArgumentCaptor.getValue().getTotalPrice(),totalItemPriceInCart,"장바구니 상품 가격 확인"),
-                () -> assertEquals(orderDetailArgumentCaptor.getValue().getItem().getStockQuantity(),(totalItemQuantityInCart),"변경된 상품 제고 확인")
-        );
-        assertThrows(ItemNotFoundException.class,() ->
-            itemRepository.findById(anyLong()),
-                "첫 장바구니 담기시 요청 상품에 대한 정보 없어 예외 발생, itemRepository.find >> empty"
+                () -> assertEquals(orderDetail.getQuantity(),orderCount,"장바구니 상품 수량 확인"),
+                () -> assertEquals(orderDetail.getTotalPrice(),totalItemPriceInCart,"장바구니 상품 가격 확인"),
+                () -> assertEquals(orderDetail.getItem().getStockQuantity(),(totalItemQuantityInCart),"변경된 상품 제고 확인")
         );
     }
 
     @ParameterizedTest
-    @DisplayName("장바구니 내 새상품 담기/예외 확인")
+    @DisplayName("장바구니 내 새상품 담기")
     @ValueSource(ints = 5)
     void addToOrderDetailCreateOrderDetailTest(int orderCount) {
         Item item = givenItem(100, mock(Partner.class));
         int totalItemQuantityInCartTest = item.getStockQuantity()-orderCount;
+        BigDecimal itemPriceInCart = item.getPrice().multiply(BigDecimal.valueOf(orderCount));
         OrderDetailApiRequest request = givenOrderDetailRequest(5);
 
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
-        when(orderDetailRepository.findByOrderGroupIdAndItemId(anyLong(), anyLong())).thenReturn(Optional.empty());
-        when(orderGroupRepository.findById(anyLong()))
-                .thenReturn(Optional.of(mock(OrderGroup.class)))
-                .thenThrow( new OrderGroupNotFoundException());
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(mock(User.class)));
+        when(orderGroupRepository.findByStatusAndUserId(eq(OrderStatus.ORDERING),anyLong())).thenReturn(Arrays.asList(mock(OrderGroup.class)));
 
         orderGroupSaveService.addToOrderDetail(request);
 
-        assertEquals(item.getStockQuantity(),totalItemQuantityInCartTest);
-        assertThrows(OrderGroupNotFoundException.class,() ->
-            orderGroupRepository.findById(anyLong()),
-            "새상품 담기 위한 OrderGroupRepository 조회 결과 empty()로 예외 발생"
+        verify(orderDetailRepository).save(orderDetailArgumentCaptor.capture());
+        OrderDetail savedOrderDetail = orderDetailArgumentCaptor.getValue();
+        assertAll(
+                () -> assertEquals(item.getStockQuantity(), totalItemQuantityInCartTest),
+                () -> then(savedOrderDetail.getQuantity()).isEqualTo(orderCount),
+                () -> then(savedOrderDetail.getTotalPrice()).isEqualTo(itemPriceInCart)
         );
     }
 
     @Test
-    @DisplayName("장바구니 내 새상품 담기시 장바구니 예외 발생")
-    void addToOrderDetailCreateOrderDetailOrderGroupNotFoundExceptionTest() {
-        Partner mockPartner = mock(Partner.class);
-        Item item = givenItem(100, mockPartner);
-        OrderDetailApiRequest request = givenOrderDetailRequest(5);
-
-        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
-        when(orderDetailRepository.findByOrderGroupIdAndItemId(anyLong(), anyLong())).thenReturn(Optional.empty());
-        when(orderGroupRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        assertThatExceptionOfType(OrderGroupNotFoundException.class).isThrownBy(
-                () -> {
-                    orderGroupSaveService.addToOrderDetail(request);
-                }
-        ).withMessage("장바구니에 상품이 없습니다.");
-    }
-
-    @Test
-    @DisplayName("장바구니내 기존 상품 추가")
+    @DisplayName("장바구니에 기존 상품 추가")
     void addToOrderDetailModifyOrderDetailTest() {
         Partner mockPartner = mock(Partner.class);
         Item item = givenItem(100, mockPartner);
-        OrderDetailApiRequest request = givenOrderDetailRequest(3);
+        int quantity = 3;
+        OrderDetailApiRequest request = givenOrderDetailRequest(quantity);
         OrderDetail mockOrderDetail = mock(OrderDetail.class);
 
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
-        when(orderDetailRepository.findByOrderGroupIdAndItemId(anyLong(), anyLong())).thenReturn(Optional.ofNullable(mockOrderDetail));
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(mock(User.class)));
+        when(orderGroupRepository.findByStatusAndUserId(eq(OrderStatus.ORDERING), anyLong())).thenReturn(Arrays.asList(mock(OrderGroup.class)));
+        when(orderDetailRepository.findByOrderStatusAndItemId(eq(OrderStatus.ORDERING), anyLong())).thenReturn(Optional.of(mockOrderDetail));
+
         orderGroupSaveService.addToOrderDetail(request);
 
         verify(mockOrderDetail, times(1)).updateOrderDetail(item,request.getQuantity());

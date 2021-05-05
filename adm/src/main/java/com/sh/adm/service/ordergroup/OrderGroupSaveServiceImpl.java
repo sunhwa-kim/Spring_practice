@@ -40,46 +40,49 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
     @Override
     public void addToOrderDetail(OrderDetailApiRequest request) {
         Item item = itemRepository.findById(request.getItemId()).orElseThrow(ItemNotFoundException::new);
+        User user = userRepository.findById(request.getUserId()).orElseThrow(UserNotFoundException::new);
+        int quantity = request.getQuantity();
+
+        OrderGroup orderGroup = checkCartInOrderGroup(user);
         // 장바구니 생성
-        if (ObjectUtils.isEmpty(request.getOrderGroupId())){
-            OrderDetail orderDetail1 = OrderDetail.createOrderDetail(item, request.getQuantity());
-            User user = userRepository.findById(request.getUserId()).orElseThrow(UserNotFoundException::new);  // TODO Controller
-            orderGroupRepository.save(OrderGroup.createOrderGroup(user, orderDetail1));
-            OrderDetail getOrderDetail = orderDetailRepository.save(orderDetail1);
+        if (ObjectUtils.isEmpty(orderGroup)){
+            newCart(item, user, quantity);
         }
         else{ // 장바구니 내 상품 유/무
-            Optional<OrderDetail> orderDetail = orderDetailRepository.findByOrderGroupIdAndItemId(request.getOrderGroupId(), item.getId());
+            Optional<OrderDetail> orderDetail = checkOrderDetail(OrderStatus.ORDERING, item.getId());
             if(orderDetail.isEmpty()){
-                OrderGroup orderGroup = orderGroupRepository.findById(request.getOrderGroupId()).orElseThrow(OrderGroupNotFoundException::new);
-                OrderDetail newOrderDetail = OrderDetail.createOrderDetail(item, request.getQuantity());
-                newOrderDetail.setOrderGroup(orderGroup);
+                putInCart(item, orderGroup, quantity);
             }else{
-                orderDetail.get().updateOrderDetail(item, request.getQuantity());
+                orderDetail.get().updateOrderDetail(item, quantity);
             }
         }
     }
 
-    /**
-     *  code refacotoring addToOrderDetail()
-     *  2021.03.25
-     * @param request
-     * @return
-     */
+    private OrderGroup checkCartInOrderGroup(User user) {
+        List<OrderGroup> orderGroups = orderGroupRepository.findByStatusAndUserId(OrderStatus.ORDERING, user.getId());
+        if(ObjectUtils.isEmpty(orderGroups)) return null;
+        int size = orderGroups.size();
+        int latestOrderGroupIdx = 0;
+        for (int i = size-1; i>=1 ; i--) {
+            if(orderGroups.get(i).getUpdatedAt().isAfter(orderGroups.get(i-1).getUpdatedAt())){
+                latestOrderGroupIdx = (i-1);
+            }
+        }
+        return orderGroups.get(latestOrderGroupIdx);
+    }
 
-    @Override
-    public void newOrderGroup(OrderDetailApiRequest request) {
-        Item item = itemRepository.findById(request.getItemId()).orElseThrow(ItemNotFoundException::new);
-        User user = userRepository.findById(request.getUserId()).orElseThrow(UserNotFoundException::new);  // TODO Controller
-        OrderDetail orderDetail1 = OrderDetail.createOrderDetail(item, request.getQuantity());
+    @Transactional
+    private void newCart(Item item, User user, int quantity) {
+        OrderDetail orderDetail1 = OrderDetail.createOrderDetail(item, quantity);
         orderGroupRepository.save(OrderGroup.createOrderGroup(user, orderDetail1));
         orderDetailRepository.save(orderDetail1);
     }
-
-    @Override
-    public void newOrderDetail(OrderDetailApiRequest request) {
-        Item item = itemRepository.findById(request.getItemId()).orElseThrow(ItemNotFoundException::new);
-        OrderGroup orderGroup = orderGroupRepository.findById(request.getOrderGroupId()).orElseThrow(OrderGroupNotFoundException::new);
-        OrderDetail newOrderDetail = OrderDetail.createOrderDetail(item, request.getQuantity());
+    private Optional<OrderDetail> checkOrderDetail(OrderStatus ordering, Long id) {
+        return orderDetailRepository.findByOrderStatusAndItemId(ordering, id);
+    }
+    @Transactional
+    private void putInCart(Item item, OrderGroup orderGroup, int quantity) {
+        OrderDetail newOrderDetail = OrderDetail.createOrderDetail(item, quantity);
         newOrderDetail.setOrderGroup(orderGroup);
         orderDetailRepository.save(newOrderDetail);
     }

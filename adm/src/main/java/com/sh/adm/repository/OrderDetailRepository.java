@@ -1,6 +1,7 @@
 package com.sh.adm.repository;
 
 import com.sh.adm.model.entity.OrderDetail;
+import com.sh.adm.model.enumclass.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +18,5 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail,Long> {
 
     List<OrderDetail> findByOrderGroupIdOrderByItemIdAsc(Long id);   // 주문목록 상품 변경시
 
+    Optional<OrderDetail> findByOrderStatusAndItemId(OrderStatus status, Long itemId);
 }
