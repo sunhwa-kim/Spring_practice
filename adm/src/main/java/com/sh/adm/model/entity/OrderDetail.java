@@ -91,13 +91,15 @@ public class OrderDetail {
     }
 
     public void updateOrderDetail(Item item, int quantity) {
-        if( this.quantity != quantity ) {
-            int difference = Math.abs(quantity - this.quantity);
-            this.quantity = quantity;
-            this.detailTotalPrice();
-            if( this.quantity > quantity ) item.addStock(difference);
-            else item.outStock(difference);
+        int gap = quantity - this.quantity;
+        if(gap > 0){
+            item.outStock(gap);
         }
+        else if(gap <= 0){
+            item.addStock(gap*(-1));
+        }
+        this.quantity = quantity;
+        this.detailTotalPrice();
     }
 
     public void cancel() {
