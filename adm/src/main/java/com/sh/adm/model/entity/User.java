@@ -55,6 +55,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserGrade grade;
 
+    private Long point;
+
     private String email;
 
     @NotBlank
@@ -135,4 +137,7 @@ public class User {
         if( request.getBirthday() != null) this.birthday = Birthday.of(request.getBirthday());  // data type casting
     }
 
+    private void rewardPoint(Long point) {
+        this.point += point;
+    }
 }
