@@ -1,4 +1,4 @@
-package com.sh.adm.service.ordergroup;
+package com.sh.adm.service.api.ordergroup;
 
 import com.sh.adm.exception.ItemNotFoundException;
 import com.sh.adm.exception.OrderGroupNotFoundException;
@@ -15,12 +15,14 @@ import com.sh.adm.model.network.response.OrderDetailApiResponse;
 import com.sh.adm.model.network.response.OrderDetailListApiResponse;
 import com.sh.adm.model.network.response.OrderGroupApiResponse;
 import com.sh.adm.repository.*;
+import com.sh.adm.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -28,9 +30,10 @@ import java.util.stream.IntStream;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
+public class OrderGroupSaveServiceImpl implements OrderGroupSaveService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     private final OrderDetailRepository orderDetailRepository;
     private final OrderGroupRepository orderGroupRepository;
@@ -144,7 +147,12 @@ public class OrderGroupSaveServiceImpl implements OrderGroupSaveService{
             if (orderDetailList.size()==0) throw new OrderDetailNotFoundException();
             orderDetailList.forEach(OrderDetail::order);
             delivery = Delivery.of(body);
-            orderGroup.createOrder(delivery, body.getOrderType(), body.getPaymentType(), discountPolicy);
+
+            // 주문 시점 domain 한 군데 -> 서비스 별 해당 엔티티
+            orderGroup.createOrder(delivery, body.getOrderType(), body.getPaymentType());
+            BigDecimal getDiscountedPrice = orderGroup.orderDiscount(discountPolicy);
+            userService.point(orderGroup.getUser() , getDiscountedPrice);
+
             deliveryRepository.save(delivery);
         }
         // 주문 처리 후 응답

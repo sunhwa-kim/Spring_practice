@@ -1,4 +1,4 @@
-package com.sh.adm.service;
+package com.sh.adm.service.api;
 
 import com.sh.adm.model.entity.User;
 import com.sh.adm.model.enumclass.UserStatus;
@@ -6,6 +6,7 @@ import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.UserApiRequest;
 import com.sh.adm.model.network.response.UserApiResponse;
 import com.sh.adm.repository.UserRepository;
+import com.sh.adm.service.api.UserApiLogicService;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;

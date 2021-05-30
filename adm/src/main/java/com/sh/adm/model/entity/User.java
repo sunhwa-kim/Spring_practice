@@ -137,7 +137,7 @@ public class User {
         if( request.getBirthday() != null) this.birthday = Birthday.of(request.getBirthday());  // data type casting
     }
 
-    private void rewardPoint(Long point) {
+    public void rewardPoint(Long point) {
         this.point += point;
     }
 }

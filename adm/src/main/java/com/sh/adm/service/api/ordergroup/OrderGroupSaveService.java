@@ -1,4 +1,4 @@
-package com.sh.adm.service.ordergroup;
+package com.sh.adm.service.api.ordergroup;
 
 import com.sh.adm.exception.ItemNotFoundException;
 import com.sh.adm.exception.OrderGroupNotFoundException;

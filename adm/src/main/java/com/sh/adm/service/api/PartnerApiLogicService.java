@@ -1,4 +1,4 @@
-package com.sh.adm.service;
+package com.sh.adm.service.api;
 
 import com.sh.adm.ifs.CrudInterface;
 import com.sh.adm.model.entity.Category;

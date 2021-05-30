@@ -1,4 +1,4 @@
-package com.sh.adm.service.ordergroup;
+package com.sh.adm.service.api.ordergroup;
 
 import com.sh.adm.model.network.response.OrderGroupApiResponse;
 

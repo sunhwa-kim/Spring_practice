@@ -1,4 +1,4 @@
-package com.sh.adm.service.ordergroup;
+package com.sh.adm.service.api.ordergroup;
 
 import com.sh.adm.FindSlowTestExtension;
 import com.sh.adm.exception.ItemNotFoundException;
@@ -14,6 +14,8 @@ import com.sh.adm.model.network.request.OrderGroupApiRequest;
 import com.sh.adm.model.network.response.OrderDetailApiResponse;
 import com.sh.adm.model.network.response.OrderGroupApiResponse;
 import com.sh.adm.repository.*;
+import com.sh.adm.service.UserService;
+import com.sh.adm.service.api.ordergroup.OrderGroupSaveServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.DisplayName;
@@ -57,6 +59,8 @@ class OrderGroupSaveServiceImplTest {
     UserRepository userRepository;
     @Mock
     DeliveryRepository deliveryRepository;
+    @Mock
+    UserService userService;
 
     @Mock
     DiscountPolicy discountPolicy;
@@ -287,17 +291,21 @@ class OrderGroupSaveServiceImplTest {
         OrderDetail orderDetail = givenOrderDetail(orderCount);
         OrderGroup orderGroup = givenOrderGroup(null, orderDetail);
         OrderGroupApiRequest request = givenOrderGroupRequest(orderCount);
+        BigDecimal orderTotalPrice = orderDetail.getTotalPrice().divide(BigDecimal.TEN);
+        BigDecimal discountedTotalPrice = orderDetail.getTotalPrice().subtract(orderTotalPrice);
+
         // when
         when(orderGroupRepository.findById(any()))
                 .thenReturn(Optional.of(orderGroup))
                 .thenThrow(new OrderGroupNotFoundException());
         when(orderDetailRepository.findByOrderGroupId(anyLong())).thenReturn(Lists.newArrayList(orderDetail));
         when(discountPolicy.discount(orderGroup.getUser(), orderDetail.getTotalPrice()))
-                .thenReturn(orderDetail.getTotalPrice().divide(BigDecimal.TEN));
+                .thenReturn(orderTotalPrice);
 
-        OrderGroupApiResponse response = orderGroupSaveService.order(request);
         // then
+        OrderGroupApiResponse response = orderGroupSaveService.order(request);
         Address address = Address.of(request.getCity(), request.getStreet(), request.getZipcode());
+        verify(userService, times(1)).point(any(User.class), eq(discountedTotalPrice));
         verify(deliveryRepository, times(1)).save(deliveryArgumentCaptor.capture());
         assertAll(
                 () -> assertEquals(deliveryArgumentCaptor.getValue().getReceiveAddress(), address,"배송지 확인"),
@@ -364,7 +372,7 @@ class OrderGroupSaveServiceImplTest {
         // 주문
         when(discountPolicy.discount(orderGroup.getUser(), orderDetail.getTotalPrice()))
                 .thenReturn(BigDecimal.ZERO);  // User.Grade = BRONZE, rate of discount = 0;
-        orderGroup.createOrder(Delivery.of(givenOrderGroupRequest(5)), OrderType.ALL, PaymentType.BANK_TRANSFER, discountPolicy); // 서울시, 100, 12345
+        orderGroup.createOrder(Delivery.of(givenOrderGroupRequest(5)), OrderType.ALL, PaymentType.BANK_TRANSFER); // 서울시, 100, 12345
             // 주소 변경 요청
         OrderGroupApiRequest request = OrderGroupApiRequest.builder()
                 .id(1L)
@@ -398,7 +406,7 @@ class OrderGroupSaveServiceImplTest {
         OrderGroup orderGroup = givenOrderGroup(null,orderDetail);
         when(discountPolicy.discount(orderGroup.getUser(), orderDetail.getTotalPrice()))
                 .thenReturn(BigDecimal.ZERO);
-        orderGroup.createOrder(Delivery.of(givenOrderGroupRequest(5)), OrderType.ALL, PaymentType.BANK_TRANSFER, discountPolicy); // 서울시, 100, 12345
+        orderGroup.createOrder(Delivery.of(givenOrderGroupRequest(5)), OrderType.ALL, PaymentType.BANK_TRANSFER); // 서울시, 100, 12345
         when(orderGroupRepository.findById(any()))
                 .thenReturn(Optional.of(orderGroup))
                 .thenThrow(new OrderGroupNotFoundException());

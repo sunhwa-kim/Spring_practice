@@ -48,6 +48,8 @@ public class OrderGroup {
     private BigDecimal totalPrice;
 
     private Integer totalQuantity;
+    private BigDecimal discountAmount;
+    private BigDecimal discountTotalPrice;
 
     private LocalDateTime orderAt;
 
@@ -76,6 +78,7 @@ public class OrderGroup {
     @OneToMany(mappedBy = "orderGroup", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
+
     /*   양방향 관계 - 연관관계 편의 메서드   */
     public void setUser(User user) {
         this.user = user;
@@ -103,14 +106,14 @@ public class OrderGroup {
         return orderGroup;
     }
 
-    public void createOrder(Delivery delivery, OrderType orderType, PaymentType paymentType, DiscountPolicy discountPolicy) {
+    public void createOrder(Delivery delivery, OrderType orderType, PaymentType paymentType) {
         this.setDelivery(delivery);
 
         this.status = OrderStatus.CONFIRM;
         this.orderType = orderType;
         this.paymentType = paymentType;
         this.orderAt = LocalDateTime.now();
-        this.totalPrice = this.getTotalPrice(discountPolicy);
+        this.totalPrice = this.getTotalPrice();
         this.totalQuantity = this.getTotalQuantity();
     }
 
@@ -127,14 +130,17 @@ public class OrderGroup {
         });
     }
 
-    public BigDecimal getTotalPrice(DiscountPolicy discountPolicy) {
-        BigDecimal price = this.orderDetails.stream().map(OrderDetail::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal discount = discountPolicy.discount(this.user, price);
-        return price.subtract(discount);
+    public BigDecimal getTotalPrice() {
+        return this.orderDetails.stream().map(OrderDetail::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public int getTotalQuantity() {
         return this.orderDetails.stream().mapToInt(OrderDetail::getQuantity).sum();
     }
 
+    public BigDecimal orderDiscount(DiscountPolicy discountPolicy) {
+        this.discountAmount = discountPolicy.discount(this.user, this.totalPrice);
+        this.discountTotalPrice = this.totalPrice.subtract(this.discountAmount);
+        return this.discountTotalPrice;
+    }
 }

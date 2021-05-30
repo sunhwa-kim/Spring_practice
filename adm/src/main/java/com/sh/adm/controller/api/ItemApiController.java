@@ -4,7 +4,7 @@ import com.sh.adm.ifs.CrudInterface;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.ItemApiRequest;
 import com.sh.adm.model.network.response.ItemApiResponse;
-import com.sh.adm.service.ItemApiLogicService;
+import com.sh.adm.service.api.ItemApiLogicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

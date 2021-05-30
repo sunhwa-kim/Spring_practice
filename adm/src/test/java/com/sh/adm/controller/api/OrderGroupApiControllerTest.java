@@ -142,7 +142,7 @@ class OrderGroupApiControllerTest {
     private OrderGroup givenOrder(Item item, int itemOrderCount, String city, String street, String zipcode, String receiveName) {
         OrderGroupApiRequest request = requestOrderGroup(null, city, OrderType.ALL, PaymentType.CARD);
         OrderGroup orderGroup = OrderGroup.createOrderGroup(givenUser(), newOrderDetail(item, itemOrderCount));
-        orderGroup.createOrder(Delivery.of(request), request.getOrderType(), request.getPaymentType(),discountPolicy);
+        orderGroup.createOrder(Delivery.of(request), request.getOrderType(), request.getPaymentType());
         orderGroup.updateOrder(requestOrderGroup(1L,testCity, OrderType.ALL, PaymentType.CARD));
         return orderGroupRepository.save(orderGroup);
     }

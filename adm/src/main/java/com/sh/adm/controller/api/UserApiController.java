@@ -5,7 +5,7 @@ import com.sh.adm.ifs.CrudInterface;
 import com.sh.adm.model.network.Header;
 import com.sh.adm.model.network.request.UserApiRequest;
 import com.sh.adm.model.network.response.UserApiResponse;
-import com.sh.adm.service.UserApiLogicService;
+import com.sh.adm.service.api.UserApiLogicService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
