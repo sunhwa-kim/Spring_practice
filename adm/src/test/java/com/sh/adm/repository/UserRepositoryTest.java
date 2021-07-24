@@ -1,10 +1,11 @@
 package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
-import com.sh.adm.model.dto.Birthday;
-import com.sh.adm.model.entity.User;
-import com.sh.adm.model.enumclass.UserStatus;
-import com.sh.adm.model.network.request.UserApiRequest;
+import com.sh.adm.user.vo.Birthday;
+import com.sh.adm.user.entity.User;
+import com.sh.adm.user.enumclass.UserStatus;
+import com.sh.adm.user.dto.UserApiRequest;
+import com.sh.adm.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

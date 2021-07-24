@@ -1,7 +1,8 @@
 package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
-import com.sh.adm.model.entity.Partner;
+import com.sh.adm.partner.entity.Partner;
+import com.sh.adm.partner.repository.PartnerRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

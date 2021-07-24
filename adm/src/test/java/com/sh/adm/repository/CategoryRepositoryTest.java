@@ -1,14 +1,14 @@
 package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
-import com.sh.adm.model.entity.Category;
-import com.sh.adm.model.entity.Partner;
+import com.sh.adm.category.entity.Category;
+import com.sh.adm.category.repository.CategoryRepository;
+import com.sh.adm.partner.entity.Partner;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
-import java.util.Random;
 
 public class CategoryRepositoryTest extends AdmApplicationTests {
     @Autowired

@@ -1,6 +1,7 @@
 package com.sh.adm.repository;
 
-import com.sh.adm.model.entity.coupon.Coupon;
+import com.sh.adm.coupon.entity.Coupon;
+import com.sh.adm.coupon.repository.CouponRepository;
 import com.sh.adm.model.enumclass.DiscountRatio;
 import com.sh.adm.model.enumclass.IssueDetail;
 import org.junit.jupiter.api.Test;

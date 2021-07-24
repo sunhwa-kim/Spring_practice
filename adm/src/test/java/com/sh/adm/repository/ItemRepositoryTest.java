@@ -1,12 +1,14 @@
 package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
+import com.sh.adm.category.repository.CategoryRepository;
 import com.sh.adm.exception.NotEnoughStockException;
-import com.sh.adm.model.entity.Category;
-import com.sh.adm.model.entity.Item;
-import com.sh.adm.model.entity.Partner;
-import com.sh.adm.model.enumclass.ItemStatus;
-import org.junit.jupiter.api.Assertions;
+import com.sh.adm.item.repository.ItemRepository;
+import com.sh.adm.category.entity.Category;
+import com.sh.adm.item.entity.Item;
+import com.sh.adm.partner.entity.Partner;
+import com.sh.adm.item.enumclass.ItemStatus;
+import com.sh.adm.partner.repository.PartnerRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

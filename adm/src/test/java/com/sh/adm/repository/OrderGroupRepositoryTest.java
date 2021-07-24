@@ -1,9 +1,20 @@
 package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
-import com.sh.adm.model.entity.*;
-import com.sh.adm.model.enumclass.ItemStatus;
-import com.sh.adm.model.enumclass.UserStatus;
+import com.sh.adm.category.entity.Category;
+import com.sh.adm.category.repository.CategoryRepository;
+import com.sh.adm.item.entity.Item;
+import com.sh.adm.item.repository.ItemRepository;
+import com.sh.adm.item.enumclass.ItemStatus;
+import com.sh.adm.orderdetail.entity.OrderDetail;
+import com.sh.adm.orderdetail.repository.OrderDetailRepository;
+import com.sh.adm.ordergroup.entity.OrderGroup;
+import com.sh.adm.ordergroup.repository.OrderGroupRepository;
+import com.sh.adm.partner.entity.Partner;
+import com.sh.adm.partner.repository.PartnerRepository;
+import com.sh.adm.user.enumclass.UserStatus;
+import com.sh.adm.user.entity.User;
+import com.sh.adm.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
