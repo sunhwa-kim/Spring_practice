@@ -17,15 +17,16 @@ public class UserApiResponse {
 
     private String account;
 
-    private String password;
-
     private String status;
 
     private String email;
 
     private String phoneNumber;
 
+    private String birthday;
+
     private LocalDateTime registeredAt;
 
     private LocalDateTime unregisteredAt;
+
 }

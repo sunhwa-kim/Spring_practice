@@ -7,6 +7,7 @@ import com.sh.adm.model.network.Header;
 import com.sh.adm.user.dto.UserApiRequest;
 import com.sh.adm.user.dto.UserApiResponse;
 import com.sh.adm.user.repository.UserRepository;
+import com.sh.adm.utils.date.DatePattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -70,9 +71,9 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
         UserApiRequest userApiRequest = request.getData();
         validateEqualsAccount(userApiRequest.getId(), userApiRequest.getAccount());
         return userRepository.findById(userApiRequest.getId())
-                .map(entity -> {
-                    entity.userUpdate(userApiRequest);
-                    return entity;
+                .map(user -> {
+                    user.personalInfoUpdate(userApiRequest);
+                    return user;
                 })
                 .map(this::response)
                 .map(Header::OK)
@@ -83,8 +84,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     public Header<UserApiResponse> update(Long id, String password) {
         return userRepository.findById(id)
                 .map(user -> {
-                    if(user.getPassword().equals(password)) throw new RuntimeException("Cannot change to the same password");
-                    user.setPassword(password);
+                    user.updatePassword(password);
                     return user;
                 })
                 .map(this::response)
@@ -97,7 +97,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     public Header delete(Long id) {
         return userRepository.findById(id)
                 .map(entity -> {
-                    entity.deledtedAccount(LocalDateTime.now(), UserStatus.UNREGISTERED, true);
+                    entity.deledtedAccount();
 //                    userRepository.save(entity);
                     return Header.OK();
                 }).orElseGet(() -> error("No data exited"));
@@ -132,17 +132,17 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     private UserApiResponse response(User user) {
         // save ine response's date and send response data
         String getStatus = user.getStatus().getTitle();
+        String birthday = new DatePattern(user.getBirthday().birthdayToLocalDate()).yearMonthDay();
         UserApiResponse userApiResponse = UserApiResponse.builder()
                 .id(user.getId())
                 .account(user.getAccount())
-                .password(user.getPassword())
                 .status(getStatus)
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
+                .birthday(birthday)
                 .registeredAt(user.getRegisteredAt())
                 .unregisteredAt(user.getUnregisteredAt())
                 .build();
-
         return userApiResponse;
 //        return Header.OK(userApiResponse);
     }

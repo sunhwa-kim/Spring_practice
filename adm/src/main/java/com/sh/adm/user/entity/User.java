@@ -93,18 +93,6 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Coupon> coupons = new ArrayList<>();
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
     public void setOrderGroupList(OrderGroup orderGroup) {
         this.orderGroupList.add(orderGroup);
     }
@@ -127,18 +115,22 @@ public class User {
         return user;
     }
 
-    public void deledtedAccount(LocalDateTime unregisteredAt, UserStatus status, boolean deleted) {
-        this.unregisteredAt = unregisteredAt;
-        this.status = status;
-        this.deleted = deleted;
+    public void deledtedAccount() {
+        this.unregisteredAt = LocalDateTime.now();
+        this.status = UserStatus.UNREGISTERED;
+        this.deleted = true;
     }
 
-    public void userUpdate(UserApiRequest request) {
+    public void personalInfoUpdate(UserApiRequest request) {
         if( !ObjectUtils.isEmpty(request.getStatus()) ) this.status = request.getStatus();
         if( request.getBirthday() != null) this.birthday = Birthday.of(request.getBirthday());  // data type casting
     }
 
     public void rewardPoint(Long point) {
         this.point += point;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
     }
 }

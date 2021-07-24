@@ -123,12 +123,8 @@ class UserApiControllerTest {
     void deletedUsersTest() throws Exception {
         mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
 //        LongStream.range(0,2).forEach(i->userRepository.findAll().stream().filter(user -> user.getId()==i).map(user -> user.setDeleted(true)) );  // error
-        userRepository.findById(1L).ifPresent(user -> {
-            user.deledtedAccount(LocalDateTime.now(),UserStatus.UNREGISTERED,true);
-        });
-        userRepository.findById(2L).ifPresent(user -> {
-            user.deledtedAccount(LocalDateTime.now(),UserStatus.UNREGISTERED,true);
-        });
+        userRepository.findById(1L).ifPresent(User::deledtedAccount);
+        userRepository.findById(2L).ifPresent(User::deledtedAccount);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/user/deleted_users"))
                 .andDo(print())

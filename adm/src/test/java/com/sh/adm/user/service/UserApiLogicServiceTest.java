@@ -50,7 +50,6 @@ class UserApiLogicServiceTest {
         verify(userRepository,times(1)).save(any(User.class));
         assertAll(
                 () -> then(userApiResponse.getData().getAccount()).isEqualTo(test),
-                () -> then(userApiResponse.getData().getPassword()).isEqualTo(password),
                 () -> then(userApiResponse.getData().getStatus()).isEqualTo(testStatus.getTitle()),
                 () -> then(userApiResponse.getData().getEmail()).isEqualTo(email),
                 () -> then(userApiResponse.getData().getPhoneNumber()).isEqualTo(phontNumber),
@@ -75,7 +74,6 @@ class UserApiLogicServiceTest {
         Header<UserApiResponse> userApiResponse = userApiLogicService.read(1L);
         assertAll(
                 () -> then(userApiResponse.getData().getAccount()).isEqualTo(test),
-                () -> then(userApiResponse.getData().getPassword()).isEqualTo(password),
                 () -> then(userApiResponse.getData().getStatus()).isEqualTo(testStatus.getTitle()),
                 () -> then(userApiResponse.getData().getEmail()).isEqualTo(email),
                 () -> then(userApiResponse.getData().getPhoneNumber()).isEqualTo(phontNumber)
@@ -121,7 +119,6 @@ class UserApiLogicServiceTest {
         Header<UserApiResponse> userApiResponse = userApiLogicService.update(givenUserInfo(1L, test, password, changed));
         assertAll(
                 () -> then(userApiResponse.getData().getAccount()).isEqualTo(test),
-                () -> then(userApiResponse.getData().getPassword()).isEqualTo(password),
                 () -> then(userApiResponse.getData().getStatus()).isEqualTo(changed.getTitle()),
                 () -> then(userApiResponse.getData().getEmail()).isEqualTo(email),
                 () -> then(userApiResponse.getData().getPhoneNumber()).isEqualTo(phontNumber)
@@ -145,7 +142,6 @@ class UserApiLogicServiceTest {
         Header<UserApiResponse> responseHeader = userApiLogicService.update(1L, changePwd);
         assertAll(
                 () -> then(responseHeader.getData().getAccount()).isEqualTo(test),
-                () -> then(responseHeader.getData().getPassword()).isEqualTo(changePwd),
                 () -> then(responseHeader.getData().getStatus()).isEqualTo(testStatus.getTitle()),
                 () -> then(responseHeader.getData().getEmail()).isEqualTo(email),
                 () -> then(responseHeader.getData().getPhoneNumber()).isEqualTo(phontNumber)

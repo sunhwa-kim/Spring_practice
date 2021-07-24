@@ -26,4 +26,8 @@ public class Birthday {
     public static Birthday of(LocalDate birthday) {
         return new Birthday(birthday);
     }
+
+    public LocalDate birthdayToLocalDate(){
+        return LocalDate.of(this.yearOfBirthday, this.monthOfBirthday, this.dayOfBirthday);
+    }
 }

@@ -80,7 +80,7 @@ class UserRepositoryTest extends AdmApplicationTests {
           recognizing individual information can't update normally : password, email, phoneNumber
          */
         userRepository.findById(1L).ifPresent(modUser -> {
-            modUser.userUpdate(
+            modUser.personalInfoUpdate(
                     UserApiRequest.of(null,null,"notChanged",null,"Don'tChange@gmail.com","can'tChange", LocalDate.of(2000,1,1),null,null));
         });
 
@@ -111,7 +111,7 @@ class UserRepositoryTest extends AdmApplicationTests {
         LocalDateTime testTime = LocalDateTime.now();
         userRepository.findById(1L)
                 .map(user -> {
-                    user.deledtedAccount(testTime, UserStatus.UNREGISTERED, true);
+                    user.deledtedAccount();
                     return user;
                 }).orElseThrow(()-> new RuntimeException("UserRepositoryTest - delete test 중 에러"));
         then(userRepository.findByAccount(account).size()).isEqualTo(0);
