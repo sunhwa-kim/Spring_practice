@@ -1,12 +1,14 @@
-package com.sh.adm.repository;
+package com.sh.adm.user.repository;
 
 import com.sh.adm.AdmApplicationTests;
 import com.sh.adm.user.vo.Birthday;
-import com.sh.adm.user.entity.User;
+import com.sh.adm.user.model.entity.User;
 import com.sh.adm.user.enumclass.UserStatus;
-import com.sh.adm.user.dto.UserApiRequest;
+import com.sh.adm.user.model.dto.UserApiRequest;
 import com.sh.adm.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.BDDAssertions.then;
@@ -28,19 +31,35 @@ class UserRepositoryTest extends AdmApplicationTests {
     @Autowired
     UserRepository userRepository;
 
+    private User user;
     private String account = "test100";
     private String password = "pwd1111";
     private UserStatus status = UserStatus.REGISTERED;
     private String email = "email@gmail.com";
     private String phoneNumber = "010-1000-1000";
 
+    @BeforeEach
+    void beforeEach() {
+        user = User.of(account, password, status, email, phoneNumber, "20200101");
+        userRepository.save(user);
+    }
+
+    @AfterEach
+    void afterEach() {
+        userRepository.deleteAll();
+    }
+
+    @Test
+    @DisplayName("사용자 계정 조회")
+    void readOne() {
+        Optional<User> byAccount = userRepository.findByAccount(account);
+        System.out.println(byAccount.toString());
+    }
+
     @Test
     void read(){
-        // given
-        userRepository.save(createUser());
-
         // when
-        List<User> findUser = userRepository.findByAccount(account);
+        List<User> findUser = userRepository.findAll();
         log.info("user test >> {}",findUser);
         // then
         assertAll(
@@ -59,10 +78,10 @@ class UserRepositoryTest extends AdmApplicationTests {
         // given
         String message = "이미 존재하는 계정입니다.";
         // when
-        long userCount = userRepository.findByAccount(account).size();
+        Boolean userCount = userRepository.existsByAccount(account);
 
         //then
-        if (userCount > 0) {
+        if (userCount) {
             assertThatThrownBy(() -> {
                 throw new IllegalStateException(message);
             }).isInstanceOf(IllegalStateException.class)
@@ -72,8 +91,6 @@ class UserRepositoryTest extends AdmApplicationTests {
 
     @Test
     void update(){
-        // given
-        userRepository.save(createUser());
         // when
         /*
           never changed info : account (Same as Login ID)
@@ -81,7 +98,7 @@ class UserRepositoryTest extends AdmApplicationTests {
          */
         userRepository.findById(1L).ifPresent(modUser -> {
             modUser.personalInfoUpdate(
-                    UserApiRequest.of(null,null,"notChanged",null,"Don'tChange@gmail.com","can'tChange", LocalDate.of(2000,1,1),null,null));
+                    new UserApiRequest(null,null,"notChanged",null,"Don'tChange@gmail.com","can'tChange", "20000101",null,null));
         });
 
         userRepository.findById(1L).ifPresent(user -> {
@@ -92,7 +109,7 @@ class UserRepositoryTest extends AdmApplicationTests {
                     () -> then(user.getStatus()).isEqualTo(status),
                     () -> then(user.getEmail()).isEqualTo(email),
                     () -> then(user.getPhoneNumber()).isEqualTo(phoneNumber),
-                    () -> then(user.getBirthday()).isEqualTo(Birthday.of(LocalDate.of(2000,1,1))),
+                    () -> then(user.getBirthday()).isEqualTo(Birthday.of("20200101")),
                     () -> then(user.isDeleted()).isFalse()
             );
         });
@@ -106,15 +123,13 @@ class UserRepositoryTest extends AdmApplicationTests {
     @DisplayName("삭제 및 삭제목록 확인")
     @Transactional
     void delete(){
-        userRepository.save(createUser());
-
         LocalDateTime testTime = LocalDateTime.now();
         userRepository.findById(1L)
                 .map(user -> {
                     user.deledtedAccount();
                     return user;
                 }).orElseThrow(()-> new RuntimeException("UserRepositoryTest - delete test 중 에러"));
-        then(userRepository.findByAccount(account).size()).isEqualTo(0);
+        then(userRepository.existsByAccount(account)).isTrue();
 
         List<User> userDeleted = userRepository.findUserDeleted();
         assertAll(
@@ -131,10 +146,9 @@ class UserRepositoryTest extends AdmApplicationTests {
     @Transactional
     @DisplayName("생일 월별 조회")
     void findMonthOfBithday() {
-        User user1 = User.of("test2", "1234pwd", UserStatus.REGISTERED, "email", "phone", LocalDate.of(1900, 8, 8));
-        User user2 = User.of("test3", "1234pwd", UserStatus.REGISTERED, "email", "phone", LocalDate.of(1800, 1, 20));
+        User user1 = User.of("test2", "1234pwd", UserStatus.REGISTERED, "email", "phone", "19990101");
+        User user2 = User.of("test3", "1234pwd", UserStatus.REGISTERED, "email", "phone", "19880101");
 
-        userRepository.save(createUser());
         userRepository.save(user1);
         userRepository.save(user2);
 
@@ -142,7 +156,4 @@ class UserRepositoryTest extends AdmApplicationTests {
         then(userRepository.findByMonthOfBirthday(1).size()).isEqualTo(2);
     }
 
-    private User createUser() {
-        return User.of(account, password, status, email, phoneNumber,LocalDate.of(2000,1,1));
-    }
 }

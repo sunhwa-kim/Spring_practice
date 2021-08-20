@@ -1,7 +1,7 @@
 package com.sh.adm.ordergroup.service;
 
-import com.sh.adm.ordergroup.entity.OrderGroup;
-import com.sh.adm.ordergroup.dto.OrderGroupApiResponse;
+import com.sh.adm.ordergroup.model.entity.OrderGroup;
+import com.sh.adm.ordergroup.model.dto.OrderGroupApiResponse;
 import com.sh.adm.ordergroup.repository.OrderGroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

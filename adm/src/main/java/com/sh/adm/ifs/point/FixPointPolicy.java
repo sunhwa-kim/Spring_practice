@@ -1,6 +1,6 @@
 package com.sh.adm.ifs.point;
 
-import com.sh.adm.user.entity.User;
+import com.sh.adm.user.model.entity.User;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

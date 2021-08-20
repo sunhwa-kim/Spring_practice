@@ -2,11 +2,10 @@ package com.sh.adm.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sh.adm.user.controller.UserApiController;
-import com.sh.adm.user.entity.User;
+import com.sh.adm.user.model.entity.User;
 import com.sh.adm.user.enumclass.UserStatus;
-import com.sh.adm.model.network.Header;
-import com.sh.adm.user.dto.UserApiRequest;
+import com.sh.adm.user.model.network.Header;
+import com.sh.adm.user.model.dto.UserApiRequest;
 import com.sh.adm.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +23,6 @@ import javax.transaction.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.BDDAssertions.then;
@@ -56,7 +54,7 @@ class UserApiControllerTest {
     @Test
     @DisplayName("회원 정보 변경")
     void update() throws Exception {
-        UserApiRequest request = UserApiRequest.of(1L, "test01", "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111", LocalDate.of(2000,1,1),null,null);
+        UserApiRequest request = new UserApiRequest(1L, "test01", "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111", "20000101",null,null);
 
         mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
         mockMvc.perform(MockMvcRequestBuilders.put("/api/user")
@@ -75,7 +73,7 @@ class UserApiControllerTest {
     @DisplayName("회원명 변경 예외 확인")
     void update_account_exception() {
         String test = "notChanged";
-        UserApiRequest request =  UserApiRequest.of(1L, test, "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111",LocalDate.of(2000,1,1),null,null);
+        UserApiRequest request =  new UserApiRequest(1L, test, "1234", UserStatus.UNREGISTERED, "email", "010-1111-1111","2000101",null,null);
 
         mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
         assertThatExceptionOfType(NestedServletException.class)
@@ -93,7 +91,7 @@ class UserApiControllerTest {
     void modify() throws Exception {
         // given
         String test = "010-modified";
-        User user = User.of("test", "pwd", UserStatus.REGISTERED, "email", "phoneNumber", LocalDate.of(2000, 1, 1));
+        User user = User.of("test", "pwd", UserStatus.REGISTERED, "email", "phoneNumber", "202001010");
         userRepository.save(user);
         // when
         mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();

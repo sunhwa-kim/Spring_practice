@@ -2,7 +2,7 @@ package com.sh.adm.repository;
 
 import com.sh.adm.AdmApplicationTests;
 import com.sh.adm.admin.repository.AdminUserRepository;
-import com.sh.adm.admin.entity.AdminUser;
+import com.sh.adm.admin.model.entity.AdminUser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

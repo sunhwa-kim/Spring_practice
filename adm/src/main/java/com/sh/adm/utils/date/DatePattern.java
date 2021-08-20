@@ -11,6 +11,7 @@ public class DatePattern implements DateFormatter{
     private String localDateTime;
 
     public DatePattern(LocalDate localDate) {
+        System.out.println(localDate.toString());
         this.localDate = this.localDateFormat(localDate);
     }
 

@@ -2,7 +2,7 @@ package com.sh.adm.item.service;
 
 import com.sh.adm.ifs.CrudInterface;
 import com.sh.adm.item.entity.Item;
-import com.sh.adm.model.network.Header;
+import com.sh.adm.user.model.network.Header;
 import com.sh.adm.item.dto.ItemApiRequest;
 import com.sh.adm.item.dto.ItemApiResponse;
 import com.sh.adm.item.repository.ItemRepository;

@@ -1,6 +1,6 @@
 package com.sh.adm.orderdetail.dto;
 
-import com.sh.adm.model.network.request.OrderItem;
+import com.sh.adm.user.model.network.request.OrderItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

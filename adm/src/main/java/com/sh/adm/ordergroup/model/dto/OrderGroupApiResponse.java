@@ -1,4 +1,4 @@
-package com.sh.adm.ordergroup.dto;
+package com.sh.adm.ordergroup.model.dto;
 
 import com.sh.adm.user.vo.Address;
 import com.sh.adm.deliverry.entity.Delivery;

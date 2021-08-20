@@ -1,10 +1,9 @@
 package com.sh.adm.orderdetail.controller;
 
 import com.sh.adm.item.exception.ItemNotFoundException;
-import com.sh.adm.ordergroup.exception.OrderGroupNotFoundException;
 import com.sh.adm.exception.dto.ErrorResponse;
 import com.sh.adm.orderdetail.exception.OrderDetailNotFoundException;
-import com.sh.adm.model.network.SimpleResponse;
+import com.sh.adm.user.model.network.SimpleResponse;
 import com.sh.adm.orderdetail.dto.OrderDetailApiRequest;
 import com.sh.adm.orderdetail.dto.OrderDetailApiResponse;
 import com.sh.adm.orderdetail.service.OrderDetailService;

@@ -1,4 +1,4 @@
-package com.sh.adm.user.dto;
+package com.sh.adm.user.model.dto;
 
 import lombok.*;
 

@@ -1,9 +1,7 @@
-package com.sh.adm.model.enumclass;
+package com.sh.adm.ordergroup.model.enumclass;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.math.BigDecimal;
 
 @Getter
 @AllArgsConstructor

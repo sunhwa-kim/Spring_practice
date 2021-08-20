@@ -1,4 +1,4 @@
-package com.sh.adm.admin.entity;
+package com.sh.adm.admin.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

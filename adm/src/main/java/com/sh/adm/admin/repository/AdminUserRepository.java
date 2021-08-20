@@ -1,6 +1,6 @@
 package com.sh.adm.admin.repository;
 
-import com.sh.adm.admin.entity.AdminUser;
+import com.sh.adm.admin.model.entity.AdminUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

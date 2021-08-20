@@ -1,4 +1,4 @@
-package com.sh.adm.model.enumclass;
+package com.sh.adm.coupon.model;
 
 
 import lombok.AllArgsConstructor;

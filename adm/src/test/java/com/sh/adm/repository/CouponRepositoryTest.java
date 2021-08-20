@@ -1,9 +1,9 @@
 package com.sh.adm.repository;
 
-import com.sh.adm.coupon.entity.Coupon;
+import com.sh.adm.coupon.model.entity.Coupon;
 import com.sh.adm.coupon.repository.CouponRepository;
-import com.sh.adm.model.enumclass.DiscountRatio;
-import com.sh.adm.model.enumclass.IssueDetail;
+import com.sh.adm.ordergroup.model.enumclass.DiscountRatio;
+import com.sh.adm.coupon.model.IssueDetail;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

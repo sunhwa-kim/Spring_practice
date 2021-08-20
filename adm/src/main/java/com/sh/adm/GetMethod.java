@@ -1,7 +1,7 @@
 package com.sh.adm;
 
-import com.sh.adm.model.SearchParameter;
-import com.sh.adm.model.network.Header;
+import com.sh.adm.admin.model.SearchParameter;
+import com.sh.adm.user.model.network.Header;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;

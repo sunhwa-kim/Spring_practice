@@ -1,8 +1,9 @@
-package com.sh.adm.ifs.discount;
+package com.sh.adm.ordergroup.ifs;
 
-import com.sh.adm.user.entity.User;
-import com.sh.adm.model.enumclass.DiscountRatio;
+import com.sh.adm.user.model.entity.User;
+import com.sh.adm.ordergroup.model.enumclass.DiscountRatio;
 import com.sh.adm.user.enumclass.UserGrade;
+import com.sh.adm.user.model.enumclazz.UserGrade;
 
 import java.math.BigDecimal;
 

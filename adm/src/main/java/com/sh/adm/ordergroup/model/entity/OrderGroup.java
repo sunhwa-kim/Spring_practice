@@ -1,4 +1,4 @@
-package com.sh.adm.ordergroup.entity;
+package com.sh.adm.ordergroup.model.entity;
 
 import com.sh.adm.exception.NotPermittedChageOrder;
 import com.sh.adm.ifs.discount.DiscountPolicy;
@@ -9,8 +9,8 @@ import com.sh.adm.deliverry.enumclass.DeliveryStatus;
 import com.sh.adm.ordergroup.enumclass.OrderStatus;
 import com.sh.adm.ordergroup.enumclass.OrderType;
 import com.sh.adm.ordergroup.enumclass.PaymentType;
-import com.sh.adm.ordergroup.dto.OrderGroupApiRequest;
-import com.sh.adm.user.entity.User;
+import com.sh.adm.ordergroup.model.dto.OrderGroupApiRequest;
+import com.sh.adm.user.model.entity.User;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;

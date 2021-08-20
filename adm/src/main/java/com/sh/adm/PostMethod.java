@@ -1,7 +1,6 @@
 package com.sh.adm;
 
-import com.sh.adm.model.SearchParameter;
-import org.springframework.web.bind.annotation.PostMapping;
+import com.sh.adm.admin.model.SearchParameter;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -1,7 +1,8 @@
-package com.sh.adm.user.entity;
+package com.sh.adm.user.model.entity;
 
-import com.sh.adm.user.dto.UserApiRequest;
+import com.sh.adm.user.model.dto.UserApiRequest;
 import com.sh.adm.user.enumclass.UserStatus;
+import com.sh.adm.user.vo.Birthday;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,7 @@ class UserTest {
     private final UserStatus userStatus = UserStatus.REGISTERED;
     private final String email = "emailSH@email.com";
     private final String phoneNumber = "010-1111-2222";
-    private final LocalDate birthday = LocalDate.now();
+    private final String birthday = "20200101";
 
     private User user = User.of(nickname, password, userStatus, email, phoneNumber, birthday);
 
@@ -32,15 +33,16 @@ class UserTest {
     @Test
     @DisplayName("사용자 정보 변경 테스트")
     void userInformationUpdateTest() {
-        LocalDate testChangeBirthday = LocalDate.now().minusYears(1);
+        String testChangeBirthday = "19990101";
         UserApiRequest request = new UserApiRequest();
         request.setStatus(null);
         request.setBirthday(testChangeBirthday);
 
         user.personalInfoUpdate(request);
 
+        LocalDate expected = Birthday.of(testChangeBirthday).getLocalDate();
         assertNotNull(user.getStatus());
-        assertEquals(user.getBirthday().birthdayToLocalDate(), testChangeBirthday);
+        assertEquals(user.getBirthday().getLocalDate().toString(), expected.toString());
     }
 
     @Test

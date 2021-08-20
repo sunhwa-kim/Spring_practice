@@ -1,4 +1,4 @@
-package com.sh.adm.model.network.request;
+package com.sh.adm.user.model.network.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

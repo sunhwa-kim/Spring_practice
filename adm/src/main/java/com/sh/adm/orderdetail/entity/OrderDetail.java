@@ -1,7 +1,7 @@
 package com.sh.adm.orderdetail.entity;
 
 import com.sh.adm.item.entity.Item;
-import com.sh.adm.ordergroup.entity.OrderGroup;
+import com.sh.adm.ordergroup.model.entity.OrderGroup;
 import com.sh.adm.ordergroup.enumclass.OrderStatus;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;

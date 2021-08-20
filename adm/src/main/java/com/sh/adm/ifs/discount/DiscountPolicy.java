@@ -1,6 +1,6 @@
-package com.sh.adm.ifs.discount;
+package com.sh.adm.ordergroup.ifs;
 
-import com.sh.adm.user.entity.User;
+import com.sh.adm.user.model.entity.User;
 
 import java.math.BigDecimal;
 

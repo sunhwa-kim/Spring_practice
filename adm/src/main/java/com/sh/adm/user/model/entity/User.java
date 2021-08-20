@@ -1,12 +1,12 @@
-package com.sh.adm.user.entity;
+package com.sh.adm.user.model.entity;
 
 import com.sh.adm.user.vo.Address;
 import com.sh.adm.user.vo.Birthday;
-import com.sh.adm.ordergroup.entity.OrderGroup;
-import com.sh.adm.coupon.entity.Coupon;
+import com.sh.adm.ordergroup.model.entity.OrderGroup;
+import com.sh.adm.coupon.model.entity.Coupon;
 import com.sh.adm.user.enumclass.UserGrade;
 import com.sh.adm.user.enumclass.UserStatus;
-import com.sh.adm.user.dto.UserApiRequest;
+import com.sh.adm.user.model.dto.UserApiRequest;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.ColumnDefault;
@@ -102,7 +102,7 @@ public class User {
         coupon.setUser(this);
     }
 
-    public static User of(@NotBlank String account, @NotBlank String password, UserStatus status, String email, @NotBlank String phoneNumber, LocalDate birthday) {
+    public static User of(@NotBlank String account, @NotBlank String password, UserStatus status, String email, @NotBlank String phoneNumber, String birthday) {
         User user = new User();
         user.account = account;
         user.password = password;
@@ -126,6 +126,9 @@ public class User {
         if( request.getBirthday() != null) this.birthday = Birthday.of(request.getBirthday());  // data type casting
     }
 
+    public void updateIdWhenTest(Long id){
+        this.id = id;
+    }
     public void rewardPoint(Long point) {
         this.point += point;
     }

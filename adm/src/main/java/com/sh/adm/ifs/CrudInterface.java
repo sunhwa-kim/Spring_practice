@@ -1,6 +1,6 @@
-package com.sh.adm.ifs;
+package com.sh.adm.common.ifs;
 
-import com.sh.adm.model.network.Header;
+import com.sh.adm.user.model.network.Header;
 
 public interface CrudInterface<Request, Response> {
     // controller 마다 CRUD 반복 -> Ifs / CrudInterface

@@ -1,11 +1,10 @@
 package com.sh.adm.user.service;
 
 import com.sh.adm.ifs.CrudInterface;
-import com.sh.adm.user.entity.User;
-import com.sh.adm.user.enumclass.UserStatus;
-import com.sh.adm.model.network.Header;
-import com.sh.adm.user.dto.UserApiRequest;
-import com.sh.adm.user.dto.UserApiResponse;
+import com.sh.adm.user.model.entity.User;
+import com.sh.adm.user.model.network.Header;
+import com.sh.adm.user.model.dto.UserApiRequest;
+import com.sh.adm.user.model.dto.UserApiResponse;
 import com.sh.adm.user.repository.UserRepository;
 import com.sh.adm.utils.date.DatePattern;
 import lombok.RequiredArgsConstructor;
@@ -15,17 +14,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.sh.adm.model.network.Header.error;
+import static com.sh.adm.user.model.network.Header.error;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class UserApiLogicService implements CrudInterface<UserApiRequest, UserApiResponse> {
+public class UserApiLogicService{
 
     private final UserRepository userRepository;
 
@@ -45,17 +43,14 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
         return Header.OK(res);
     }
 
-    @Override
     @Transactional
-    public Header<UserApiResponse> create(Header<UserApiRequest> request) {
-        UserApiRequest userApiRequest = request.getData();
+    public Header<UserApiResponse> create(UserApiRequest userApiRequest) {
         vaildateDupplicatedAccount(userApiRequest.getAccount());
         User user = User.of(userApiRequest.getAccount(), userApiRequest.getPassword(), userApiRequest.getStatus(), userApiRequest.getEmail(), userApiRequest.getPhoneNumber(),userApiRequest.getBirthday());
         User newUser = userRepository.save(user);  // createdAt 등은 @EnableJpaAuditing
-        return Header.OK(response(user));
+        return Header.OK(response(newUser));
     }
 
-    @Override
     @Transactional(readOnly = true)
     public Header<UserApiResponse> read(Long id) {
         return userRepository.findById(id)
@@ -64,11 +59,9 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
                 .orElseGet(() -> error("The id dose not existed"));
     }
 
-    @Override
     @Transactional
-    public Header<UserApiResponse> update(Header<UserApiRequest> request) {
+    public Header<UserApiResponse> update(UserApiRequest userApiRequest) {
         // id -> data -> change data(req) -> update
-        UserApiRequest userApiRequest = request.getData();
         validateEqualsAccount(userApiRequest.getId(), userApiRequest.getAccount());
         return userRepository.findById(userApiRequest.getId())
                 .map(user -> {
@@ -92,7 +85,6 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
                 .orElseGet(() -> error("No data existed"));
     }
 
-    @Override
     @Transactional
     public Header delete(Long id) {
         return userRepository.findById(id)
@@ -117,8 +109,7 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
 
     // response 중복 -> response()
     private void vaildateDupplicatedAccount(String account) {
-        int getCount = userRepository.findByAccount(account).size();
-        if (getCount > 0) {
+        if (userRepository.existsByAccount(account)) {
             throw new IllegalStateException("The account already exists");
         }
     }
@@ -132,7 +123,8 @@ public class UserApiLogicService implements CrudInterface<UserApiRequest, UserAp
     private UserApiResponse response(User user) {
         // save ine response's date and send response data
         String getStatus = user.getStatus().getTitle();
-        String birthday = new DatePattern(user.getBirthday().birthdayToLocalDate()).yearMonthDay();
+        System.out.println(user.toString());
+        String birthday = new DatePattern(user.getBirthday().getLocalDate()).yearMonthDay();
         UserApiResponse userApiResponse = UserApiResponse.builder()
                 .id(user.getId())
                 .account(user.getAccount())

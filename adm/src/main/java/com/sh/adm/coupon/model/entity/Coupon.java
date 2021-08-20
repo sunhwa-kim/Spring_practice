@@ -1,8 +1,8 @@
-package com.sh.adm.coupon.entity;
+package com.sh.adm.coupon.model.entity;
 
-import com.sh.adm.user.entity.User;
-import com.sh.adm.model.enumclass.DiscountRatio;
-import com.sh.adm.model.enumclass.IssueDetail;
+import com.sh.adm.user.model.entity.User;
+import com.sh.adm.ordergroup.model.enumclass.DiscountRatio;
+import com.sh.adm.coupon.model.IssueDetail;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Where;

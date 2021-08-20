@@ -1,8 +1,7 @@
-package com.sh.adm.model.network;
+package com.sh.adm.user.model.network;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor

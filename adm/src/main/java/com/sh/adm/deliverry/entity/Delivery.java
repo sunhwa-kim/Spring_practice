@@ -1,9 +1,9 @@
 package com.sh.adm.deliverry.entity;
 
-import com.sh.adm.ordergroup.entity.OrderGroup;
+import com.sh.adm.ordergroup.model.entity.OrderGroup;
 import com.sh.adm.user.vo.Address;
 import com.sh.adm.deliverry.enumclass.DeliveryStatus;
-import com.sh.adm.ordergroup.dto.OrderGroupApiRequest;
+import com.sh.adm.ordergroup.model.dto.OrderGroupApiRequest;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

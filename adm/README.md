@@ -1,4 +1,10 @@
 # for shopping mall
+
+
+
+**now restructuring and refactoring**
+
+
 ### 개발 환경
 * OS : Windows
 * IDE : Intellij
@@ -12,34 +18,37 @@
 ### 빌드
 * gradle
 
-----
+---
+### code refactoring
 
-> # Getting Started
-
-### Reference Documentation
-For further reference, please consider the following sections:
-
-* [Official Gradle documentation](https://docs.gradle.org)
-* [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.3.6.RELEASE/gradle-plugin/reference/html/)
-* [Create an OCI image](https://docs.spring.io/spring-boot/docs/2.3.6.RELEASE/gradle-plugin/reference/html/#build-image)
-* [Spring Web](https://docs.spring.io/spring-boot/docs/2.4.0/reference/htmlsingle/#boot-features-developing-web-applications)
-* [Spring Data JPA](https://docs.spring.io/spring-boot/docs/2.4.0/reference/htmlsingle/#boot-features-jpa-and-spring-data)
-* [Spring Boot DevTools](https://docs.spring.io/spring-boot/docs/2.4.0/reference/htmlsingle/#using-boot-devtools)
-
-### Guides
-The following guides illustrate how to use some features concretely:
-
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/bookmarks/)
-* [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
-* [Accessing data with MySQL](https://spring.io/guides/gs/accessing-data-mysql/)
-
-### Additional Links
-These additional references should also help you:
-
-* [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)
-
-### Business Logic
-These updated or added funtion or used example
-* User's account is like as member's name, so you can't change your account.
+* **함수의 매개변수를 어떻게 줄여볼까?**
+    1. 객체로 전달
+        * 일일이 하나씩 리팩토링?
+        * 점진적 리팩토링은 초보인 나에게 의미 있지만, 공통의 객체로 묶을 수 있을까?
+			* 객체에 매개변수로 객체 전달은 캡슐화에 맞지 않다.
+        
+    2. **Service 레이어의 매개변수들은 모두 Repository를 향한다.**
+        * 역할 분리?
+        * entity의 변경은 entity가 담당
+          * 메서드별 분리 될, JPA 별도의 트랜잭션 범위 할당하지 않아도 되는 장점이 보였다.
+        * Service는 요청에 따라 DB로부터 entity 전달/전송 역할만
+    
+    * RESULT   [[ git_ history ]](https://github.com/sunhwa-kim/Spring_practice/commit/3174337c4a8f274ad92a6fc8f4bd258034167580#diff-4ee76a5028fb660885ee8bb8bf120e3c26181968969b36db96aaceafd9947d93)
+    
+        * 람다의 간편화
+           ```java
+                userRepository.findById(1L).ifPresent(user -> {
+                    user.deledtedAccount(LocalDateTime.now(),UserStatus.UNREGISTERED,true);
+                });
+          
+            ```
+            ```java
+                userRepository.findById(1L).ifPresent(User::deledtedAccount);
+            ```
+        * entity 값 변화에 대한 매개변수 삭제 
+            ```java
+                entity.deledtedAccount(LocalDateTime.now(), UserStatus.UNREGISTERED, true);
+            ```
+            ```java
+                entity.deledtedAccount();
+            ```

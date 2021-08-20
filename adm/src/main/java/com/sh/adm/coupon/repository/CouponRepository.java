@@ -1,6 +1,6 @@
 package com.sh.adm.coupon.repository;
 
-import com.sh.adm.coupon.entity.Coupon;
+import com.sh.adm.coupon.model.entity.Coupon;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

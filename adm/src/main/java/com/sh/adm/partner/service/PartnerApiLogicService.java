@@ -2,7 +2,7 @@ package com.sh.adm.partner.service;
 
 import com.sh.adm.ifs.CrudInterface;
 import com.sh.adm.partner.entity.Partner;
-import com.sh.adm.model.network.Header;
+import com.sh.adm.user.model.network.Header;
 import com.sh.adm.partner.dto.PartnerApiRequest;
 import com.sh.adm.partner.dto.PartnerApiResponse;
 import com.sh.adm.category.repository.CategoryRepository;

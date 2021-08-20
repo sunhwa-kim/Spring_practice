@@ -1,4 +1,4 @@
-package com.sh.adm.ordergroup.dto;
+package com.sh.adm.ordergroup.model.dto;
 
 import com.sh.adm.ordergroup.enumclass.OrderStatus;
 import com.sh.adm.ordergroup.enumclass.OrderType;

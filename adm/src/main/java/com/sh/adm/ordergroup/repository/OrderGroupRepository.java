@@ -1,6 +1,6 @@
 package com.sh.adm.ordergroup.repository;
 
-import com.sh.adm.ordergroup.entity.OrderGroup;
+import com.sh.adm.ordergroup.model.entity.OrderGroup;
 import com.sh.adm.ordergroup.enumclass.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
