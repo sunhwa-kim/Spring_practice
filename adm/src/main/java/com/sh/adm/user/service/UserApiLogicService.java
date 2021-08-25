@@ -1,8 +1,7 @@
 package com.sh.adm.user.service;
 
-import com.sh.adm.ifs.CrudInterface;
+import com.sh.adm.common.model.packet.Header;
 import com.sh.adm.user.model.entity.User;
-import com.sh.adm.user.model.network.Header;
 import com.sh.adm.user.model.dto.UserApiRequest;
 import com.sh.adm.user.model.dto.UserApiResponse;
 import com.sh.adm.user.repository.UserRepository;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.sh.adm.user.model.network.Header.error;
+import static com.sh.adm.common.model.packet.Header.error;
 
 @Slf4j
 @RequiredArgsConstructor

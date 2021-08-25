@@ -1,7 +1,7 @@
 package com.sh.adm.item.controller;
 
-import com.sh.adm.ifs.CrudInterface;
-import com.sh.adm.user.model.network.Header;
+import com.sh.adm.common.ifs.CrudInterface;
+import com.sh.adm.common.model.packet.Header;
 import com.sh.adm.item.dto.ItemApiRequest;
 import com.sh.adm.item.dto.ItemApiResponse;
 import com.sh.adm.item.service.ItemApiLogicService;
@@ -35,6 +35,6 @@ public class ItemApiController implements CrudInterface<ItemApiRequest, ItemApiR
 
     @Override
     public Header delete(Long id) {
-        return null;
+        return Header.OK();
     }
 }

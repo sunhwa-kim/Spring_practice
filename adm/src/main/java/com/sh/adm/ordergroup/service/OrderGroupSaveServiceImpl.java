@@ -2,11 +2,11 @@ package com.sh.adm.ordergroup.service;
 
 import com.sh.adm.deliverry.entity.Delivery;
 import com.sh.adm.deliverry.repository.DeliveryRepository;
+import com.sh.adm.common.policy.discount.DiscountPolicy;
 import com.sh.adm.ordergroup.exception.OrderGroupNotFoundException;
 import com.sh.adm.orderdetail.entity.OrderDetail;
 import com.sh.adm.orderdetail.repository.OrderDetailRepository;
 import com.sh.adm.orderdetail.exception.OrderDetailNotFoundException;
-import com.sh.adm.ifs.discount.DiscountPolicy;
 import com.sh.adm.ordergroup.enumclass.OrderStatus;
 import com.sh.adm.orderdetail.dto.OrderDetailListApiRequest;
 import com.sh.adm.ordergroup.model.dto.OrderGroupApiRequest;

@@ -1,20 +1,17 @@
 package com.sh.adm.user.service;
 
+import com.sh.adm.common.model.packet.Header;
 import com.sh.adm.user.model.entity.User;
 import com.sh.adm.user.enumclass.UserStatus;
-import com.sh.adm.user.model.network.Header;
 import com.sh.adm.user.model.dto.UserApiRequest;
 import com.sh.adm.user.model.dto.UserApiResponse;
 import com.sh.adm.user.repository.UserRepository;
-import com.sh.adm.user.vo.Birthday;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 

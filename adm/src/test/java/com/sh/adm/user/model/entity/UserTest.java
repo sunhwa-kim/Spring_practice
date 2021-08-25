@@ -21,6 +21,7 @@ class UserTest {
 
     private User user = User.of(nickname, password, userStatus, email, phoneNumber, birthday);
 
+
     @Test
     @DisplayName("비밀번호 변경")
     void updatePasswordTest() {

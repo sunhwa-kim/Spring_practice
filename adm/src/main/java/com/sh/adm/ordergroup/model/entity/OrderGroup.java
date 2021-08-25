@@ -1,8 +1,8 @@
 package com.sh.adm.ordergroup.model.entity;
 
 import com.sh.adm.exception.NotPermittedChageOrder;
-import com.sh.adm.ifs.discount.DiscountPolicy;
 import com.sh.adm.deliverry.entity.Delivery;
+import com.sh.adm.common.policy.discount.DiscountPolicy;
 import com.sh.adm.orderdetail.entity.OrderDetail;
 import com.sh.adm.user.vo.Address;
 import com.sh.adm.deliverry.enumclass.DeliveryStatus;

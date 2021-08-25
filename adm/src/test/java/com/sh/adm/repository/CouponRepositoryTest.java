@@ -1,9 +1,10 @@
 package com.sh.adm.repository;
 
-import com.sh.adm.coupon.model.entity.Coupon;
-import com.sh.adm.coupon.repository.CouponRepository;
+import com.sh.adm.common.policy.coupon.model.Coupon;
+import com.sh.adm.common.policy.coupon.model.IssueDetail;
+import com.sh.adm.common.policy.coupon.repository.CouponRepository;
 import com.sh.adm.ordergroup.model.enumclass.DiscountRatio;
-import com.sh.adm.coupon.model.IssueDetail;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +27,7 @@ class CouponRepositoryTest {
     CouponRepository couponRepository;
 
     @Test
+    @Disabled
     void post() {
         Coupon coupon = Coupon.createCoupon("가입 쿠폰", LocalDate.now(), LocalDate.now().plusDays(14), DiscountRatio.FIVE, BigDecimal.valueOf(10000), "회원 가입 기본 지급 쿠폰", IssueDetail.ISSUEEVENT);
         couponRepository.save(coupon);
@@ -43,6 +45,7 @@ class CouponRepositoryTest {
     }
 
     @Test
+    @Disabled
     void postOfBirthday() {
         LocalDate start = LocalDate.of(2021, 2, 1);
         Coupon coupon = Coupon.birthdayCoupon(start, 100);

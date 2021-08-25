@@ -1,4 +1,4 @@
-package com.sh.adm.ordergroup.ifs;
+package com.sh.adm.common.policy.discount;
 
 import com.sh.adm.user.model.entity.User;
 
