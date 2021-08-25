@@ -1,4 +1,4 @@
-package com.sh.adm.config;
+package com.sh.adm.common.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

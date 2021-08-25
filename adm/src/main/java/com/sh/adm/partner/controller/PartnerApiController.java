@@ -1,7 +1,7 @@
 package com.sh.adm.partner.controller;
 
-import com.sh.adm.ifs.CrudInterface;
-import com.sh.adm.user.model.network.Header;
+import com.sh.adm.common.ifs.CrudInterface;
+import com.sh.adm.common.model.packet.Header;
 import com.sh.adm.partner.dto.PartnerApiRequest;
 import com.sh.adm.partner.dto.PartnerApiResponse;
 import com.sh.adm.partner.service.PartnerApiLogicService;

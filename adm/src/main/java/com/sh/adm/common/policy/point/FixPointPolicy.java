@@ -1,4 +1,4 @@
-package com.sh.adm.ifs.point;
+package com.sh.adm.common.policy.point;
 
 import com.sh.adm.user.model.entity.User;
 

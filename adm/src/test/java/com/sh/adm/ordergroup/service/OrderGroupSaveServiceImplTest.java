@@ -15,7 +15,7 @@ import com.sh.adm.ordergroup.enumclass.OrderType;
 import com.sh.adm.ordergroup.enumclass.PaymentType;
 import com.sh.adm.ordergroup.repository.OrderGroupRepository;
 import com.sh.adm.partner.entity.Partner;
-import com.sh.adm.ifs.discount.DiscountPolicy;
+import com.sh.adm.common.policy.discount.DiscountPolicy;
 import com.sh.adm.user.vo.Address;
 import com.sh.adm.ordergroup.model.dto.OrderGroupApiRequest;
 import com.sh.adm.ordergroup.model.dto.OrderGroupApiResponse;

@@ -3,7 +3,6 @@ package com.sh.adm.user.model.entity;
 import com.sh.adm.user.vo.Address;
 import com.sh.adm.user.vo.Birthday;
 import com.sh.adm.ordergroup.model.entity.OrderGroup;
-import com.sh.adm.coupon.model.entity.Coupon;
 import com.sh.adm.user.enumclass.UserGrade;
 import com.sh.adm.user.enumclass.UserStatus;
 import com.sh.adm.user.model.dto.UserApiRequest;
@@ -20,7 +19,6 @@ import org.springframework.util.ObjectUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +26,7 @@ import java.util.List;
 //@Table(name = "User")   // 동일시 자동 맵핑
 @Getter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
@@ -89,28 +87,21 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<OrderGroup> orderGroupList = new ArrayList<>();
 
-    @ToString.Exclude
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<Coupon> coupons = new ArrayList<>();
 
     public void setOrderGroupList(OrderGroup orderGroup) {
         this.orderGroupList.add(orderGroup);
     }
 
-    public void setCoupons(Coupon coupon) {
-        this.coupons.add(coupon);
-        coupon.setUser(this);
-    }
 
     public static User of(@NotBlank String account, @NotBlank String password, UserStatus status, String email, @NotBlank String phoneNumber, String birthday) {
         User user = new User();
         user.account = account;
         user.password = password;
-        if( !ObjectUtils.isEmpty(status) ) user.status = status;
+        user.status = status;
         user.grade = UserGrade.BRONZE;
-        if( !ObjectUtils.isEmpty(email) ) user.email = email;
+        user.email = email;
         user.phoneNumber = phoneNumber;
-        if( !ObjectUtils.isEmpty(birthday) ) user.birthday = Birthday.of(birthday);
+        user.birthday = Birthday.of(birthday);
         user.registeredAt = LocalDateTime.now();
         return user;
     }

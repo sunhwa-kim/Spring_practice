@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sh.adm.category.entity.Category;
 import com.sh.adm.category.repository.CategoryRepository;
 import com.sh.adm.deliverry.entity.Delivery;
-import com.sh.adm.ifs.discount.DiscountPolicy;
+import com.sh.adm.common.policy.discount.DiscountPolicy;
 import com.sh.adm.item.entity.Item;
 import com.sh.adm.item.enumclass.ItemStatus;
 import com.sh.adm.item.repository.ItemRepository;

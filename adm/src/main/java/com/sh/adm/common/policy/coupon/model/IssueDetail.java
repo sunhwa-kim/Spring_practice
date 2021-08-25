@@ -1,11 +1,8 @@
-package com.sh.adm.coupon.model;
+package com.sh.adm.common.policy.coupon.model;
 
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import javax.persistence.Embeddable;
 
 @Getter
 @AllArgsConstructor

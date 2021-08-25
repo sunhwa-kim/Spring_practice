@@ -1,4 +1,4 @@
-package com.sh.adm.component;
+package com.sh.adm.common.component;
 
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;

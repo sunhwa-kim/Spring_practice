@@ -2,9 +2,9 @@ package com.sh.adm.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sh.adm.common.model.packet.Header;
 import com.sh.adm.user.model.entity.User;
 import com.sh.adm.user.enumclass.UserStatus;
-import com.sh.adm.user.model.network.Header;
 import com.sh.adm.user.model.dto.UserApiRequest;
 import com.sh.adm.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +22,6 @@ import org.springframework.web.util.NestedServletException;
 import javax.transaction.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.BDDAssertions.then;

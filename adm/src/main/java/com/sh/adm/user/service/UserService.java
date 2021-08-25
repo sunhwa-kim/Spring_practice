@@ -1,7 +1,7 @@
 package com.sh.adm.user.service;
 
 import com.sh.adm.user.exception.UserNotFoundException;
-import com.sh.adm.ifs.point.PointPolicy;
+import com.sh.adm.common.policy.point.PointPolicy;
 import com.sh.adm.user.model.entity.User;
 import com.sh.adm.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

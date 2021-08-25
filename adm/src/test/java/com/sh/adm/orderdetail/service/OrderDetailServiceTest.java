@@ -71,13 +71,15 @@ class OrderDetailServiceTest {
     @DisplayName("장바구니 담기 상품 예외 발생")
     void addToOrderDetailItemNotFoundExceptionTest() {
         OrderDetailApiRequest request = givenOrderDetailRequest(5);
+
         when(itemRepository.findById(anyLong())).thenReturn(Optional.empty());
+        verify(itemRepository, times(1)).findById(anyLong());
+
         assertThatExceptionOfType(ItemNotFoundException.class).isThrownBy(
                 () -> {
                     orderDetailService.addToOrderDetail(request);
                 }
         ).withMessage("해당 상품이 없습니다.");
-        verify(itemRepository, times(1)).findById(anyLong());
     }
 
     @Test
@@ -276,13 +278,13 @@ class OrderDetailServiceTest {
     // Request
     private OrderDetailApiRequest givenOrderDetailRequest(int quantity) {
         return OrderDetailApiRequest.builder()
-                .id(1)
+                .id(anyInt())
                 .orderStatus(OrderStatus.ORDERING)
                 .quantity(quantity)
                 .totalPrice(itemPrice.multiply(BigDecimal.valueOf(quantity)))
-                .userId(1L)
-                .orderGroupId(1L)
-                .itemId(1L)
+                .userId(anyLong())
+                .orderGroupId(anyLong())
+                .itemId(anyLong())
                 .build();
     }
 

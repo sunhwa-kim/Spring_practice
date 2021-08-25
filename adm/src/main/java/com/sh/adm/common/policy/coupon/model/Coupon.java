@@ -1,8 +1,7 @@
-package com.sh.adm.coupon.model.entity;
+package com.sh.adm.common.policy.coupon.model;
 
-import com.sh.adm.user.model.entity.User;
 import com.sh.adm.ordergroup.model.enumclass.DiscountRatio;
-import com.sh.adm.coupon.model.IssueDetail;
+import com.sh.adm.user.model.entity.User;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Where;
@@ -22,13 +21,12 @@ import java.time.YearMonth;
 
 @Getter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(of="id")
 @NoArgsConstructor
 @Where(clause = "blocked = false")
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 public class Coupon {
-
     @Id
     @Column(name = "coupon_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
