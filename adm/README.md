@@ -2,9 +2,21 @@
 
 
 
-**now restructuring and refactoring**
+** 2021.09.  restructuring and refactoring** <br>
+[주문 API - private ](https://github.com/sunhwa-kim/order)
 
+  * layer architecture 기반의 Spring MSA 개발
+  * 이전 프로젝트 보다 transaction 범위 짧게 리팩토링, JPA의 OSIV 개선 
+  * -ing
+  * 기존 프로젝트에 DI 추가 : apache.common.lang
+  * SpringBoot 2.5.4 최신
 
+ <br>
+ 
+---
+
+ <br>
+ 
 ### 개발 환경
 * OS : Windows
 * IDE : Intellij
