@@ -34,8 +34,6 @@ Spring Boot<br>Spring Security<br>JDK 11<br>JPA<br>H2DB<br>
 ### FE
 tymeleaf<br>boot-strap<br>jQueyr<br>Ajax
 
-### FE 라이브러리
-jdenticon<br>font-awesome<br>cropper.js<br>tagify
 
 ### API
 * 회원가입,로그인 
